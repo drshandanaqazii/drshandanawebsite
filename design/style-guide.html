@@ -1,0 +1,908 @@
+<title>Shandana Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap">
+
+<style>
+/* =========================================================================
+   Shandana Design System — specimen sheet.
+   Deliberately single-theme: this is a bone-paper brand, and a colour
+   reference has to be shown on its own ground to be true. Every colour is
+   painted explicitly so the page holds on any host background.
+   ========================================================================= */
+
+:root {
+  --paper:      #F6F3EE;
+  --paper-deep: #EDE8E0;
+  --surface:    #FFFFFF;
+  --hairline:   #E2DCD3;
+
+  --ink:        #191C1A;
+  --ink-body:   #5F6360;
+  --ink-muted:  #6C6F69;
+  --ink-on-dark:#EEF2EF;
+
+  --forest-900: #1F3A34;
+  --forest-800: #294A43;
+  --forest-600: #3D655C;
+  --forest-50:  #E8EEEA;
+
+  --wash-sage:  #DCE6DF;
+  --wash-sand:  #EFE4D6;
+
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --fs-display-xl: clamp(2.75rem, 6.2vw, 5.25rem);
+  --fs-display-lg: clamp(2.25rem, 4.6vw, 4rem);
+  --fs-display-md: clamp(1.875rem, 3.2vw, 2.75rem);
+  --fs-card-title: clamp(1.375rem, 1.8vw, 1.625rem);
+  --fs-eyebrow:    clamp(1.1875rem, 1.5vw, 1.375rem);
+
+  --ls-label: 0.18em;
+
+  --r-pill: 999px;
+  --r-card: 20px;
+  --r-media: 14px;
+  --r-arch: 999px 999px 0 0;
+
+  --shadow-card: 0 8px 28px rgba(25, 28, 26, .06);
+  --shadow-nav:  0 6px 24px rgba(25, 28, 26, .08);
+
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: 400ms;
+  --dur-fast: 200ms;
+
+  --page: 1080px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink-body);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--forest-600);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- shared primitives (mirrors tokens.css) ---------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--page);
+  margin-inline: auto;
+  padding-inline: 32px;
+}
+
+.display-xl, .display-lg, .display-md, .card-title, .eyebrow-serif {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+  text-wrap: balance;
+}
+.display-xl { font-size: var(--fs-display-xl); line-height: 1.02; letter-spacing: -.02em; }
+.display-lg { font-size: var(--fs-display-lg); line-height: 1.05; letter-spacing: -.02em; }
+.display-md { font-size: var(--fs-display-md); line-height: 1.1;  letter-spacing: -.01em; }
+.card-title { font-size: var(--fs-card-title); line-height: 1.2;  letter-spacing: -.01em; }
+.eyebrow-serif { font-size: var(--fs-eyebrow); line-height: 1.4; }
+:where(.display-xl, .display-lg, .display-md) em { font-style: italic; }
+:where(.card-title, .eyebrow-serif) em { font-style: normal; }
+
+.label {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin: 0;
+}
+
+.credential {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-body);
+}
+
+.body-sm { font-size: 14px; line-height: 1.65; }
+.mono-ish { font-variant-numeric: tabular-nums; }
+
+p { margin: 0; }
+.prose { max-width: 62ch; }
+
+/* ---------- page structure ---------- */
+
+.masthead {
+  background:
+    radial-gradient(60% 60% at 0% 20%,  var(--wash-sage) 0%, transparent 64%),
+    radial-gradient(58% 52% at 100% 0%, var(--wash-sand) 0%, transparent 62%),
+    var(--paper);
+  padding-block: 72px 88px;
+  border-bottom: 1px solid var(--hairline);
+}
+.masthead__inner { display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+.masthead .prose { margin-top: 4px; }
+
+.markline { display: flex; align-items: center; gap: 12px; }
+
+.band {
+  padding-block: 88px;
+  border-bottom: 1px solid var(--hairline);
+}
+.band--deep { background: var(--paper-deep); }
+.band__head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+
+/* ---------- swatch deck ---------- */
+
+.deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 2px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-media);
+  overflow: hidden;
+}
+.chip { background: var(--surface); display: flex; flex-direction: column; }
+.chip__fill { height: 128px; border-bottom: 1px solid rgba(25,28,26,.06); }
+.chip__meta { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 3px; }
+.chip__hex { font-size: 13px; color: var(--ink); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.chip__use { font-size: 12.5px; line-height: 1.45; color: var(--ink-body); }
+.chip__ratio {
+  margin-top: 6px;
+  font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--forest-600);
+}
+
+/* ---------- wash demo ---------- */
+
+.washdemo {
+  height: 220px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-media);
+  background:
+    radial-gradient(60% 50% at 0% 18%,  var(--wash-sage) 0%, transparent 62%),
+    radial-gradient(55% 45% at 100% 4%, var(--wash-sand) 0%, transparent 60%),
+    var(--paper);
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- type specimen ---------- */
+
+.spec { display: flex; flex-direction: column; }
+.spec__row {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 32px;
+  align-items: baseline;
+  padding-block: 26px;
+  border-top: 1px solid var(--hairline);
+}
+.spec__row:last-child { border-bottom: 1px solid var(--hairline); }
+.spec__key { display: flex; flex-direction: column; gap: 4px; }
+.spec__key code {
+  font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+  color: var(--ink); letter-spacing: .01em;
+}
+.spec__key span { font-size: 11.5px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.spec__sample { min-width: 0; }
+
+.pullquote {
+  margin-top: 44px;
+  padding: 32px 36px;
+  background: var(--surface);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+/* ---------- components ---------- */
+
+.compgrid { display: flex; flex-direction: column; gap: 56px; }
+.comp { display: flex; flex-direction: column; gap: 18px; }
+.comp__label { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.comp__note { font-size: 13px; color: var(--ink-muted); }
+
+.nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  min-height: 64px;
+  padding: 8px 8px 8px 24px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-nav);
+}
+.nav__links { display: flex; align-items: center; gap: 22px; }
+.nav__links a {
+  display: inline-flex; align-items: center; gap: 5px;
+  min-height: 44px;
+  font-size: 14px; color: var(--ink); text-decoration: none;
+}
+.nav__mark { display: flex; align-items: center; gap: 8px; }
+.nav__word { font-family: var(--font-display); font-size: 20px; color: var(--ink); letter-spacing: -.01em; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 16px;
+  min-height: 44px;
+  padding: 6px 6px 6px 26px;
+  border: 0; border-radius: var(--r-pill);
+  background: var(--forest-900);
+  color: #fff;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+  text-decoration: none; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+.btn:hover { background: var(--forest-600); }
+.btn__arrow {
+  display: grid; place-items: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #fff; color: var(--forest-900);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.btn:hover .btn__arrow { transform: rotate(45deg); }
+.btn--ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--hairline); }
+.btn--ghost:hover { background: var(--surface); }
+.btn--ghost .btn__arrow { background: var(--forest-900); color: #fff; }
+
+.icon-btn {
+  display: grid; place-items: center;
+  width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: var(--forest-900); color: #fff; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.icon-btn:hover { background: var(--forest-600); transform: translateY(-1px); }
+
+.icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
+.icon--sm { width: 14px; height: 14px; }
+.icon--lg { width: 32px; height: 32px; }
+
+.icon-disc {
+  display: grid; place-items: center;
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--forest-50); color: var(--forest-900);
+}
+
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.row4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+.row2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 64px; }
+
+.card {
+  background: var(--surface);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.card__media {
+  border-radius: var(--r-media);
+  aspect-ratio: 4 / 3;
+  display: grid; place-items: center;
+  color: var(--forest-900);
+}
+.card__media--a { background: var(--forest-50); }
+.card__media--b { background: var(--wash-sand); }
+.card__media--c { background: var(--wash-sage); }
+.card .icon-btn { margin-top: 4px; }
+
+.arch { border-radius: var(--r-arch); overflow: hidden; display: block; }
+.arch--medallion {
+  width: 96px; height: 112px;
+  box-shadow: 0 0 0 6px var(--paper);
+  background: var(--forest-800);
+  display: grid; place-items: center;
+  color: var(--ink-on-dark);
+}
+.archrow { display: flex; align-items: flex-end; gap: 28px; }
+.arch--lg { width: 168px; height: 210px; background: var(--forest-50); display: grid; place-items: center; color: var(--forest-900); }
+.arch--xl { width: 132px; height: 176px; background: var(--wash-sand); display: grid; place-items: center; color: var(--forest-900); }
+
+.hrow {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding-block: 22px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  font-size: 15px;
+}
+.hrow:first-child { border-top: 1px solid var(--hairline); }
+.hrow__plus { color: var(--ink-muted); }
+
+.credential-bar {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 24px;
+  padding-block: 24px;
+  border-block: 1px solid var(--hairline);
+}
+.credential-bar > * + *::before {
+  content: ""; display: inline-block;
+  width: 1px; height: 12px; margin-right: 24px;
+  background: var(--hairline); vertical-align: -1px;
+}
+
+.step { display: flex; flex-direction: column; gap: 10px; }
+.step__num { font-family: var(--font-display); font-size: var(--fs-display-md); line-height: 1; color: var(--forest-600); }
+
+.crisis {
+  background: var(--paper-deep);
+  border-block: 1px solid var(--hairline);
+  padding-block: 32px;
+  text-align: center;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+
+.footerdemo {
+  background: var(--forest-800);
+  color: var(--ink-on-dark);
+  border-radius: var(--r-card);
+  padding: 56px 24px;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.footerdemo .label { color: rgba(238, 242, 239, .62); }
+.footerdemo__links { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+
+/* ---------- comparison table ---------- */
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; }
+th, td { text-align: left; padding: 16px 20px 16px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; font-size: 15px; }
+thead th { border-bottom: 1px solid var(--ink); }
+td:first-child { color: var(--ink); width: 22%; }
+.was { color: var(--ink-muted); }
+.now { color: var(--ink); }
+
+.swatch-dot {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  vertical-align: -1px; margin-right: 7px;
+  border: 1px solid rgba(25,28,26,.1);
+}
+
+.pagefoot { padding-block: 56px 72px; }
+
+@media (max-width: 860px) {
+  .wrap { padding-inline: 22px; }
+  .spec__row { grid-template-columns: 1fr; gap: 12px; }
+  .row3, .row4, .row2 { grid-template-columns: 1fr; }
+  .row2 { gap: 0; }
+  .archrow { flex-wrap: wrap; }
+  .band { padding-block: 64px; }
+  .nav__links { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+
+<!-- ===================== MASTHEAD ===================== -->
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <div class="markline">
+      <svg width="26" height="17" viewBox="0 0 26 17" fill="none" aria-hidden="true">
+        <path d="M1 16a12 12 0 0 1 24 0" stroke="#1F3A34" stroke-width="1.25"/>
+        <path d="M6 16a7 7 0 0 1 14 0" stroke="#3D655C" stroke-width="1.25"/>
+        <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="#6C6F69" stroke-width="1.25"/>
+      </svg>
+      <p class="label">Dr. Shandana &middot; Psychiatry</p>
+    </div>
+
+    <h1 class="display-xl">The <em>working</em> system.</h1>
+
+    <p class="prose">
+      Extracted from the counseling reference, then rebuilt for a psychiatric practice:
+      the same warm paper, serif voice and arch, on a neutral palette of our own — with a
+      credibility layer the original never needed.
+    </p>
+
+    <p class="label" style="margin-top:8px;">Bone paper &middot; Evergreen &middot; Instrument Serif + Inter</p>
+  </div>
+</header>
+
+<!-- ===================== COLOUR ===================== -->
+<section class="band">
+  <div class="wrap">
+    <div class="band__head">
+      <p class="label">Colour</p>
+      <h2 class="display-lg">Paper, ink, and <em>one</em> saturated colour.</h2>
+      <p class="prose">
+        Evergreen is the only hue that ever fills a UI element. Everything else on the page
+        is paper, ink or a hairline. No red, no amber, no alert colour anywhere in the
+        marketing surface.
+      </p>
+    </div>
+
+    <p class="label" style="margin-bottom:14px;">Foundation</p>
+    <div class="deck" style="margin-bottom:40px;">
+      <div class="chip">
+        <div class="chip__fill" style="background:#F6F3EE"></div>
+        <div class="chip__meta">
+          <p class="label">--paper</p>
+          <p class="chip__hex">#F6F3EE</p>
+          <p class="chip__use">Page canvas. Bone, not cream — cooler and less spa-like than the reference.</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#EDE8E0"></div>
+        <div class="chip__meta">
+          <p class="label">--paper-deep</p>
+          <p class="chip__hex">#EDE8E0</p>
+          <p class="chip__use">Alternating section band, crisis notice.</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#FFFFFF"></div>
+        <div class="chip__meta">
+          <p class="label">--surface</p>
+          <p class="chip__hex">#FFFFFF</p>
+          <p class="chip__use">Cards and the nav pill only — so they lift off the paper.</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#E2DCD3"></div>
+        <div class="chip__meta">
+          <p class="label">--hairline</p>
+          <p class="chip__hex">#E2DCD3</p>
+          <p class="chip__use">Every divider on the site. 1px, never a box.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="label" style="margin-bottom:14px;">Ink — all cleared against paper</p>
+    <div class="deck" style="margin-bottom:40px;">
+      <div class="chip">
+        <div class="chip__fill" style="background:#191C1A"></div>
+        <div class="chip__meta">
+          <p class="label">--ink</p>
+          <p class="chip__hex">#191C1A</p>
+          <p class="chip__use">Headlines and serif display.</p>
+          <p class="chip__ratio mono-ish">15.6 : 1</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#5F6360"></div>
+        <div class="chip__meta">
+          <p class="label">--ink-body</p>
+          <p class="chip__hex">#5F6360</p>
+          <p class="chip__use">Paragraphs.</p>
+          <p class="chip__ratio mono-ish">5.5 : 1</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#6C6F69"></div>
+        <div class="chip__meta">
+          <p class="label">--ink-muted</p>
+          <p class="chip__hex">#6C6F69</p>
+          <p class="chip__use">Micro-labels and meta. Darker than the reference on purpose — these run at 10.5px.</p>
+          <p class="chip__ratio mono-ish">4.6 : 1</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="label" style="margin-bottom:14px;">Evergreen</p>
+    <div class="deck">
+      <div class="chip">
+        <div class="chip__fill" style="background:#1F3A34"></div>
+        <div class="chip__meta">
+          <p class="label">--forest-900</p>
+          <p class="chip__hex">#1F3A34</p>
+          <p class="chip__use">Primary buttons, arrow circles.</p>
+          <p class="chip__ratio mono-ish">12.3 : 1 with white</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#294A43"></div>
+        <div class="chip__meta">
+          <p class="label">--forest-800</p>
+          <p class="chip__hex">#294A43</p>
+          <p class="chip__use">Footer ground.</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#3D655C"></div>
+        <div class="chip__meta">
+          <p class="label">--forest-600</p>
+          <p class="chip__hex">#3D655C</p>
+          <p class="chip__use">Hover, pressed, focus ring, step numerals.</p>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip__fill" style="background:#E8EEEA"></div>
+        <div class="chip__meta">
+          <p class="label">--forest-50</p>
+          <p class="chip__hex">#E8EEEA</p>
+          <p class="chip__use">Icon discs, tint fills, selected states.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WASH ===================== -->
+<section class="band">
+  <div class="wrap">
+    <div class="band__head">
+      <p class="label">The wash</p>
+      <h2 class="display-lg">An aurora you shouldn't quite <em>notice</em>.</h2>
+      <p class="prose">
+        Sage bleeds in from the left, sand from the right, both gone by roughly 40% across.
+        It is the only gradient in the system — never on type, buttons or cards.
+      </p>
+    </div>
+    <div class="washdemo">
+      <p class="label">#DCE6DF &nbsp;&rarr;&nbsp; transparent &nbsp;&larr;&nbsp; #EFE4D6</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TYPE ===================== -->
+<section class="band band--deep">
+  <div class="wrap">
+    <div class="band__head">
+      <p class="label">Typography</p>
+      <h2 class="display-lg">Serif says the feeling. Sans says the <em>facts</em>.</h2>
+      <p class="prose">
+        Instrument Serif carries every emotional line at weight 400 — never bold, contrast
+        comes from size alone. Inter carries everything functional.
+      </p>
+    </div>
+
+    <div class="spec">
+      <div class="spec__row">
+        <div class="spec__key"><code>display-xl</code><span>44 &rarr; 84px &middot; 1.02 &middot; -0.02em</span></div>
+        <div class="spec__sample"><p class="display-xl">You don't have to <em>guess</em> anymore.</p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>display-lg</code><span>36 &rarr; 64px &middot; 1.05 &middot; -0.02em</span></div>
+        <div class="spec__sample"><p class="display-lg">A clear diagnosis is a kind of <em>relief</em>.</p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>display-md</code><span>30 &rarr; 44px &middot; 1.1 &middot; -0.01em</span></div>
+        <div class="spec__sample"><p class="display-md">How treatment actually <em>works</em></p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>card-title</code><span>22 &rarr; 26px &middot; 1.2</span></div>
+        <div class="spec__sample"><p class="card-title">Medication <em>management</em></p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>eyebrow-serif</code><span>19 &rarr; 22px &middot; 1.4</span></div>
+        <div class="spec__sample"><p class="eyebrow-serif">Does any of this sound <em>familiar</em>?</p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>body</code><span>16px &middot; 1.7 &middot; caps at 58ch</span></div>
+        <div class="spec__sample">
+          <p class="prose">Psychiatric care starts with a real evaluation — your history, your
+          symptoms, what you have already tried. Everything after that is a decision you make
+          together, in plain language, with the reasoning shown.</p>
+        </div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>body-sm</code><span>14px &middot; 1.65</span></div>
+        <div class="spec__sample"><p class="body-sm prose">Card copy, FAQ answers, captions, and the crisis notice.</p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>credential</code><span>12px &middot; 0.08em &middot; uppercase</span></div>
+        <div class="spec__sample"><p class="credential">Board-certified in psychiatry</p></div>
+      </div>
+      <div class="spec__row">
+        <div class="spec__key"><code>label</code><span>10.5px &middot; 0.18em &middot; uppercase</span></div>
+        <div class="spec__sample"><p class="label">Over time, the right treatment plan changes what a day feels like</p></div>
+      </div>
+    </div>
+
+    <div class="pullquote">
+      <p class="label">The signature move</p>
+      <p class="display-md">One word per line goes <em>italic</em>.</p>
+      <p class="prose body-sm">
+        It is the entire personality of this system in a single gesture, and the fastest way to
+        lose it is to use it twice in one headline. One word. Always the emotional one — never
+        the noun that carries the information.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMPONENTS ===================== -->
+<section class="band">
+  <div class="wrap">
+    <div class="band__head">
+      <p class="label">Components</p>
+      <h2 class="display-lg">Built from four shapes and <em>almost</em> no shadow.</h2>
+      <p class="prose">
+        The pill, the 20px card, the 14px media rectangle, and the arch. If a shadow reads as
+        a shadow, it is too strong.
+      </p>
+    </div>
+
+    <div class="compgrid">
+
+      <!-- nav -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Navigation</p><span class="comp__note">Floating white pill, sticky 16px from the top</span></div>
+        <nav class="nav">
+          <div class="nav__links">
+            <a href="#">About
+              <svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </a>
+            <a href="#">Conditions
+              <svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </a>
+            <a href="#">Treatment</a>
+          </div>
+          <div class="nav__mark">
+            <svg width="18" height="12" viewBox="0 0 26 17" fill="none" aria-hidden="true">
+              <path d="M1 16a12 12 0 0 1 24 0" stroke="#1F3A34" stroke-width="1.5"/>
+              <path d="M8 16a5 5 0 0 1 10 0" stroke="#3D655C" stroke-width="1.5"/>
+            </svg>
+            <span class="nav__word">Shandana</span>
+          </div>
+          <a class="btn" href="#">Book a consult
+            <span class="btn__arrow">
+              <svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- buttons -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Buttons</p><span class="comp__note">Hover the pills — the arrow rotates 45&deg;</span></div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <a class="btn" href="#">Schedule an evaluation
+            <span class="btn__arrow"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="btn btn--ghost" href="#">Read the approach
+            <span class="btn__arrow"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </a>
+          <button class="icon-btn" type="button" aria-label="Next">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- credential bar -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Credential bar</p><span class="comp__note">New for psychiatry. No badges, no seals — restraint is the authority signal</span></div>
+        <div class="credential-bar">
+          <span class="credential">MD</span>
+          <span class="credential">Board-certified psychiatrist</span>
+          <span class="credential">Licensed in [state]</span>
+          <span class="credential mono-ish">12 years in practice</span>
+        </div>
+      </div>
+
+      <!-- arch -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">The arch</p><span class="comp__note">Round top, flat bottom. Every portrait, plus the logo mark</span></div>
+        <div class="archrow">
+          <div class="arch arch--lg"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></div>
+          <div class="arch arch--xl"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></div>
+          <div class="arch arch--medallion"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></div>
+        </div>
+      </div>
+
+      <!-- cards -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Service card</p><span class="comp__note">Photography fills the media panel in production — tints stand in here</span></div>
+        <div class="row3">
+          <article class="card">
+            <div class="card__media card__media--a"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.35-7-9a4 4 0 0 1 7-2.65A4 4 0 0 1 19 12c0 4.65-7 9-7 9z"/></svg></div>
+            <p class="card-title">Psychiatric <em>evaluation</em></p>
+            <p class="body-sm">A full 60-minute assessment of history, symptoms and prior treatment, ending with a written plan.</p>
+            <button class="icon-btn" type="button" aria-label="Psychiatric evaluation">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </article>
+          <article class="card">
+            <div class="card__media card__media--b"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="9" rx="4.5"/><path d="M12 8v9"/></svg></div>
+            <p class="card-title">Medication <em>management</em></p>
+            <p class="body-sm">Starting, adjusting or tapering — with the reasoning, the timeline and the side effects said out loud.</p>
+            <button class="icon-btn" type="button" aria-label="Medication management">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </article>
+          <article class="card">
+            <div class="card__media card__media--c"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h7a3 3 0 0 1 3 3v10a2.5 2.5 0 0 0-2.5-2.5H4z"/><path d="M20 6h-3a3 3 0 0 0-3 3"/></svg></div>
+            <p class="card-title">Therapy <em>coordination</em></p>
+            <p class="body-sm">Working alongside your therapist so medication and therapy pull in the same direction.</p>
+            <button class="icon-btn" type="button" aria-label="Therapy coordination">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </article>
+        </div>
+      </div>
+
+      <!-- icon discs -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Line icons</p><span class="comp__note">1.25px stroke, round caps, one family site-wide — replacing the reference's illustrations</span></div>
+        <div class="row4">
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;">
+            <div class="icon-disc"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+            <p class="card-title" style="font-size:1.15rem;">Sleep <em>returns</em></p>
+            <p class="body-sm">Nights stop being the hardest part of the day.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;">
+            <div class="icon-disc"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 4 3 4-6 5 4"/><path d="M3 21h18"/></svg></div>
+            <p class="card-title" style="font-size:1.15rem;">Function <em>steadies</em></p>
+            <p class="body-sm">Work and routine stop costing everything you have.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;">
+            <div class="icon-disc"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="4"/><circle cx="16" cy="15" r="4"/></svg></div>
+            <p class="card-title" style="font-size:1.15rem;">Relationships <em>soften</em></p>
+            <p class="body-sm">Less reactivity, more room for the people around you.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;">
+            <div class="icon-disc"><svg class="icon icon--lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a5 5 0 0 1 5 5c0 2-1.2 3-1.8 4.2A4 4 0 0 0 15 15H9a4 4 0 0 0-.2-1.8C8.2 12 7 11 7 9a5 5 0 0 1 5-5z"/><path d="M10 19h4"/></svg></div>
+            <p class="card-title" style="font-size:1.15rem;">Clarity <em>holds</em></p>
+            <p class="body-sm">You can think a thought through to the end again.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- hairline lists -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Hairline list</p><span class="comp__note">Conditions treated (2-up) and the FAQ share one row component</span></div>
+        <div class="row2">
+          <div>
+            <div class="hrow"><span>Major depressive disorder</span></div>
+            <div class="hrow"><span>Generalized anxiety</span></div>
+            <div class="hrow"><span>Bipolar spectrum disorders</span></div>
+          </div>
+          <div>
+            <div class="hrow"><span>Adult ADHD</span></div>
+            <div class="hrow"><span>PTSD and trauma</span></div>
+            <div class="hrow"><span>OCD</span></div>
+          </div>
+        </div>
+        <div style="margin-top:20px;">
+          <div class="hrow"><span>Do you accept insurance?</span><span class="hrow__plus">&plus;</span></div>
+          <div class="hrow"><span>Will I have to take medication?</span><span class="hrow__plus">&plus;</span></div>
+        </div>
+      </div>
+
+      <!-- steps -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">What to expect</p><span class="comp__note">Numbered because intake genuinely is a sequence — no connector lines</span></div>
+        <div class="row3">
+          <div class="step">
+            <p class="step__num mono-ish">01</p>
+            <p class="card-title">The first <em>call</em></p>
+            <p class="body-sm">Fifteen minutes, free, to check that this is the right fit before anyone books anything.</p>
+          </div>
+          <div class="step">
+            <p class="step__num mono-ish">02</p>
+            <p class="card-title">Full <em>evaluation</em></p>
+            <p class="body-sm">A 60-minute appointment covering history, symptoms and everything already tried.</p>
+          </div>
+          <div class="step">
+            <p class="step__num mono-ish">03</p>
+            <p class="card-title">Your <em>plan</em></p>
+            <p class="body-sm">Written down, explained in plain language, and revised as often as it needs to be.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- crisis -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Crisis notice</p><span class="comp__note">Urgent through isolation and whitespace, never through an alert colour</span></div>
+        <div class="crisis">
+          <p class="label">If you are in immediate danger</p>
+          <p class="body-sm" style="max-width:56ch;">
+            This practice is not an emergency service. Call or text <strong style="color:#191C1A;font-weight:500;">988</strong>
+            for the Suicide &amp; Crisis Lifeline, or call 911 if someone's safety is at risk right now.
+          </p>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div class="comp">
+        <div class="comp__label"><p class="label">Footer</p><span class="comp__note">Evergreen ground, concentric-arch mark, label-style links</span></div>
+        <div class="footerdemo">
+          <svg width="40" height="26" viewBox="0 0 26 17" fill="none" aria-hidden="true">
+            <path d="M1 16a12 12 0 0 1 24 0" stroke="#EEF2EF" stroke-width="1.25"/>
+            <path d="M6 16a7 7 0 0 1 14 0" stroke="rgba(238,242,239,.6)" stroke-width="1.25"/>
+            <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="rgba(238,242,239,.35)" stroke-width="1.25"/>
+          </svg>
+          <p class="display-md" style="color:#EEF2EF;">Start with one <em>conversation</em>.</p>
+          <div class="footerdemo__links">
+            <p class="label">About</p>
+            <p class="label">Conditions</p>
+            <p class="label">Treatment</p>
+            <p class="label">Insurance</p>
+            <p class="label">Contact</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== KEPT / CHANGED ===================== -->
+<section class="band band--deep">
+  <div class="wrap">
+    <div class="band__head">
+      <p class="label">Provenance</p>
+      <h2 class="display-lg">What we kept, what we <em>changed</em>.</h2>
+      <p class="prose">
+        The structural DNA of the reference survives intact. Everything a visitor would
+        recognize as belonging to that template does not.
+      </p>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th></th><th class="was">Reference</th><th class="now">Ours</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Paper</td>
+            <td class="was"><span class="swatch-dot" style="background:#FAF5EF"></span>Warm cream #FAF5EF</td>
+            <td class="now"><span class="swatch-dot" style="background:#F6F3EE"></span>Bone #F6F3EE — cooler, less peach</td>
+          </tr>
+          <tr>
+            <td>Hard colour</td>
+            <td class="was"><span class="swatch-dot" style="background:#2B1D33"></span>Aubergine #2B1D33</td>
+            <td class="now"><span class="swatch-dot" style="background:#1F3A34"></span>Evergreen #1F3A34 — calm but credible</td>
+          </tr>
+          <tr>
+            <td>Wash</td>
+            <td class="was"><span class="swatch-dot" style="background:#D9EDE4"></span><span class="swatch-dot" style="background:#F8E2CD"></span>Mint + apricot</td>
+            <td class="now"><span class="swatch-dot" style="background:#DCE6DF"></span><span class="swatch-dot" style="background:#EFE4D6"></span>Sage + sand, near-neutral</td>
+          </tr>
+          <tr>
+            <td>Imagery</td>
+            <td class="was">Flat pastel illustration throughout</td>
+            <td class="now">Photography in arch and rounded crops, plus one line-icon family</td>
+          </tr>
+          <tr>
+            <td>Voice</td>
+            <td class="was">Counseling-centre warmth</td>
+            <td class="now">Same warmth, plus credentials, conditions and the care model</td>
+          </tr>
+          <tr>
+            <td>Copy &amp; order</td>
+            <td class="was">Template sequence and wording</td>
+            <td class="now">Written fresh, sequenced for a psychiatric practice</td>
+          </tr>
+          <tr>
+            <td class="now">Kept</td>
+            <td colspan="2" class="now">Serif / sans split &middot; the italic-word move &middot; the arch &middot; pill nav &middot; hairline lists &middot; near-zero shadow &middot; the three-beat section rhythm</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOT ===================== -->
+<footer class="wrap pagefoot">
+  <p class="label" style="margin-bottom:10px;">Notes</p>
+  <p class="prose body-sm">
+    This sheet is intentionally single-theme. A bone-paper palette can only be judged on its
+    own ground, so it renders light for every viewer. The site built from it will be
+    single-theme for the same reason.
+  </p>
+  <p class="prose body-sm" style="margin-top:14px;">
+    Tokens live in <span style="color:#191C1A;">design/tokens.css</span>; the reasoning lives in
+    <span style="color:#191C1A;">design/design-system.md</span>. Bracketed values — state,
+    years in practice — are placeholders awaiting real details.
+  </p>
+</footer>

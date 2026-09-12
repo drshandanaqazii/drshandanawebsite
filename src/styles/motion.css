@@ -1,0 +1,188 @@
+/* ==========================================================================
+   Motion layer
+
+   Read the note in global.css first. Two earlier attempts at scroll entrances
+   left real sections blank, so the rules here are built around one hard
+   constraint: content must never be able to get stuck invisible.
+
+   Three guarantees:
+     1. Every hidden-then-revealed state is scoped to :root[data-motion="on"],
+        a flag set by src/scripts/motion.ts. No JS, old browser, or
+        prefers-reduced-motion → the flag is never set and the page renders in
+        its plain, fully visible resting state.
+     2. The script reveals anything already at or above the viewport on init,
+        so an anchor jump (#faq) can never land on hidden content.
+     3. A failsafe timer reveals everything unconditionally shortly after load.
+
+   Parallax is transform-only on decorative media. If the script never runs,
+   the images simply sit still.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Scroll reveal
+   -------------------------------------------------------------------------- */
+
+/* Two separate transform channels, deliberately:
+     --reveal-from  the entrance offset, only meaningful before .is-in
+     --lift         the resting/hover offset, owned by the hover rules below
+   Collapsing them into one variable means a revealed card's `transform: none`
+   silently outranks its own hover lift. */
+:root[data-motion="on"] [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-from, 18px), 0);
+  transition:
+    opacity 700ms var(--ease),
+    transform var(--dur) var(--ease),
+    clip-path 900ms var(--ease);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+:root[data-motion="on"] [data-reveal].is-in {
+  opacity: 1;
+  transform: translate3d(0, calc(var(--lift, 0px) + var(--parallax-y, 0px)), 0);
+}
+
+/* Media reveals open out rather than travel — a photograph sliding up reads as
+   a slideshow, a photograph settling reads as focus. */
+:root[data-motion="on"] [data-reveal="media"] {
+  --reveal-from: 0px;
+  clip-path: inset(7%);
+}
+:root[data-motion="on"] [data-reveal="media"].is-in {
+  clip-path: inset(0);
+}
+
+/* --------------------------------------------------------------------------
+   Parallax
+
+   The script only ever writes --parallax-y (and --parallax-scale once, at
+   init). The transform itself is assembled here, so parallax composes with the
+   reveal offset and the hover lift instead of fighting them for the `transform`
+   property. That is what lets a text block both reveal and drift.
+
+   Every parallaxed <img> sits in a .parallax-frame and is over-scaled: the
+   extra height is the travel budget, and the frame clips what hangs out.
+   Rule of thumb — over-scale must exceed half the range, or the image will
+   pull away from its own edge at the extremes.
+
+   --parallax-origin moves the point the over-scale grows away from. It defaults
+   to the centre, which spends the crop evenly on all four edges. A photograph
+   whose subject is already hard against one of its own edges can anchor to that
+   edge instead, and the whole crop is taken off the opposite side. The trade is
+   real: an anchored edge has no slack left, so travel on that axis has to go —
+   see the framing table in Services.astro.
+   -------------------------------------------------------------------------- */
+
+:root[data-motion="on"] [data-parallax] {
+  transform:
+    translate3d(0, var(--parallax-y, 0px), 0)
+    scale(var(--parallax-scale, 1));
+  transform-origin: var(--parallax-origin, 50% 50%);
+  will-change: transform;
+}
+
+.parallax-frame { overflow: hidden; }
+
+/* A negative data-parallax drifts the layer against the scroll, which reads as
+   nearer to the viewer. Copy blocks beside a photograph use it: the gap
+   between the two rates is the depth cue, not either rate on its own. */
+
+/* --------------------------------------------------------------------------
+   Scroll progress
+
+   Same contract as the reveals: the empty starting state is scoped to the
+   JS-set flag, so no JS — or a script that stood down — leaves the track at its
+   resting value of 1 and the line renders complete. It is decorative either
+   way; nothing readable is behind it.
+   -------------------------------------------------------------------------- */
+
+:root[data-motion="on"] [data-progress] { --progress: 0; }
+
+/* --------------------------------------------------------------------------
+   Nav — condenses once the page has moved off the top
+   -------------------------------------------------------------------------- */
+
+.navwrap {
+  transition:
+    padding-top var(--dur) var(--ease),
+    padding-bottom var(--dur) var(--ease);
+}
+.navwrap .nav {
+  transition:
+    box-shadow var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.navwrap.is-stuck { padding-top: var(--s-2); }
+.navwrap.is-stuck .nav {
+  box-shadow: 0 10px 34px rgba(25, 28, 26, .12);
+  transform: scale(.985);
+}
+
+/* --------------------------------------------------------------------------
+   Hover affordances on the card surfaces
+   -------------------------------------------------------------------------- */
+
+/* The review cards are deliberately not in here. Their transform is the stack
+   position, owned by Testimonials.astro, and a hover lift written at this level
+   would overwrite whichever card is being hovered right out of the pile. */
+.card {
+  transform: translate3d(0, var(--lift, 0px), 0);
+}
+
+.card,
+.card__icon {
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+@media (hover: hover) {
+  /* --lift, not `transform`, so this composes with the reveal rules above
+     instead of being overridden by them. */
+  .card:hover {
+    --lift: -4px;
+    box-shadow: 0 16px 40px rgba(25, 28, 26, .10);
+  }
+
+  /* The disc lifts with its card, not on its own hover */
+  .card:hover .card__icon {
+    transform: scale(1.06);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   FAQ answer
+
+   Keyframed rather than transitioned: <details> content has no open/closed
+   intermediate state to transition between, and an animation that ends on the
+   resting state cannot strand the answer.
+   -------------------------------------------------------------------------- */
+
+:root[data-motion="on"] .faq__item[open] .faq__a {
+  animation: faq-open 340ms var(--ease) both;
+}
+
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion — belt and braces. The script already refuses to set
+   data-motion, but a preference toggled after load is caught here too.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-motion="on"] [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  :root[data-motion="on"] [data-parallax] {
+    transform: none !important;
+  }
+  /* !important, because the script writes --progress inline and an inline
+     custom property otherwise outranks every rule here. */
+  :root[data-motion="on"] [data-progress] { --progress: 1 !important; }
+  .navwrap.is-stuck .nav { transform: none; }
+}

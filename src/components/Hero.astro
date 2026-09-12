@@ -1,0 +1,220 @@
+---
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { DOCTOR, CREDENTIAL_BAR } from '../consts';
+import portrait from '../assets/shandana-portrait.png';
+---
+
+<section class="hero" id="top">
+  <div class="container hero__grid">
+    <div class="hero__copy" data-reveal-group data-parallax="-38">
+      <h1 class="display-xl" data-reveal>
+        You don't have to keep <em>guessing</em>.
+      </h1>
+
+      <p class="hero__lede" data-reveal>
+        <span class="hero__name">{DOCTOR.name}</span> is a consultant psychiatrist at Rehman Medical Institute,
+        Hayatabad. Depression, anxiety, stress, and the conditions that quietly reshape
+        an ordinary day: assessed properly, and explained in language you can actually use.
+      </p>
+
+      {/* The secondary sends people who are not ready to book to the section
+          that explains what an appointment actually involves — the usual
+          reason for hesitating at this point. */}
+      <div class="hero__actions" data-reveal>
+        <Button href="#contact">Book a consultation</Button>
+        <Button href="#care" variant="ghost">How treatment works</Button>
+      </div>
+
+      <p class="hero__meta" data-reveal>
+        <Icon name="pin" size="sm" />
+        <span>RMI, 5-B/2 Phase-V, Hayatabad, Peshawar</span>
+      </p>
+    </div>
+
+    {/* A cut-out portrait: the panel behind it supplies the background the
+        PNG does not have. */}
+    {/* The whole arch-plus-portrait unit drifts, not the cut-out inside it —
+        moving the portrait alone would break the way it stands on the panel. */}
+    <figure class="hero__media" data-reveal="media" data-parallax="30">
+      <Image
+        src={portrait}
+        alt={`${DOCTOR.name}, consultant psychiatrist, in a white coat`}
+        widths={[400, 550]}
+        sizes="(max-width: 900px) 380px, 44vw"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </figure>
+  </div>
+
+  <div class="container">
+    <div class="credbar" data-reveal-group data-parallax="-18">
+      <ul class="credbar__degrees" data-reveal style="--reveal-from: 10px;">
+        {CREDENTIAL_BAR.degrees.map((d) => (
+          <li class="credential">{d}</li>
+        ))}
+      </ul>
+
+      <p class="credbar__post" data-reveal style="--reveal-from: 10px;">
+        {CREDENTIAL_BAR.role} at <em>{CREDENTIAL_BAR.institution}</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { padding-top: clamp(56px, 8vw, 104px); }
+
+  /* Stretch, not centre: the panel takes its height from the copy column, so
+     the two columns share a top and a bottom edge instead of floating past
+     each other. */
+  .hero__grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: stretch;
+    gap: clamp(32px, 5vw, 72px);
+    padding-bottom: clamp(56px, 7vw, 96px);
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* The two columns drift at opposite rates, so their edges can never stay
+       flush. Centred in the stretched cell, the copy reads level against the
+       panel at every scroll position instead of only one. */
+    justify-content: center;
+    gap: var(--s-5);
+  }
+
+  .hero__lede {
+    max-width: 46ch;
+    font-size: 1.0625rem;
+  }
+  /* Set apart by face, not by weight. The lede sits right under the display
+     headline, so a bold run reads as shouting; the serif picks the name out
+     while borrowing the authority the headline already has. */
+  .hero__name {
+    font-family: var(--font-display);
+    font-size: 1.15em;
+    color: var(--ink);
+  }
+
+  /* Two pill buttons sit closer than a button and a bare phone link did — the
+     wider gap was spacing two different kinds of thing. */
+  .hero__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+
+  .hero__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+  }
+  .hero__meta :global(.icon) { flex: 0 0 auto; }
+
+  /* A rounded panel filled with the tint, with the cut-out sitting inside it.
+     The panel spans the full column so its edges line up with the copy and
+     the credential bar below. */
+  .hero__media {
+    width: 100%;
+    /* No aspect-ratio: the height comes from the stretched grid row, which is
+       what keeps the panel flush with the copy beside it. */
+    height: 100%;
+    /* Deliberately taller than the copy: the panel sets the row height, which
+       is what gives the centred copy room to sit down off the nav. */
+    min-height: clamp(440px, 41vw, 530px);
+    overflow: hidden;
+    border-radius: var(--r-hero);
+    /* Deep enough at the foot to hold the white coat, light at the head so the
+       face never sits on the darkest part of the panel. */
+    background:
+      linear-gradient(170deg, var(--forest-50) 0%, var(--forest-100) 100%);
+    box-shadow: inset 0 0 0 1px rgba(31, 58, 52, .07);
+  }
+  .hero__media :global(img) {
+    width: 100%;
+    height: 100%;
+    /* Contain, not cover: the panel's proportion now depends on the copy
+       beside it, and a cover crop would zoom the cut-out by however much that
+       proportion happened to change. Contained and bottom-anchored, she stands
+       on the foot of the panel at any height, never cropped at the face. */
+    object-fit: contain;
+    object-position: 50% 100%;
+  }
+
+  /* Two voices: the degrees are enclosed chips, the appointment is set in the
+     display serif, so the band reads like a byline rather than a row of tags. */
+  .credbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3) var(--s-7);
+    padding-block: var(--s-5);
+    border-top: 1px solid var(--hairline);
+  }
+
+  .credbar__degrees {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    flex: 0 0 auto;
+  }
+  /* Set as tinted chips rather than a bulleted run: qualifications are awarded
+     things, and giving each its own enclosure reads that way. The bullet the
+     run used to need is now the gap between them. */
+  .credbar__degrees li {
+    padding: 5px 12px;
+    border-radius: var(--r-pill);
+    background: var(--forest-50);
+    box-shadow: inset 0 0 0 1px rgba(31, 58, 52, .08);
+    color: var(--forest-900);
+    /* Set as written, not shouted: the initialisms are already capitals, and
+       forcing the rest up turns a qualification into a label. Sentence case
+       also needs less tracking than caps do. */
+    text-transform: none;
+    letter-spacing: .01em;
+    font-size: var(--fs-body-sm);
+  }
+
+  .credbar__post {
+    font-family: var(--font-display);
+    font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+    line-height: 1.35;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  /* Italic belongs to the main headings only. */
+  .credbar__post em { font-style: normal; }
+
+  @media (max-width: 900px) {
+    .hero__grid { grid-template-columns: 1fr; }
+    /* Stacked, there is no second column to match, so the panel goes back to
+       carrying its own proportion. */
+    .hero__media {
+      order: -1;
+      max-width: 380px;
+      margin-inline: auto;
+      height: auto;
+      min-height: 0;
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .credbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--s-3);
+    }
+  }
+</style>

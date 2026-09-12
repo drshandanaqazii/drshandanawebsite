@@ -1,0 +1,97 @@
+---
+import '../styles/global.css';
+import '../styles/motion.css';
+import StructuredData from '../components/StructuredData.astro';
+import { SITE, SEO, DOCTOR, PRACTICE } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Set false on pages that should not be indexed (thank-you pages etc.). */
+  index?: boolean;
+}
+
+const {
+  title = SEO.title,
+  description = SEO.description,
+  index = true,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href.replace(/\/$/, '') || SITE.url;
+const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    {index
+      ? <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+      : <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Local signals. Legacy tags, but still parsed by several regional crawlers
+         and harmless for Google. The authoritative signal is the JSON-LD below. -->
+    <meta name="geo.region" content="PK-KP" />
+    <meta name="geo.placename" content="Peshawar" />
+    <meta name="geo.position" content={`${PRACTICE.geo.lat};${PRACTICE.geo.lng}`} />
+    <meta name="ICBM" content={`${PRACTICE.geo.lat}, ${PRACTICE.geo.lng}`} />
+    <meta name="author" content={DOCTOR.name} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={DOCTOR.name} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={SEO.ogImageAlt} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="theme-color" content="#F6F3EE" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Fonts. preconnect first so the stylesheet request isn't blocked on DNS. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap"
+    />
+
+    <StructuredData />
+
+    <!-- Motion opt-in. Every hidden-then-revealed style is scoped to this flag,
+         so it must be set before first paint — hence inline, in the head, and
+         not in the bundled module. If this script never runs, the page renders
+         fully visible and static. See src/styles/motion.css. -->
+    <script is:inline>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.setAttribute('data-motion', 'on');
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+
+    <script>
+      import '../scripts/motion';
+    </script>
+  </body>
+</html>

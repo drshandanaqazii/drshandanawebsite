@@ -1,0 +1,159 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { SERVICES } from '../consts';
+
+import depression from '../assets/service-depression.jpg';
+import anxiety from '../assets/service-anxiety.jpg';
+import stress from '../assets/service-stress.jpg';
+import sleep from '../assets/service-sleep.jpg';
+import trauma from '../assets/service-trauma.jpg';
+import femaleMental from '../assets/service-female-mental.jpg';
+
+const IMAGES: Record<string, ImageMetadata> = {
+  depression: depression,
+  anxiety: anxiety,
+  stress: stress,
+  sleep: sleep,
+  trauma: trauma,
+  'female-mental': femaleMental,
+};
+
+/* Each photograph now shows the condition on its card rather than a still life
+   of a room. Client-supplied and client-chosen. The alt text describes what is
+   in the frame plainly and stops there — it does not narrate what the person is
+   feeling, which is not something a photograph can tell a reader. */
+const ALTS: Record<string, string> = {
+  depression: 'A man sitting on the floor beside a window, head resting on his knees',
+  anxiety: 'A woman in a knitted sweater sitting with both hands covering her face',
+  stress: 'A woman lying on the floor beside an open laptop, a hand at her forehead',
+  sleep: 'A woman awake on a bed at night, resting her face in her hands',
+  trauma: 'Someone resting a hand on the arm of a man sitting with his head in his hands',
+  'female-mental': 'A young woman sitting against a white wall, head lowered, hands at her temples',
+};
+
+/* Framing overrides, for the photographs whose subject sits against an edge of
+   the source frame.
+
+   The default treatment centres a 4:3 crop and over-scales it 1.22× so the pan
+   has somewhere to travel — which spends about 11% of the picture on every
+   edge, plus another 8% on whichever edge the pan is heading for. That is fine
+   for a subject with air around it and wrong for one that is already touching
+   the edge, so those anchor the over-scale to the edge they cannot lose and
+   give up the pan on that axis. An anchored edge has no slack behind it; travel
+   is made of slack. */
+const FRAMING: Record<string, { position?: string; origin?: string; pan?: number }> = {
+  // The crown of her head runs off the top of the source photograph itself, so
+  // there is no margin here to spend: anchored to the top, and held still.
+  sleep: { origin: '50% 0%', pan: 0 },
+  // He is hard against the right edge of the source and the blinds fill the
+  // rest. A centred crop cut his back off and handed most of the card to the
+  // blinds; anchoring right takes the whole crop out of the empty side instead.
+  depression: { position: '100% 50%', origin: '100% 0%', pan: 0 },
+};
+
+const DEFAULT_PAN = 44;
+---
+
+<section class="section" id="services" aria-labelledby="services-heading">
+  <div class="container">
+    <div class="container-narrow statement" style="padding-inline: 0;" data-reveal-group data-parallax="-26">
+      <p class="eyebrow" data-reveal>Services</p>
+      <h2 class="display-lg" id="services-heading" data-reveal>
+        What she <em>treats</em>.
+      </h2>
+      {/* The two conditions not given a card are named here rather than left
+          out: someone searching for either should still find them on the page,
+          and a seventh and eighth card would break the two rows of three. */}
+      <p class="prose" style="margin-top: var(--s-2);" data-reveal>
+        Adolescent and adult psychiatry, with particular attention to female mental health.
+        Obsessive–compulsive symptoms and psychotic disorders are treated too. If what you
+        are dealing with is not below, it is still worth asking.
+      </p>
+    </div>
+
+    {/* Cards rise a little as a group; each photograph pans further inside its
+        own frame. Two rates over the same distance is what gives the grid
+        depth — one rate would just be a moving grid. */}
+    <ul class="cards" data-reveal-group data-parallax="-16">
+      {SERVICES.map((service) => {
+        const frame = FRAMING[service.image] ?? {};
+        return (
+        <li class="card" id={service.slug} data-reveal>
+          <figure class="card__media parallax-frame">
+            <Image
+              src={IMAGES[service.image]}
+              alt={ALTS[service.image]}
+              widths={[380, 620]}
+              sizes="(max-width: 900px) 92vw, 33vw"
+              loading="lazy"
+              data-parallax={String(frame.pan ?? DEFAULT_PAN)}
+              data-parallax-scale="1.22"
+              style={[
+                frame.position && `object-position: ${frame.position}`,
+                frame.origin && `--parallax-origin: ${frame.origin}`,
+              ].filter(Boolean).join('; ')}
+            />
+          </figure>
+          <span class="card__icon"><Icon name={service.icon} /></span>
+          <h3 class="card-title">{service.title} <em>{service.titleEm}</em></h3>
+          <p class="body-sm">{service.body}</p>
+        </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Two rows of three. The stagger in motion.ts runs across all six in one
+     pass, which is what keeps the second row from arriving as a separate
+     event. */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-5);
+    margin-top: clamp(48px, 6vw, 72px);
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    padding: var(--s-5);
+    background: var(--surface);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card__media {
+    border-radius: var(--r-media);
+    overflow: hidden;
+    margin-bottom: var(--s-2);
+  }
+  .card__media :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .card__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--forest-50);
+    color: var(--forest-900);
+  }
+
+  /* Two columns before one: six cards in a single column is a very long
+     scroll, and the card is still legible at half a tablet's width. */
+  @media (max-width: 1000px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>

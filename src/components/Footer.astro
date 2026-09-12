@@ -1,0 +1,131 @@
+---
+import { NAV_LINKS, PRACTICE, DOCTOR } from '../consts';
+
+const year = new Date().getFullYear();
+---
+
+{/* Pinned to the bottom of the viewport, behind the page. The content above
+    scrolls away over it, so the footer is uncovered rather than scrolled to —
+    it travels at zero while the page travels at one, which is the widest
+    parallax spread on the site and the reason it works as the last beat. */}
+<footer class="footer">
+  <div class="container footer__inner">
+    <svg class="footer__mark" viewBox="0 0 26 17" fill="none" aria-hidden="true">
+      <path d="M1 16a12 12 0 0 1 24 0" stroke="#EEF2EF" stroke-width="1.25" />
+      <path d="M6 16a7 7 0 0 1 14 0" stroke="rgba(238,242,239,.6)" stroke-width="1.25" />
+      <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="rgba(238,242,239,.35)" stroke-width="1.25" />
+    </svg>
+
+    <p class="display-md footer__name">{DOCTOR.name}</p>
+    <p class="credential footer__role">{DOCTOR.qualifications} &middot; {DOCTOR.jobTitle}</p>
+
+    <nav class="footer__nav" aria-label="Footer">
+      <ul>
+        {NAV_LINKS.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        <li><a href="#contact">Booking</a></li>
+      </ul>
+    </nav>
+
+    <address class="footer__address">
+      {PRACTICE.address.street}<br />
+      {PRACTICE.address.locality}, {PRACTICE.address.region}, Pakistan
+    </address>
+
+    <p class="footer__legal">
+      &copy; {year} {DOCTOR.name}. Consultant psychiatrist at
+      <a href={PRACTICE.affiliationUrl} rel="noopener noreferrer" target="_blank">
+        {PRACTICE.affiliation}
+      </a>.
+      <br />
+      Information on this site is general and does not replace an individual consultation.
+    </p>
+  </div>
+</footer>
+
+<style>
+  /* Top corners only. The footer runs to the bottom of the viewport, so
+     rounding the lower pair would just cut two notches of paper out of the
+     window edge; curving the top is what makes it read as a panel the page
+     rests on rather than a bar stuck to the end of it. */
+  .footer {
+    background: var(--forest-800);
+    color: var(--ink-on-dark);
+    /* Far tighter than a normal section's rhythm. As a curtain the footer's
+       height is also the gap the page has to scroll past, so generous padding
+       here reads as an empty screen rather than as breathing room. */
+    padding-block: clamp(40px, 5vw, 64px);
+    border-radius: clamp(24px, 3.5vw, 44px) clamp(24px, 3.5vw, 44px) 0 0;
+  }
+
+  /* The curtain. Fixed and behind the page, so the last section slides off it
+     instead of pushing it down. `main` reserves the height with its own
+     margin — see the .curtain rules in global.css. */
+  @media (min-height: 620px) {
+    .footer {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: 0;
+    }
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-3);
+    text-align: center;
+  }
+
+  .footer__mark { width: 34px; height: 22px; }
+
+  .footer__name { color: var(--ink-on-dark); }
+
+  /* .credential and the nav both set caps globally. Down here that is a lot of
+     shouting in the darkest block on the page, so both are returned to their
+     written case — and the tracking that caps needed comes off with them. */
+  .footer__role {
+    color: rgba(238, 242, 239, .68);
+    text-transform: capitalize;
+    letter-spacing: .01em;
+  }
+
+  .footer__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-6);
+    margin-top: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid rgba(238, 242, 239, .16);
+  }
+  .footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: rgba(238, 242, 239, .82);
+    text-decoration: none;
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    letter-spacing: .01em;
+    text-transform: capitalize;
+  }
+  .footer__nav a:hover { color: var(--ink-on-dark); }
+
+  .footer__address {
+    font-style: normal;
+    font-size: var(--fs-body-sm);
+    color: rgba(238, 242, 239, .72);
+    line-height: 1.7;
+  }
+
+  .footer__legal {
+    max-width: 60ch;
+    margin-top: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid rgba(238, 242, 239, .16);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    color: rgba(238, 242, 239, .6);
+  }
+  .footer__legal a { color: rgba(238, 242, 239, .82); }
+</style>

@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import CareModel from '../components/CareModel.astro';
+import Services from '../components/Services.astro';
+import About from '../components/About.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Faq from '../components/Faq.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout>
+  {/* .page is the sheet that scrolls over the fixed footer — see the curtain
+      note in global.css. The nav is inside it so the hero wash runs behind
+      the nav uninterrupted. */}
+  <div class="page">
+    <Nav />
+
+    <main id="main">
+      <Hero />
+      <About />
+      <Services />
+      <CareModel />
+
+      {/* ⚠️ Lorem ipsum placeholders — replace with consented reviews or remove. */}
+      <Testimonials />
+
+      <Faq />
+      <Contact />
+    </main>
+  </div>
+
+  <Footer />
+</BaseLayout>

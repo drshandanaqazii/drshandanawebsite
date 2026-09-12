@@ -1,0 +1,168 @@
+---
+/**
+ * JSON-LD for local + medical search.
+ *
+ * One @graph containing five linked nodes:
+ *   Physician    — the entity Google's local pack ranks
+ *   MedicalOrganization — RMI, as her affiliation
+ *   WebSite / WebPage   — the site itself
+ *   FAQPage      — eligible for FAQ rich results on the SERP
+ *
+ * `Physician` is a subtype of MedicalBusiness → LocalBusiness, which is what
+ * makes address, geo and openingHours meaningful for "psychiatrist in Peshawar".
+ */
+import { SITE, DOCTOR, PRACTICE, AREAS_OF_FOCUS, MODALITIES, FAQS, SEO } from '../consts';
+
+const base = SITE.url.replace(/\/$/, '');
+
+const physicianId = `${base}/#physician`;
+const orgId = `${base}/#rmi`;
+const websiteId = `${base}/#website`;
+const webpageId = `${base}/#webpage`;
+
+const graph = [
+  {
+    '@type': ['Physician', 'MedicalBusiness'],
+    '@id': physicianId,
+    name: DOCTOR.name,
+    alternateName: `${DOCTOR.givenName} ${DOCTOR.familyName}`,
+    honorificPrefix: DOCTOR.honorificPrefix,
+    givenName: DOCTOR.givenName,
+    familyName: DOCTOR.familyName,
+    jobTitle: DOCTOR.jobTitle,
+    description: SEO.description,
+    url: base,
+    image: `${base}/og-image.jpg`,
+    telephone: PRACTICE.bookingPhone,
+    email: PRACTICE.email,
+    priceRange: 'PKR',
+    medicalSpecialty: 'Psychiatric',
+    knowsLanguage: DOCTOR.languages,
+
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: PRACTICE.address.street,
+      addressLocality: PRACTICE.address.locality,
+      addressRegion: PRACTICE.address.region,
+      postalCode: PRACTICE.address.postalCode,
+      addressCountry: PRACTICE.address.country,
+    },
+
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: PRACTICE.geo.lat,
+      longitude: PRACTICE.geo.lng,
+    },
+
+    // The catchment this practice actually serves.
+    areaServed: [
+      { '@type': 'City', name: 'Peshawar' },
+      { '@type': 'AdministrativeArea', name: 'Khyber Pakhtunkhwa' },
+    ],
+
+    openingHoursSpecification: PRACTICE.hours.map((h) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: h.days,
+      opens: h.opens,
+      closes: h.closes,
+    })),
+
+    hasCredential: [
+      {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: 'degree',
+        name: 'MBBS',
+      },
+      {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: 'Fellowship',
+        name: 'FCPS (Psychiatry)',
+        recognizedBy: {
+          '@type': 'Organization',
+          name: 'College of Physicians and Surgeons Pakistan',
+        },
+      },
+    ],
+
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'Rehman Medical College',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Peshawar',
+        addressCountry: 'PK',
+      },
+    },
+
+    worksFor: { '@id': orgId },
+    affiliation: { '@id': orgId },
+
+    // MODALITIES, not the card grid: the cards are conditions, and a condition
+    // is not a MedicalProcedure. Those are declared as knowsAbout below.
+    availableService: MODALITIES.map((m) => ({
+      '@type': 'MedicalProcedure',
+      name: m.name,
+      description: m.body,
+    })),
+
+    knowsAbout: AREAS_OF_FOCUS.map((a) => a.title),
+    sameAs: [PRACTICE.profileUrl],
+  },
+
+  {
+    '@type': ['MedicalOrganization', 'Hospital'],
+    '@id': orgId,
+    name: PRACTICE.affiliation,
+    alternateName: PRACTICE.affiliationShort,
+    url: PRACTICE.affiliationUrl,
+    telephone: PRACTICE.hospitalPhone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: PRACTICE.address.street,
+      addressLocality: PRACTICE.address.locality,
+      addressRegion: PRACTICE.address.region,
+      addressCountry: PRACTICE.address.country,
+    },
+  },
+
+  {
+    '@type': 'WebSite',
+    '@id': websiteId,
+    url: base,
+    name: `${DOCTOR.name}, ${DOCTOR.jobTitle}`,
+    inLanguage: 'en',
+    publisher: { '@id': physicianId },
+  },
+
+  {
+    '@type': 'WebPage',
+    '@id': webpageId,
+    url: base,
+    name: SEO.title,
+    description: SEO.description,
+    isPartOf: { '@id': websiteId },
+    about: { '@id': physicianId },
+    primaryImageOfPage: `${base}/og-image.jpg`,
+    inLanguage: 'en',
+  },
+
+  {
+    '@type': 'FAQPage',
+    '@id': `${base}/#faq`,
+    isPartOf: { '@id': websiteId },
+    mainEntity: FAQS.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
+---
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={JSON.stringify(jsonLd)}
+/>

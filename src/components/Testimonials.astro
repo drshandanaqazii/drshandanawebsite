@@ -1,0 +1,252 @@
+---
+import Icon from './Icon.astro';
+import { TESTIMONIALS } from '../consts';
+---
+
+{/*
+  ⚠️ PLACEHOLDER SECTION — contains lorem ipsum, not real reviews.
+  Replace with genuine testimonials given with written patient consent, or
+  delete this component from src/pages/index.astro, before the site goes live.
+  Publishing invented reviews for a named, practising doctor is both misleading
+  and a medical-advertising problem.
+*/}
+
+<section class="section" aria-labelledby="testimonials-heading">
+  <div class="container">
+    <div class="container-narrow statement" style="padding-inline: 0;" data-reveal-group data-parallax="-26">
+      <p class="eyebrow" data-reveal>Reviews</p>
+      <h2 class="display-md" id="testimonials-heading" data-reveal>
+        What patients have <em>said</em>
+      </h2>
+    </div>
+
+    {/* One data-reveal, on the wrapper, and none on anything inside it. Two
+        reasons: the reveal rules in motion.css own `transform` on whatever
+        carries the attribute, and the deck needs that property for its stack
+        positions; and the arrows start out hidden, so a [data-reveal] on them
+        would measure as a zero-height box at the top of the document and pull
+        the whole group in before it was ever scrolled to. */}
+    <div class="deck-wrap" data-reveal>
+      {/* Renders as a plain row of cards until the script below sets
+          data-deck="on". Everything about the stack — the fan, the arrows, one
+          card at a time — is scoped to that flag, so no JS means three legible
+          reviews rather than three cards piled on one another. */}
+      <ul class="deck" aria-live="polite">
+        {TESTIMONIALS.map((t) => (
+          <li class="review">
+            <span class="review__mark"><Icon name="quote" /></span>
+            <blockquote class="review__text">{t.quote}</blockquote>
+            <footer class="review__by">
+              <p class="review__name">{t.name}</p>
+              <p class="label">{t.meta}</p>
+            </footer>
+          </li>
+        ))}
+      </ul>
+
+      <div class="deck__nav" hidden>
+        <button class="deck__btn deck__btn--prev" type="button" data-deck-prev aria-label="Previous review">
+          <Icon name="arrow" />
+        </button>
+        <button class="deck__btn" type="button" data-deck-next aria-label="Next review">
+          <Icon name="arrow" />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .deck-wrap { margin-top: clamp(40px, 5vw, 64px); }
+
+  /* The no-JS resting state. */
+  .deck {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-5);
+  }
+
+  .review {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-5);
+    background: var(--surface);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .review__mark { color: var(--forest-600); }
+
+  .review__text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--ink-body);
+  }
+
+  .review__by {
+    margin-top: auto;
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+  }
+  .review__name {
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+  }
+
+  /* --------------------------------------------------------------------------
+     The stack
+     -------------------------------------------------------------------------- */
+
+  .deck[data-deck="on"] {
+    /* One cell, every card in it. The tallest quote sets the height once, so
+       flipping through them cannot make the section jump. */
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 640px;
+    margin-inline: auto;
+    /* Headroom for the two cards fanned up behind the front one. */
+    padding-top: 40px;
+
+    /* The three places a card can be. Same transform functions in the same
+       order in all of them, so moving between any two interpolates function by
+       function instead of falling back to matrix decomposition. */
+    --deck-front: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    --deck-mid:   translate3d(-14px, -18px, 0) rotate(-1.5deg) scale(0.965);
+    --deck-back:  translate3d(14px, -34px, 0) rotate(1.4deg) scale(0.93);
+  }
+
+  .deck[data-deck="on"] .review {
+    grid-area: 1 / 1;
+    padding: clamp(28px, 4vw, 44px);
+    gap: var(--s-5);
+
+    /* Deeper than third in the pile: parked at the back, invisible. A fourth
+       review needs no new rule. */
+    --pos-t: var(--deck-back);
+    --pos-o: 0;
+
+    z-index: 0;
+    transform: var(--pos-t);
+    opacity: var(--pos-o);
+    pointer-events: none;
+    /* The whole animation. Every card eases to its new place at the same rate,
+       so the pile advances as one gesture rather than three. */
+    transition:
+      transform 520ms var(--ease),
+      opacity 520ms var(--ease);
+  }
+
+  .deck[data-deck="on"] .review[data-pos="0"] {
+    --pos-t: var(--deck-front);
+    --pos-o: 1;
+    z-index: 3;
+    pointer-events: auto;
+  }
+  /* Barely faded. These are solid cards sitting behind, not ghosts — depth here
+     is the offset and the scale, and dropping the opacity far enough to read as
+     distance only turns white paper beige. */
+  .deck[data-deck="on"] .review[data-pos="1"] {
+    --pos-t: var(--deck-mid);
+    --pos-o: 0.94;
+    z-index: 2;
+  }
+  .deck[data-deck="on"] .review[data-pos="2"] {
+    --pos-t: var(--deck-back);
+    --pos-o: 0.86;
+    z-index: 1;
+  }
+
+  /* The front card is the only one being read, so it gets the pull-quote
+     treatment. The fallback row keeps the smaller sans size — three of these at
+     this size would be a wall. */
+  .deck[data-deck="on"] .review__text {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  /* --------------------------------------------------------------------------
+     Arrows
+     -------------------------------------------------------------------------- */
+
+  .deck__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-4);
+    margin-top: var(--s-6);
+  }
+  .deck__nav[hidden] { display: none; }
+
+  .deck__btn {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid var(--hairline);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease),
+      border-color var(--dur-fast) var(--ease),
+      color var(--dur-fast) var(--ease);
+  }
+  .deck__btn:hover {
+    background: var(--forest-900);
+    border-color: var(--forest-900);
+    color: var(--ink-on-dark);
+  }
+
+  /* One arrow drawing, turned around — a separate left-pointing path would be a
+     second glyph to keep in step with the first. */
+  .deck__btn--prev :global(.icon) { transform: rotate(180deg); }
+
+  @media (max-width: 900px) {
+    .deck { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const deck = document.querySelector<HTMLElement>('.deck');
+  const nav = document.querySelector<HTMLElement>('.deck__nav');
+  const cards = deck ? Array.from(deck.querySelectorAll<HTMLElement>('.review')) : [];
+  const prev = nav?.querySelector<HTMLButtonElement>('[data-deck-prev]');
+  const next = nav?.querySelector<HTMLButtonElement>('[data-deck-next]');
+
+  // One card has nowhere to go, and no buttons means no way out of the stacked
+  // state. Either way, leave the plain row alone.
+  if (deck && nav && prev && next && cards.length > 1) {
+    let current = 0;
+
+    // The only thing this does is renumber the cards. Where each position sits
+    // and how a card gets there is the stylesheet's business, so a click that
+    // lands mid-move just retargets the transition already running.
+    const sync = () => {
+      cards.forEach((card, i) => {
+        const pos = (i - current + cards.length) % cards.length;
+        card.dataset.pos = String(pos);
+        // The cards behind are decoration; only the front one is read out.
+        card.setAttribute('aria-hidden', pos === 0 ? 'false' : 'true');
+      });
+    };
+
+    const go = (step: number) => {
+      current = (current + step + cards.length) % cards.length;
+      sync();
+    };
+
+    deck.dataset.deck = 'on';
+    nav.hidden = false;
+    sync();
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+  }
+</script>

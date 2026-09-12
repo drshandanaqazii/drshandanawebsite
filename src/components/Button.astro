@@ -1,0 +1,95 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '../lib/icons';
+
+interface Props {
+  href: string;
+  variant?: 'solid' | 'ghost' | 'on-dark';
+  icon?: IconName;
+  class?: string;
+  /** Set for tel:, wa.me and other off-site destinations. */
+  external?: boolean;
+  ariaLabel?: string;
+}
+
+const {
+  href,
+  variant = 'solid',
+  icon = 'arrow',
+  class: className = '',
+  external = false,
+  ariaLabel,
+} = Astro.props;
+
+const rel = external ? 'noopener noreferrer' : undefined;
+const target = external && href.startsWith('http') ? '_blank' : undefined;
+---
+
+<a
+  href={href}
+  class={`btn btn--${variant} ${className}`.trim()}
+  rel={rel}
+  target={target}
+  aria-label={ariaLabel}
+>
+  <span class="btn__text"><slot /></span>
+  <span class="btn__arrow"><Icon name={icon} size="sm" /></span>
+</a>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-4);
+    min-height: 48px;
+    padding: 7px 7px 7px 26px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--forest-900);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease);
+  }
+
+  .btn:hover { background: var(--forest-600); }
+
+  .btn__arrow {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--forest-900);
+    transition: transform var(--dur-fast) var(--ease);
+  }
+
+  .btn:hover .btn__arrow { transform: rotate(45deg); }
+
+  /* Ghost: outlined, sits on paper */
+  .btn--ghost {
+    background: transparent;
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .btn--ghost:hover { background: var(--surface); }
+  .btn--ghost .btn__arrow { background: var(--forest-900); color: #fff; }
+
+  /* On-dark: for the evergreen footer and CTA bands */
+  .btn--on-dark {
+    background: var(--paper);
+    color: var(--forest-900);
+  }
+  .btn--on-dark:hover { background: #fff; }
+  .btn--on-dark .btn__arrow { background: var(--forest-900); color: #fff; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn:hover .btn__arrow { transform: none; }
+  }
+</style>

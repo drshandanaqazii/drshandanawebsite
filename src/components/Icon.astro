@@ -1,0 +1,21 @@
+---
+import { ICON_PATHS, type IconName } from '../lib/icons';
+
+interface Props {
+  name: IconName;
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const { name, size = 'md', class: className = '' } = Astro.props;
+
+const sizeClass = size === 'sm' ? 'icon--sm' : size === 'lg' ? 'icon--lg' : '';
+---
+
+<svg
+  class={`icon ${sizeClass} ${className}`.trim()}
+  viewBox="0 0 24 24"
+  aria-hidden="true"
+  focusable="false"
+  set:html={ICON_PATHS[name]}
+/>

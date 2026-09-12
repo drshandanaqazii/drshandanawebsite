@@ -1,0 +1,102 @@
+---
+import { FAQS } from '../consts';
+---
+
+<section class="section section--band" id="faq" aria-labelledby="faq-heading">
+  <div class="container faq">
+    <div class="faq__head" data-reveal-group>
+      <p class="eyebrow" data-reveal>Questions</p>
+      <h2 class="display-md" id="faq-heading" data-reveal>
+        Things people ask <em>first</em>
+      </h2>
+      <p class="body-sm prose" data-reveal>
+        If your question is not here, ask it on the phone before you book. That is a
+        normal thing to do, and it is always worth asking.
+      </p>
+    </div>
+
+    <div class="faq__list" data-reveal-group>
+      {FAQS.map((item) => (
+        <details class="faq__item" name="faq" data-reveal style="--reveal-from: 10px;">
+          <summary class="faq__q">
+            <span>{item.q}</span>
+            <span class="faq__sign" aria-hidden="true"></span>
+          </summary>
+          <div class="faq__a"><p class="body-sm">{item.a}</p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) 1fr;
+    gap: clamp(32px, 6vw, 88px);
+    align-items: start;
+  }
+
+  .faq__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    position: sticky;
+    top: 108px;
+  }
+
+  /* Rules between the questions only, none closing the stack top or bottom:
+     they separate one question from the next, and a rule with nothing on the
+     far side of it is drawing a box the list does not need. */
+  .faq__item + .faq__item { border-top: 1px solid var(--hairline); }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+    padding-block: 22px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__q:hover { color: var(--forest-600); }
+
+  /* The +/× is drawn, not typed, so it can rotate cleanly */
+  .faq__sign {
+    position: relative;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--ink-muted);
+  }
+  .faq__sign::before,
+  .faq__sign::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto 0;
+    height: 1.25px;
+    background: currentColor;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .faq__sign::after { transform: rotate(90deg); }
+
+  .faq__item[open] .faq__sign { color: var(--forest-600); }
+  .faq__item[open] .faq__sign::before { transform: rotate(45deg); }
+  .faq__item[open] .faq__sign::after { transform: rotate(135deg); }
+
+  .faq__a { padding-bottom: 24px; }
+  .faq__a p { max-width: 62ch; }
+
+  @media (max-width: 1000px) {
+    .faq { grid-template-columns: 1fr; }
+    .faq__head { position: static; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__sign::before, .faq__sign::after { transition: none; }
+  }
+</style>

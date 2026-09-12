@@ -1,0 +1,144 @@
+---
+import { Image } from 'astro:assets';
+import { DOCTOR, CREDENTIALS, PRACTICE } from '../consts';
+import Button from './Button.astro';
+import aboutPortrait from '../assets/shandana-portrait2.jpeg';
+---
+
+<section class="section" id="about" aria-labelledby="about-heading">
+  <div class="container about">
+    {/* No pan, and no over-scale to pan inside of.
+
+        The portrait is 3:4 in a 4:5 frame, so `cover` already has vertical
+        overflow to spend before any effect is added, and an over-scale spends
+        more of it. Centred, both are taken half off the top — which is the half
+        with her head in it, and at the old 1.22 over-scale it was cutting the
+        crown of her hijab.
+
+        Same call as the `sleep` and `depression` photographs in Services.astro,
+        for the same reason: her head is close enough to the top of the source
+        that there is no margin here to spend, so the crop is anchored to the
+        top edge and taken entirely off the bottom, which is drapery. An
+        anchored edge has no slack behind it, and travel is made of slack —
+        hence no pan. See the framing note in motion.css. */}
+    <div class="about__media">
+      <figure class="arch about__arch" data-reveal="media">
+        <Image
+          src={aboutPortrait}
+          alt={`${DOCTOR.name}, consultant psychiatrist at Rehman Medical Institute`}
+          widths={[380, 620]}
+          sizes="(max-width: 900px) 60vw, 32vw"
+          loading="lazy"
+        />
+      </figure>
+    </div>
+
+    <div class="about__copy" data-reveal-group>
+      <p class="eyebrow" data-reveal>About Dr. Shandana</p>
+      <h2 class="display-md" id="about-heading" data-reveal>
+        Care that makes sense where you <em>live</em>.
+      </h2>
+
+      <p class="prose" data-reveal>
+        {DOCTOR.name} qualified in medicine from Rehman Medical College in 2018 and
+        completed her FCPS in Psychiatry in 2025. She practises as a consultant
+        psychiatrist at Rehman Medical Institute in Hayatabad, Peshawar.
+      </p>
+
+      <p class="prose" data-reveal>
+        Her work covers adolescent and adult psychiatry, with a particular focus on
+        female mental health and on anxiety, depression and stress-related conditions.
+        Her approach is empathetic, culturally sensitive and evidence-based, which in
+        practice means treatment decisions that take account of your family, your work
+        and your circumstances, not only your symptoms.
+      </p>
+
+      <ul class="creds" data-reveal>
+        {CREDENTIALS.map((c) => (
+          <li class="creds__row">
+            <span class="creds__label">{c.label}</span>
+            <span class="creds__detail">{c.detail}</span>
+            {c.year && <span class="creds__year tabular">{c.year}</span>}
+          </li>
+        ))}
+      </ul>
+
+      {/* The credentials list states them; the hospital's own profile is what
+          verifies them, so the link out is the natural end of this column. */}
+      <div class="about__cta" data-reveal>
+        <Button href={PRACTICE.profileUrl} variant="ghost" external>
+          View Credentials
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(32px, 6vw, 88px);
+    align-items: start;
+  }
+
+  /* The copy runs far taller than the portrait — credentials, languages and
+     the profile link all sit below it. Pinned, the photograph stays with the
+     paragraph being read instead of leaving half a column of empty paper. */
+  .about__media {
+    position: sticky;
+    top: 104px;               /* clears the sticky nav */
+    align-self: start;
+  }
+
+  .about__arch {
+    width: 100%;
+    max-width: 380px;
+    aspect-ratio: 4 / 5;
+  }
+
+  /* Anchors the `cover` crop to the top of the source, so the whole of the
+     vertical overflow comes off the bottom. Without it the crop is centred and
+     half of it is taken off her head. */
+  .about__arch :global(img) {
+    object-position: 50% 0;
+  }
+
+  .about__copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+  }
+
+  .creds {
+    margin-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+  }
+  .creds__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-2) var(--s-4);
+    padding-block: 16px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .creds__label {
+    flex: 0 0 auto;
+    min-width: 190px;
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 0.9375rem;
+  }
+  .creds__detail { flex: 1 1 200px; font-size: var(--fs-body-sm); }
+  .creds__year { flex: 0 0 auto; color: var(--ink-muted); font-size: var(--fs-body-sm); }
+
+  .about__cta { margin-top: var(--s-2); }
+
+  @media (max-width: 900px) {
+    .about { grid-template-columns: 1fr; }
+    /* Stacked, there is no second column to stay level with. */
+    .about__media { position: static; }
+    .about__arch { max-width: 260px; }
+    .creds__label { min-width: 0; flex-basis: 100%; }
+  }
+</style>
