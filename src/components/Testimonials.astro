@@ -73,10 +73,11 @@ import { TESTIMONIALS } from '../consts';
     padding: var(--s-5);
     background: var(--surface);
     border-radius: var(--r-card);
-    box-shadow: var(--shadow-card);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
   }
 
-  .review__mark { color: var(--forest-600); }
+  /* The one warm mark on a white card. */
+  .review__mark { color: var(--gilt-600); }
 
   .review__text {
     margin: 0;
@@ -163,9 +164,10 @@ import { TESTIMONIALS } from '../consts';
      this size would be a wall. */
   .deck[data-deck="on"] .review__text {
     font-family: var(--font-display);
-    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
-    line-height: 1.35;
-    letter-spacing: -0.01em;
+    font-size: clamp(1.1875rem, 2vw, 1.625rem);
+    font-weight: 300;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
     color: var(--ink);
   }
 
@@ -199,8 +201,8 @@ import { TESTIMONIALS } from '../consts';
       color var(--dur-fast) var(--ease);
   }
   .deck__btn:hover {
-    background: var(--forest-900);
-    border-color: var(--forest-900);
+    background: var(--amethyst-900);
+    border-color: var(--amethyst-900);
     color: var(--ink-on-dark);
   }
 

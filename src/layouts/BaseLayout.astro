@@ -61,16 +61,19 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <meta name="theme-color" content="#F6F3EE" />
+    <meta name="theme-color" content="#FFFFFF" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Fonts. preconnect first so the stylesheet request isn't blocked on DNS. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Both are variable. Outfit is requested from 200 because the ghost
+        numerals in the care section set it there, and the display steps run at
+        300 — trimming the low end of the range would silently thicken both. */}
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&family=Outfit:wght@200..600&display=swap"
     />
 
     <StructuredData />

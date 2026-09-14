@@ -114,7 +114,9 @@
 }
 .navwrap.is-stuck { padding-top: var(--s-2); }
 .navwrap.is-stuck .nav {
-  box-shadow: 0 10px 34px rgba(25, 28, 26, .12);
+  /* The inset hairline has to be repeated here: box-shadow replaces the whole
+     list, and dropping it would delete the pill's edge the moment it sticks. */
+  box-shadow: inset 0 0 0 1px var(--hairline), 0 10px 34px rgba(26, 22, 34, .10);
   transform: scale(.985);
 }
 
@@ -141,7 +143,9 @@
      instead of being overridden by them. */
   .card:hover {
     --lift: -4px;
-    box-shadow: 0 16px 40px rgba(25, 28, 26, .10);
+    /* Same reason as the stuck nav above — the hairline is part of the card, so
+       it has to be restated in every box-shadow that replaces the resting one. */
+    box-shadow: inset 0 0 0 1px var(--hairline), 0 16px 40px rgba(26, 22, 34, .08);
   }
 
   /* The disc lifts with its card, not on its own hover */

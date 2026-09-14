@@ -15,8 +15,8 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
 
       <a class="nav__mark" href="#top" aria-label={`${DOCTOR.name}, home`}>
         <svg class="nav__arch" viewBox="0 0 26 17" fill="none" aria-hidden="true">
-          <path d="M1 16a12 12 0 0 1 24 0" stroke="var(--forest-900)" stroke-width="1.5" />
-          <path d="M8 16a5 5 0 0 1 10 0" stroke="var(--forest-600)" stroke-width="1.5" />
+          <path d="M1 16a12 12 0 0 1 24 0" stroke="var(--amethyst-900)" stroke-width="1.5" />
+          <path d="M8 16a5 5 0 0 1 10 0" stroke="var(--amethyst-600)" stroke-width="1.5" />
         </svg>
         <span class="nav__word">Dr. Shandana Qazi</span>
       </a>
@@ -94,7 +94,7 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
     text-decoration: none;
     transition: color var(--dur-fast) var(--ease);
   }
-  .nav__links a:hover { color: var(--forest-600); }
+  .nav__links a:hover { color: var(--amethyst-600); }
 
   .nav__mark {
     display: inline-flex;
@@ -104,11 +104,14 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
     white-space: nowrap;
   }
   .nav__arch { width: 20px; height: 13px; }
+  /* The wordmark has no serif left to set it apart from the links beside it,
+     so it takes weight and size instead. */
   .nav__word {
     font-family: var(--font-display);
     font-size: 1.25rem;
+    font-weight: 500;
     color: var(--ink);
-    letter-spacing: -.01em;
+    letter-spacing: -.02em;
   }
 
   .nav__actions {
@@ -128,7 +131,7 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
     text-decoration: none;
     white-space: nowrap;
   }
-  .nav__tel:hover { color: var(--forest-600); }
+  .nav__tel:hover { color: var(--amethyst-600); }
 
   .nav__toggle {
     display: none;
@@ -137,7 +140,7 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
     height: 48px;
     border: 0;
     border-radius: 50%;
-    background: var(--forest-900);
+    background: var(--amethyst-900);
     color: #fff;
     cursor: pointer;
   }
@@ -147,7 +150,7 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
     padding: var(--s-4) var(--s-5) var(--s-5);
     border-radius: var(--r-card);
     background: var(--surface);
-    box-shadow: var(--shadow-nav);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-nav);
   }
   .nav__mobile ul { display: flex; flex-direction: column; }
   .nav__mobile a {
@@ -158,7 +161,7 @@ import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
     text-decoration: none;
     font-size: 1rem;
   }
-  .nav__mobile .nav__mobile-cta { color: var(--forest-600); }
+  .nav__mobile .nav__mobile-cta { color: var(--amethyst-600); }
 
   /* Outranks the `.nav__mobile a` block above, which is a class+element. */
   .nav__mobile .nav__mobile-tel {

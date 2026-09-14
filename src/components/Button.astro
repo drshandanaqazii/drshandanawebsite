@@ -45,7 +45,7 @@ const target = external && href.startsWith('http') ? '_blank' : undefined;
     padding: 7px 7px 7px 26px;
     border: 0;
     border-radius: var(--r-pill);
-    background: var(--forest-900);
+    background: var(--amethyst-900);
     color: #fff;
     font-family: var(--font-sans);
     font-size: var(--fs-body-sm);
@@ -56,7 +56,7 @@ const target = external && href.startsWith('http') ? '_blank' : undefined;
     transition: background var(--dur-fast) var(--ease);
   }
 
-  .btn:hover { background: var(--forest-600); }
+  .btn:hover { background: var(--amethyst-600); }
 
   .btn__arrow {
     display: grid;
@@ -66,7 +66,7 @@ const target = external && href.startsWith('http') ? '_blank' : undefined;
     height: 34px;
     border-radius: 50%;
     background: #fff;
-    color: var(--forest-900);
+    color: var(--amethyst-900);
     transition: transform var(--dur-fast) var(--ease);
   }
 
@@ -79,15 +79,15 @@ const target = external && href.startsWith('http') ? '_blank' : undefined;
     box-shadow: inset 0 0 0 1px var(--hairline);
   }
   .btn--ghost:hover { background: var(--surface); }
-  .btn--ghost .btn__arrow { background: var(--forest-900); color: #fff; }
+  .btn--ghost .btn__arrow { background: var(--amethyst-900); color: #fff; }
 
-  /* On-dark: for the evergreen footer and CTA bands */
+  /* On-dark: for the amethyst footer and CTA bands */
   .btn--on-dark {
     background: var(--paper);
-    color: var(--forest-900);
+    color: var(--amethyst-900);
   }
   .btn--on-dark:hover { background: #fff; }
-  .btn--on-dark .btn__arrow { background: var(--forest-900); color: #fff; }
+  .btn--on-dark .btn__arrow { background: var(--amethyst-900); color: #fff; }
 
   @media (prefers-reduced-motion: reduce) {
     .btn:hover .btn__arrow { transform: none; }

@@ -11,14 +11,24 @@ const year = new Date().getFullYear();
 <footer class="footer">
   <div class="container footer__inner">
     <svg class="footer__mark" viewBox="0 0 26 17" fill="none" aria-hidden="true">
-      <path d="M1 16a12 12 0 0 1 24 0" stroke="#EEF2EF" stroke-width="1.25" />
-      <path d="M6 16a7 7 0 0 1 14 0" stroke="rgba(238,242,239,.6)" stroke-width="1.25" />
-      <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="rgba(238,242,239,.35)" stroke-width="1.25" />
+      <path d="M1 16a12 12 0 0 1 24 0" stroke="#FFFFFF" stroke-width="1.25" />
+      <path d="M6 16a7 7 0 0 1 14 0" stroke="rgba(255,255,255,.62)" stroke-width="1.25" />
+      <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="rgba(255,255,255,.38)" stroke-width="1.25" />
     </svg>
 
-    <p class="display-md footer__name">{DOCTOR.name}</p>
-    <p class="credential footer__role">{DOCTOR.qualifications} &middot; {DOCTOR.jobTitle}</p>
+    <p class="footer__name">{DOCTOR.name}</p>
 
+    {/* Two chunks in a centred row, not a string joined by a middot: joined,
+        it broke after the separator and left the dot hanging at the end of a
+        line. As flex items they wrap as whole phrases instead. */}
+    <p class="footer__role">
+      <span>{DOCTOR.qualifications}</span>
+      <span>{DOCTOR.jobTitle}</span>
+    </p>
+
+    {/* One horizontal row rather than a stacked list. Centred, a five-item
+        ladder is what made the old footer read as a pile — across one line it
+        reads as navigation. */}
     <nav class="footer__nav" aria-label="Footer">
       <ul>
         {NAV_LINKS.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
@@ -26,18 +36,19 @@ const year = new Date().getFullYear();
       </ul>
     </nav>
 
+    <p class="footer__contact">
+      <a href={`tel:${PRACTICE.bookingPhone}`}>{PRACTICE.bookingPhoneDisplay}</a>
+      <a href={`mailto:${PRACTICE.email}`}>{PRACTICE.email}</a>
+    </p>
+
     <address class="footer__address">
-      {PRACTICE.address.street}<br />
-      {PRACTICE.address.locality}, {PRACTICE.address.region}, Pakistan
+      {PRACTICE.address.street}, {PRACTICE.address.locality},
+      {' '}{PRACTICE.address.region}, Pakistan
     </address>
 
     <p class="footer__legal">
-      &copy; {year} {DOCTOR.name}. Consultant psychiatrist at
-      <a href={PRACTICE.affiliationUrl} rel="noopener noreferrer" target="_blank">
-        {PRACTICE.affiliation}
-      </a>.
-      <br />
-      Information on this site is general and does not replace an individual consultation.
+      &copy; {year} {DOCTOR.name}. All rights reserved. Information on this site is general
+      and does not replace an individual consultation.
     </p>
   </div>
 </footer>
@@ -48,12 +59,15 @@ const year = new Date().getFullYear();
      window edge; curving the top is what makes it read as a panel the page
      rests on rather than a bar stuck to the end of it. */
   .footer {
-    background: var(--forest-800);
-    color: var(--ink-on-dark);
+    /* The deepest amethyst, not the mid one: on a white page this block is the
+       only large area of colour, and it has to land as an anchor rather than as
+       a purple panel. */
+    background: var(--amethyst-900);
+    color: #FFFFFF;
     /* Far tighter than a normal section's rhythm. As a curtain the footer's
        height is also the gap the page has to scroll past, so generous padding
        here reads as an empty screen rather than as breathing room. */
-    padding-block: clamp(40px, 5vw, 64px);
+    padding-block: clamp(40px, 4.5vw, 60px);
     border-radius: clamp(24px, 3.5vw, 44px) clamp(24px, 3.5vw, 44px) 0 0;
   }
 
@@ -68,64 +82,98 @@ const year = new Date().getFullYear();
     }
   }
 
+  /* Centred, but on a measured rhythm rather than one flat gap: the identity
+     block, the two link rows and the legal line are three groups, and the space
+     between them is what separates them — not a rule between each. */
   .footer__inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--s-3);
     text-align: center;
   }
 
-  .footer__mark { width: 34px; height: 22px; }
+  .footer__mark { width: 32px; height: 21px; }
 
-  .footer__name { color: var(--ink-on-dark); }
+  .footer__name {
+    margin-top: var(--s-4);
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -.02em;
+    color: #FFFFFF;
+  }
 
-  /* .credential and the nav both set caps globally. Down here that is a lot of
-     shouting in the darkest block on the page, so both are returned to their
-     written case — and the tracking that caps needed comes off with them. */
+  /* Every text tone down here is a solid colour, not white at an opacity.
+     Stacked alphas on a purple ground were what made the old footer read as
+     washed out; these are picked to clear 7:1 on --amethyst-900. */
   .footer__role {
-    color: rgba(238, 242, 239, .68);
-    text-transform: capitalize;
-    letter-spacing: .01em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: var(--s-4);
+    margin-top: 6px;
+    font-size: var(--fs-body-sm);
+    color: #CFC7DE;
   }
 
   .footer__nav ul {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--s-6);
-    margin-top: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid rgba(238, 242, 239, .16);
+    gap: 0 var(--s-6);
+    margin-top: var(--s-5);
   }
   .footer__nav a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    color: rgba(238, 242, 239, .82);
+    color: #FFFFFF;
     text-decoration: none;
     font-size: var(--fs-body-sm);
-    font-weight: 500;
-    letter-spacing: .01em;
-    text-transform: capitalize;
+    transition: color var(--dur-fast) var(--ease);
   }
-  .footer__nav a:hover { color: var(--ink-on-dark); }
+
+  .footer__contact {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px var(--s-5);
+    font-size: var(--fs-body-sm);
+  }
+  .footer__contact a {
+    color: #E7E2F2;
+    text-decoration: none;
+    word-break: break-word;
+  }
+
+  .footer__nav a:hover,
+  .footer__contact a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 
   .footer__address {
+    margin-top: var(--s-3);
     font-style: normal;
     font-size: var(--fs-body-sm);
-    color: rgba(238, 242, 239, .72);
     line-height: 1.7;
+    color: #CFC7DE;
+    max-width: 48ch;
   }
 
+  /* The one rule in the footer, and it only has to separate the legal line —
+     the groups above are already separated by space. */
   .footer__legal {
-    max-width: 60ch;
-    margin-top: var(--s-2);
-    padding-top: var(--s-4);
-    border-top: 1px solid rgba(238, 242, 239, .16);
+    width: 100%;
+    max-width: 72ch;
+    margin-top: clamp(28px, 3.5vw, 40px);
+    padding-top: var(--s-5);
+    border-top: 1px solid rgba(255, 255, 255, .18);
     font-size: 0.8125rem;
-    line-height: 1.7;
-    color: rgba(238, 242, 239, .6);
+    line-height: 1.6;
+    color: #BEB4D2;
+    text-wrap: pretty;
   }
-  .footer__legal a { color: rgba(238, 242, 239, .82); }
 </style>

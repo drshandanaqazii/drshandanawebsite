@@ -1,43 +1,43 @@
 <title>Shandana Design System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&family=Outfit:wght@200..600&display=swap">
 
 <style>
 /* =========================================================================
    Shandana Design System — specimen sheet.
-   Deliberately single-theme: this is a bone-paper brand, and a colour
+   Deliberately single-theme: this is a white-page brand, and a colour
    reference has to be shown on its own ground to be true. Every colour is
    painted explicitly so the page holds on any host background.
    ========================================================================= */
 
 :root {
-  --paper:      #F6F3EE;
-  --paper-deep: #EDE8E0;
+  --paper:      #FFFFFF;
+  --paper-deep: #F5F4F8;
   --surface:    #FFFFFF;
-  --hairline:   #E2DCD3;
+  --hairline:   #E5E3EC;
 
-  --ink:        #191C1A;
-  --ink-body:   #5F6360;
-  --ink-muted:  #6C6F69;
-  --ink-on-dark:#EEF2EF;
+  --ink:        #1A1622;
+  --ink-body:   #55505F;
+  --ink-muted:  #6B6577;
+  --ink-on-dark:#F3F0F8;
 
-  --forest-900: #1F3A34;
-  --forest-800: #294A43;
-  --forest-600: #3D655C;
-  --forest-50:  #E8EEEA;
+  --amethyst-900: #3E2E5C;
+  --amethyst-800: #4B3970;
+  --amethyst-600: #6A4E96;
+  --amethyst-100: #E7E0F4;
+  --amethyst-50:  #F2ECFA;
 
-  --wash-sage:  #DCE6DF;
-  --wash-sand:  #EFE4D6;
+  --gilt-600:   #A9762F;
 
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-display: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  --fs-display-xl: clamp(2.75rem, 6.2vw, 5.25rem);
-  --fs-display-lg: clamp(2.25rem, 4.6vw, 4rem);
-  --fs-display-md: clamp(1.875rem, 3.2vw, 2.75rem);
-  --fs-card-title: clamp(1.375rem, 1.8vw, 1.625rem);
-  --fs-eyebrow:    clamp(1.1875rem, 1.5vw, 1.375rem);
+  --fs-display-xl: clamp(2.5rem, 5.6vw, 4.75rem);
+  --fs-display-lg: clamp(2.125rem, 4.2vw, 3.5rem);
+  --fs-display-md: clamp(1.75rem, 2.9vw, 2.5rem);
+  --fs-card-title: clamp(1.1875rem, 1.5vw, 1.375rem);
+  --fs-eyebrow:    clamp(1.0625rem, 1.3vw, 1.25rem);
 
   --ls-label: 0.18em;
 
@@ -46,8 +46,8 @@
   --r-media: 14px;
   --r-arch: 999px 999px 0 0;
 
-  --shadow-card: 0 8px 28px rgba(25, 28, 26, .06);
-  --shadow-nav:  0 6px 24px rgba(25, 28, 26, .08);
+  --shadow-card: 0 10px 30px rgba(26, 22, 34, .05);
+  --shadow-nav:  0 8px 26px  rgba(26, 22, 34, .07);
 
   --ease: cubic-bezier(.2, .7, .2, 1);
   --dur: 400ms;
@@ -69,7 +69,7 @@ body {
 }
 
 :where(a, button, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--forest-600);
+  outline: 2px solid var(--amethyst-600);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -85,17 +85,16 @@ body {
 
 .display-xl, .display-lg, .display-md, .card-title, .eyebrow-serif {
   font-family: var(--font-display);
-  font-weight: 400;
   color: var(--ink);
   margin: 0;
   text-wrap: balance;
 }
-.display-xl { font-size: var(--fs-display-xl); line-height: 1.02; letter-spacing: -.02em; }
-.display-lg { font-size: var(--fs-display-lg); line-height: 1.05; letter-spacing: -.02em; }
-.display-md { font-size: var(--fs-display-md); line-height: 1.1;  letter-spacing: -.01em; }
-.card-title { font-size: var(--fs-card-title); line-height: 1.2;  letter-spacing: -.01em; }
-.eyebrow-serif { font-size: var(--fs-eyebrow); line-height: 1.4; }
-:where(.display-xl, .display-lg, .display-md) em { font-style: italic; }
+.display-xl { font-size: var(--fs-display-xl); font-weight: 300; line-height: 1.08; letter-spacing: -.03em; }
+.display-lg { font-size: var(--fs-display-lg); font-weight: 300; line-height: 1.12; letter-spacing: -.03em; }
+.display-md { font-size: var(--fs-display-md); font-weight: 400; line-height: 1.18; letter-spacing: -.02em; }
+.card-title { font-size: var(--fs-card-title); font-weight: 500; line-height: 1.32; letter-spacing: -.01em; }
+.eyebrow-serif { font-size: var(--fs-eyebrow); font-weight: 400; line-height: 1.45; }
+:where(.display-xl, .display-lg, .display-md) em { font-style: normal; color: var(--amethyst-600); }
 :where(.card-title, .eyebrow-serif) em { font-style: normal; }
 
 .label {
@@ -128,10 +127,7 @@ p { margin: 0; }
 /* ---------- page structure ---------- */
 
 .masthead {
-  background:
-    radial-gradient(60% 60% at 0% 20%,  var(--wash-sage) 0%, transparent 64%),
-    radial-gradient(58% 52% at 100% 0%, var(--wash-sand) 0%, transparent 62%),
-    var(--paper);
+  background: var(--paper);
   padding-block: 72px 88px;
   border-bottom: 1px solid var(--hairline);
 }
@@ -159,26 +155,24 @@ p { margin: 0; }
   overflow: hidden;
 }
 .chip { background: var(--surface); display: flex; flex-direction: column; }
-.chip__fill { height: 128px; border-bottom: 1px solid rgba(25,28,26,.06); }
+.chip__fill { height: 128px; border-bottom: 1px solid rgba(62,46,92,.06); }
 .chip__meta { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 3px; }
 .chip__hex { font-size: 13px; color: var(--ink); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
 .chip__use { font-size: 12.5px; line-height: 1.45; color: var(--ink-body); }
 .chip__ratio {
   margin-top: 6px;
   font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--forest-600);
+  color: var(--amethyst-600);
 }
 
 /* ---------- wash demo ---------- */
 
+/* The hero panel: the only gradient left in the system. */
 .washdemo {
   height: 220px;
   border: 1px solid var(--hairline);
   border-radius: var(--r-media);
-  background:
-    radial-gradient(60% 50% at 0% 18%,  var(--wash-sage) 0%, transparent 62%),
-    radial-gradient(55% 45% at 100% 4%, var(--wash-sand) 0%, transparent 60%),
-    var(--paper);
+  background: linear-gradient(172deg, var(--surface) 0%, var(--paper-deep) 42%, var(--amethyst-100) 100%);
   display: grid;
   place-items: center;
 }
@@ -208,7 +202,7 @@ p { margin: 0; }
   padding: 32px 36px;
   background: var(--surface);
   border-radius: var(--r-card);
-  box-shadow: var(--shadow-card);
+  box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
   display: flex; flex-direction: column; gap: 14px;
 }
 
@@ -225,7 +219,7 @@ p { margin: 0; }
   padding: 8px 8px 8px 24px;
   border-radius: var(--r-pill);
   background: var(--surface);
-  box-shadow: var(--shadow-nav);
+  box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-nav);
 }
 .nav__links { display: flex; align-items: center; gap: 22px; }
 .nav__links a {
@@ -241,31 +235,31 @@ p { margin: 0; }
   min-height: 44px;
   padding: 6px 6px 6px 26px;
   border: 0; border-radius: var(--r-pill);
-  background: var(--forest-900);
+  background: var(--amethyst-900);
   color: #fff;
   font-family: var(--font-sans); font-size: 14px; font-weight: 500;
   text-decoration: none; cursor: pointer;
   transition: background var(--dur-fast) var(--ease);
 }
-.btn:hover { background: var(--forest-600); }
+.btn:hover { background: var(--amethyst-600); }
 .btn__arrow {
   display: grid; place-items: center;
   width: 32px; height: 32px; border-radius: 50%;
-  background: #fff; color: var(--forest-900);
+  background: #fff; color: var(--amethyst-900);
   transition: transform var(--dur-fast) var(--ease);
 }
 .btn:hover .btn__arrow { transform: rotate(45deg); }
 .btn--ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--hairline); }
 .btn--ghost:hover { background: var(--surface); }
-.btn--ghost .btn__arrow { background: var(--forest-900); color: #fff; }
+.btn--ghost .btn__arrow { background: var(--amethyst-900); color: #fff; }
 
 .icon-btn {
   display: grid; place-items: center;
   width: 44px; height: 44px; border: 0; border-radius: 50%;
-  background: var(--forest-900); color: #fff; cursor: pointer;
+  background: var(--amethyst-900); color: #fff; cursor: pointer;
   transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
-.icon-btn:hover { background: var(--forest-600); transform: translateY(-1px); }
+.icon-btn:hover { background: var(--amethyst-600); transform: translateY(-1px); }
 
 .icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
 .icon--sm { width: 14px; height: 14px; }
@@ -274,7 +268,7 @@ p { margin: 0; }
 .icon-disc {
   display: grid; place-items: center;
   width: 72px; height: 72px; border-radius: 50%;
-  background: var(--forest-50); color: var(--forest-900);
+  background: var(--amethyst-50); color: var(--amethyst-900);
 }
 
 .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -284,7 +278,7 @@ p { margin: 0; }
 .card {
   background: var(--surface);
   border-radius: var(--r-card);
-  box-shadow: var(--shadow-card);
+  box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
   padding: 24px;
   display: flex; flex-direction: column; gap: 14px;
 }
@@ -292,24 +286,24 @@ p { margin: 0; }
   border-radius: var(--r-media);
   aspect-ratio: 4 / 3;
   display: grid; place-items: center;
-  color: var(--forest-900);
+  color: var(--amethyst-900);
 }
-.card__media--a { background: var(--forest-50); }
-.card__media--b { background: var(--wash-sand); }
-.card__media--c { background: var(--wash-sage); }
+.card__media--a { background: var(--amethyst-50); }
+.card__media--b { background: var(--paper-deep); }
+.card__media--c { background: var(--amethyst-50); }
 .card .icon-btn { margin-top: 4px; }
 
 .arch { border-radius: var(--r-arch); overflow: hidden; display: block; }
 .arch--medallion {
   width: 96px; height: 112px;
   box-shadow: 0 0 0 6px var(--paper);
-  background: var(--forest-800);
+  background: var(--amethyst-800);
   display: grid; place-items: center;
   color: var(--ink-on-dark);
 }
 .archrow { display: flex; align-items: flex-end; gap: 28px; }
-.arch--lg { width: 168px; height: 210px; background: var(--forest-50); display: grid; place-items: center; color: var(--forest-900); }
-.arch--xl { width: 132px; height: 176px; background: var(--wash-sand); display: grid; place-items: center; color: var(--forest-900); }
+.arch--lg { width: 168px; height: 210px; background: var(--amethyst-50); display: grid; place-items: center; color: var(--amethyst-900); }
+.arch--xl { width: 132px; height: 176px; background: var(--amethyst-50); display: grid; place-items: center; color: var(--amethyst-900); }
 
 .hrow {
   display: flex; align-items: center; justify-content: space-between; gap: 24px;
@@ -334,7 +328,7 @@ p { margin: 0; }
 }
 
 .step { display: flex; flex-direction: column; gap: 10px; }
-.step__num { font-family: var(--font-display); font-size: var(--fs-display-md); line-height: 1; color: var(--forest-600); }
+.step__num { font-family: var(--font-display); font-size: var(--fs-display-md); line-height: 1; color: var(--gilt-600); }
 
 .crisis {
   background: var(--paper-deep);
@@ -345,14 +339,14 @@ p { margin: 0; }
 }
 
 .footerdemo {
-  background: var(--forest-800);
+  background: var(--amethyst-800);
   color: var(--ink-on-dark);
   border-radius: var(--r-card);
   padding: 56px 24px;
   text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 18px;
 }
-.footerdemo .label { color: rgba(238, 242, 239, .62); }
+.footerdemo .label { color: rgba(244, 238, 247, .62); }
 .footerdemo__links { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
 
 /* ---------- comparison table ---------- */
@@ -368,7 +362,7 @@ td:first-child { color: var(--ink); width: 22%; }
 .swatch-dot {
   display: inline-block; width: 10px; height: 10px; border-radius: 50%;
   vertical-align: -1px; margin-right: 7px;
-  border: 1px solid rgba(25,28,26,.1);
+  border: 1px solid rgba(62,46,92,.1);
 }
 
 .pagefoot { padding-block: 56px 72px; }
@@ -396,9 +390,9 @@ td:first-child { color: var(--ink); width: 22%; }
   <div class="wrap masthead__inner">
     <div class="markline">
       <svg width="26" height="17" viewBox="0 0 26 17" fill="none" aria-hidden="true">
-        <path d="M1 16a12 12 0 0 1 24 0" stroke="#1F3A34" stroke-width="1.25"/>
-        <path d="M6 16a7 7 0 0 1 14 0" stroke="#3D655C" stroke-width="1.25"/>
-        <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="#6C6F69" stroke-width="1.25"/>
+        <path d="M1 16a12 12 0 0 1 24 0" stroke="#3E2E5C" stroke-width="1.25"/>
+        <path d="M6 16a7 7 0 0 1 14 0" stroke="#6A4E96" stroke-width="1.25"/>
+        <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="#6E6675" stroke-width="1.25"/>
       </svg>
       <p class="label">Dr. Shandana &middot; Psychiatry</p>
     </div>
@@ -411,7 +405,7 @@ td:first-child { color: var(--ink); width: 22%; }
       credibility layer the original never needed.
     </p>
 
-    <p class="label" style="margin-top:8px;">Bone paper &middot; Evergreen &middot; Instrument Serif + Inter</p>
+    <p class="label" style="margin-top:8px;">White page &middot; Amethyst &middot; Outfit + Inter</p>
   </div>
 </header>
 
@@ -420,30 +414,30 @@ td:first-child { color: var(--ink); width: 22%; }
   <div class="wrap">
     <div class="band__head">
       <p class="label">Colour</p>
-      <h2 class="display-lg">Paper, ink, and <em>one</em> saturated colour.</h2>
+      <h2 class="display-lg">White, ink, and <em>one</em> colour.</h2>
       <p class="prose">
-        Evergreen is the only hue that ever fills a UI element. Everything else on the page
-        is paper, ink or a hairline. No red, no amber, no alert colour anywhere in the
-        marketing surface.
+        Amethyst is the only hue on the page at all; gilt marks, and never fills. Everything
+        else is white, ink or a hairline. No red, no alert colour anywhere in the marketing
+        surface — and no ambient wash behind any of it.
       </p>
     </div>
 
     <p class="label" style="margin-bottom:14px;">Foundation</p>
     <div class="deck" style="margin-bottom:40px;">
       <div class="chip">
-        <div class="chip__fill" style="background:#F6F3EE"></div>
+        <div class="chip__fill" style="background:#FAF6F1"></div>
         <div class="chip__meta">
           <p class="label">--paper</p>
-          <p class="chip__hex">#F6F3EE</p>
-          <p class="chip__use">Page canvas. Bone, not cream — cooler and less spa-like than the reference.</p>
+          <p class="chip__hex">#FAF6F1</p>
+          <p class="chip__use">Page canvas. Actually white — no wash, no tint, nothing behind it.</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#EDE8E0"></div>
+        <div class="chip__fill" style="background:#F3EAE1"></div>
         <div class="chip__meta">
           <p class="label">--paper-deep</p>
-          <p class="chip__hex">#EDE8E0</p>
-          <p class="chip__use">Alternating section band, crisis notice.</p>
+          <p class="chip__hex">#F3EAE1</p>
+          <p class="chip__use">Alternating band and crisis notice, hairlined top and bottom. The head of the hero panel.</p>
         </div>
       </div>
       <div class="chip">
@@ -451,15 +445,15 @@ td:first-child { color: var(--ink); width: 22%; }
         <div class="chip__meta">
           <p class="label">--surface</p>
           <p class="chip__hex">#FFFFFF</p>
-          <p class="chip__use">Cards and the nav pill only — so they lift off the paper.</p>
+          <p class="chip__use">Cards and the nav pill. Same white as the page — the hairline is what separates them.</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#E2DCD3"></div>
+        <div class="chip__fill" style="background:#E9DDD1"></div>
         <div class="chip__meta">
           <p class="label">--hairline</p>
-          <p class="chip__hex">#E2DCD3</p>
-          <p class="chip__use">Every divider on the site. 1px, never a box.</p>
+          <p class="chip__hex">#E9DDD1</p>
+          <p class="chip__use">Every divider, and the edge of every card. 1px, never a box.</p>
         </div>
       </div>
     </div>
@@ -467,67 +461,79 @@ td:first-child { color: var(--ink); width: 22%; }
     <p class="label" style="margin-bottom:14px;">Ink — all cleared against paper</p>
     <div class="deck" style="margin-bottom:40px;">
       <div class="chip">
-        <div class="chip__fill" style="background:#191C1A"></div>
+        <div class="chip__fill" style="background:#241E2B"></div>
         <div class="chip__meta">
           <p class="label">--ink</p>
-          <p class="chip__hex">#191C1A</p>
-          <p class="chip__use">Headlines and serif display.</p>
-          <p class="chip__ratio mono-ish">15.6 : 1</p>
+          <p class="chip__hex">#241E2B</p>
+          <p class="chip__use">Headlines and serif display. Violet-shifted, never a dead neutral.</p>
+          <p class="chip__ratio mono-ish">16.6 : 1</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#5F6360"></div>
+        <div class="chip__fill" style="background:#5C5563"></div>
         <div class="chip__meta">
           <p class="label">--ink-body</p>
-          <p class="chip__hex">#5F6360</p>
+          <p class="chip__hex">#5C5563</p>
           <p class="chip__use">Paragraphs.</p>
-          <p class="chip__ratio mono-ish">5.5 : 1</p>
+          <p class="chip__ratio mono-ish">7.8 : 1</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#6C6F69"></div>
+        <div class="chip__fill" style="background:#6E6675"></div>
         <div class="chip__meta">
           <p class="label">--ink-muted</p>
-          <p class="chip__hex">#6C6F69</p>
+          <p class="chip__hex">#6E6675</p>
           <p class="chip__use">Micro-labels and meta. Darker than the reference on purpose — these run at 10.5px.</p>
-          <p class="chip__ratio mono-ish">4.6 : 1</p>
+          <p class="chip__ratio mono-ish">5.6 : 1</p>
         </div>
       </div>
     </div>
 
-    <p class="label" style="margin-bottom:14px;">Evergreen</p>
+    <p class="label" style="margin-bottom:14px;">Amethyst</p>
     <div class="deck">
       <div class="chip">
-        <div class="chip__fill" style="background:#1F3A34"></div>
+        <div class="chip__fill" style="background:#3E2E5C"></div>
         <div class="chip__meta">
-          <p class="label">--forest-900</p>
-          <p class="chip__hex">#1F3A34</p>
-          <p class="chip__use">Primary buttons, arrow circles.</p>
-          <p class="chip__ratio mono-ish">12.3 : 1 with white</p>
+          <p class="label">--amethyst-900</p>
+          <p class="chip__hex">#3E2E5C</p>
+          <p class="chip__use">Buttons, arrow circles, links, footer ground.</p>
+          <p class="chip__ratio mono-ish">12 : 1 with white</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#294A43"></div>
+        <div class="chip__fill" style="background:#4B3970"></div>
         <div class="chip__meta">
-          <p class="label">--forest-800</p>
-          <p class="chip__hex">#294A43</p>
-          <p class="chip__use">Footer ground.</p>
+          <p class="label">--amethyst-800</p>
+          <p class="chip__hex">#4B3970</p>
+          <p class="chip__use">Reserved second step.</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#3D655C"></div>
+        <div class="chip__fill" style="background:#6A4E96"></div>
         <div class="chip__meta">
-          <p class="label">--forest-600</p>
-          <p class="chip__hex">#3D655C</p>
-          <p class="chip__use">Hover, pressed, focus ring, step numerals.</p>
+          <p class="label">--amethyst-600</p>
+          <p class="chip__hex">#6A4E96</p>
+          <p class="chip__use">Hover, pressed, focus ring — and the one emphasised word in a headline.</p>
         </div>
       </div>
       <div class="chip">
-        <div class="chip__fill" style="background:#E8EEEA"></div>
+        <div class="chip__fill" style="background:#F1EAFA"></div>
         <div class="chip__meta">
-          <p class="label">--forest-50</p>
-          <p class="chip__hex">#E8EEEA</p>
+          <p class="label">--amethyst-50</p>
+          <p class="chip__hex">#F1EAFA</p>
           <p class="chip__use">Icon discs, tint fills, selected states.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="label" style="margin:40px 0 14px;">Gilt — marks only</p>
+    <div class="deck">
+      <div class="chip">
+        <div class="chip__fill" style="background:#A9762F"></div>
+        <div class="chip__meta">
+          <p class="label">--gilt-600</p>
+          <p class="chip__hex">#A9762F</p>
+          <p class="chip__use">The ghost numerals and the quote mark, and nothing else. Large type only — 4:1 will not carry body text, and gilt never fills a control.</p>
         </div>
       </div>
     </div>
@@ -538,15 +544,16 @@ td:first-child { color: var(--ink); width: 22%; }
 <section class="band">
   <div class="wrap">
     <div class="band__head">
-      <p class="label">The wash</p>
-      <h2 class="display-lg">An aurora you shouldn't quite <em>notice</em>.</h2>
+      <p class="label">The panel</p>
+      <h2 class="display-lg">The only gradient left on the <em>site</em>.</h2>
       <p class="prose">
-        Sage bleeds in from the left, sand from the right, both gone by roughly 40% across.
-        It is the only gradient in the system — never on type, buttons or cards.
+        The portrait is a cut-out, so the panel behind it is the one surface that cannot be
+        white or the coat disappears. White at the head, the faintest amethyst at the foot
+        where the coat is. Nothing else on the site is graded — never type, buttons or cards.
       </p>
     </div>
     <div class="washdemo">
-      <p class="label">#DCE6DF &nbsp;&rarr;&nbsp; transparent &nbsp;&larr;&nbsp; #EFE4D6</p>
+      <p class="label">#FFFFFF &nbsp;&rarr;&nbsp; #F5F4F8 &nbsp;&rarr;&nbsp; #E7E0F4</p>
     </div>
   </div>
 </section>
@@ -556,32 +563,33 @@ td:first-child { color: var(--ink); width: 22%; }
   <div class="wrap">
     <div class="band__head">
       <p class="label">Typography</p>
-      <h2 class="display-lg">Serif says the feeling. Sans says the <em>facts</em>.</h2>
+      <h2 class="display-lg">One family. Weight does the <em>work</em>.</h2>
       <p class="prose">
-        Instrument Serif carries every emotional line at weight 400 — never bold, contrast
-        comes from size alone. Inter carries everything functional.
+        There is no serif here. Outfit sets every display line, light at the top of the
+        scale and heavier as the sizes fall, so one family reads as two volumes of the same
+        voice. Inter carries everything functional. Emphasis is amethyst, never a slant.
       </p>
     </div>
 
     <div class="spec">
       <div class="spec__row">
-        <div class="spec__key"><code>display-xl</code><span>44 &rarr; 84px &middot; 1.02 &middot; -0.02em</span></div>
+        <div class="spec__key"><code>display-xl</code><span>40 &rarr; 76px &middot; 1.08 &middot; -0.03em &middot; 300</span></div>
         <div class="spec__sample"><p class="display-xl">You don't have to <em>guess</em> anymore.</p></div>
       </div>
       <div class="spec__row">
-        <div class="spec__key"><code>display-lg</code><span>36 &rarr; 64px &middot; 1.05 &middot; -0.02em</span></div>
+        <div class="spec__key"><code>display-lg</code><span>34 &rarr; 56px &middot; 1.12 &middot; -0.03em &middot; 300</span></div>
         <div class="spec__sample"><p class="display-lg">A clear diagnosis is a kind of <em>relief</em>.</p></div>
       </div>
       <div class="spec__row">
-        <div class="spec__key"><code>display-md</code><span>30 &rarr; 44px &middot; 1.1 &middot; -0.01em</span></div>
+        <div class="spec__key"><code>display-md</code><span>28 &rarr; 40px &middot; 1.18 &middot; -0.02em &middot; 400</span></div>
         <div class="spec__sample"><p class="display-md">How treatment actually <em>works</em></p></div>
       </div>
       <div class="spec__row">
-        <div class="spec__key"><code>card-title</code><span>22 &rarr; 26px &middot; 1.2</span></div>
+        <div class="spec__key"><code>card-title</code><span>19 &rarr; 22px &middot; 1.32 &middot; 500</span></div>
         <div class="spec__sample"><p class="card-title">Medication <em>management</em></p></div>
       </div>
       <div class="spec__row">
-        <div class="spec__key"><code>eyebrow-serif</code><span>19 &rarr; 22px &middot; 1.4</span></div>
+        <div class="spec__key"><code>eyebrow-serif</code><span>17 &rarr; 20px &middot; 1.45 &middot; 400</span></div>
         <div class="spec__sample"><p class="eyebrow-serif">Does any of this sound <em>familiar</em>?</p></div>
       </div>
       <div class="spec__row">
@@ -647,8 +655,8 @@ td:first-child { color: var(--ink); width: 22%; }
           </div>
           <div class="nav__mark">
             <svg width="18" height="12" viewBox="0 0 26 17" fill="none" aria-hidden="true">
-              <path d="M1 16a12 12 0 0 1 24 0" stroke="#1F3A34" stroke-width="1.5"/>
-              <path d="M8 16a5 5 0 0 1 10 0" stroke="#3D655C" stroke-width="1.5"/>
+              <path d="M1 16a12 12 0 0 1 24 0" stroke="#3E2E5C" stroke-width="1.5"/>
+              <path d="M8 16a5 5 0 0 1 10 0" stroke="#6A4E96" stroke-width="1.5"/>
             </svg>
             <span class="nav__word">Shandana</span>
           </div>
@@ -804,7 +812,7 @@ td:first-child { color: var(--ink); width: 22%; }
         <div class="crisis">
           <p class="label">If you are in immediate danger</p>
           <p class="body-sm" style="max-width:56ch;">
-            This practice is not an emergency service. Call or text <strong style="color:#191C1A;font-weight:500;">988</strong>
+            This practice is not an emergency service. Call or text <strong style="color:#241E2B;font-weight:500;">988</strong>
             for the Suicide &amp; Crisis Lifeline, or call 911 if someone's safety is at risk right now.
           </p>
         </div>
@@ -812,14 +820,14 @@ td:first-child { color: var(--ink); width: 22%; }
 
       <!-- footer -->
       <div class="comp">
-        <div class="comp__label"><p class="label">Footer</p><span class="comp__note">Evergreen ground, concentric-arch mark, label-style links</span></div>
+        <div class="comp__label"><p class="label">Footer</p><span class="comp__note">Amethyst-900 ground, three columns, solid text tones, one rule</span></div>
         <div class="footerdemo">
           <svg width="40" height="26" viewBox="0 0 26 17" fill="none" aria-hidden="true">
-            <path d="M1 16a12 12 0 0 1 24 0" stroke="#EEF2EF" stroke-width="1.25"/>
-            <path d="M6 16a7 7 0 0 1 14 0" stroke="rgba(238,242,239,.6)" stroke-width="1.25"/>
-            <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="rgba(238,242,239,.35)" stroke-width="1.25"/>
+            <path d="M1 16a12 12 0 0 1 24 0" stroke="#F4EEF7" stroke-width="1.25"/>
+            <path d="M6 16a7 7 0 0 1 14 0" stroke="rgba(244,238,247,.6)" stroke-width="1.25"/>
+            <path d="M10.5 16a2.5 2.5 0 0 1 5 0" stroke="rgba(244,238,247,.35)" stroke-width="1.25"/>
           </svg>
-          <p class="display-md" style="color:#EEF2EF;">Start with one <em>conversation</em>.</p>
+          <p class="display-md" style="color:#F4EEF7;">Start with one <em>conversation</em>.</p>
           <div class="footerdemo__links">
             <p class="label">About</p>
             <p class="label">Conditions</p>
@@ -855,17 +863,17 @@ td:first-child { color: var(--ink); width: 22%; }
           <tr>
             <td>Paper</td>
             <td class="was"><span class="swatch-dot" style="background:#FAF5EF"></span>Warm cream #FAF5EF</td>
-            <td class="now"><span class="swatch-dot" style="background:#F6F3EE"></span>Bone #F6F3EE — cooler, less peach</td>
+            <td class="now"><span class="swatch-dot" style="background:#FAF6F1"></span>White #FFFFFF — no tint at all</td>
           </tr>
           <tr>
             <td>Hard colour</td>
             <td class="was"><span class="swatch-dot" style="background:#2B1D33"></span>Aubergine #2B1D33</td>
-            <td class="now"><span class="swatch-dot" style="background:#1F3A34"></span>Evergreen #1F3A34 — calm but credible</td>
+            <td class="now"><span class="swatch-dot" style="background:#3E2E5C"></span>Amethyst #3E2E5C — contemplative but credible</td>
           </tr>
           <tr>
             <td>Wash</td>
             <td class="was"><span class="swatch-dot" style="background:#D9EDE4"></span><span class="swatch-dot" style="background:#F8E2CD"></span>Mint + apricot</td>
-            <td class="now"><span class="swatch-dot" style="background:#DCE6DF"></span><span class="swatch-dot" style="background:#EFE4D6"></span>Sage + sand, near-neutral</td>
+            <td class="now"><span class="swatch-dot" style="background:#E3D6F3"></span><span class="swatch-dot" style="background:#F8DED2"></span>None — the wash was removed</td>
           </tr>
           <tr>
             <td>Imagery</td>
@@ -896,13 +904,13 @@ td:first-child { color: var(--ink); width: 22%; }
 <footer class="wrap pagefoot">
   <p class="label" style="margin-bottom:10px;">Notes</p>
   <p class="prose body-sm">
-    This sheet is intentionally single-theme. A bone-paper palette can only be judged on its
+    This sheet is intentionally single-theme. A white-page palette can only be judged on its
     own ground, so it renders light for every viewer. The site built from it will be
     single-theme for the same reason.
   </p>
   <p class="prose body-sm" style="margin-top:14px;">
-    Tokens live in <span style="color:#191C1A;">design/tokens.css</span>; the reasoning lives in
-    <span style="color:#191C1A;">design/design-system.md</span>. Bracketed values — state,
+    Tokens live in <span style="color:#241E2B;">design/tokens.css</span>; the reasoning lives in
+    <span style="color:#241E2B;">design/design-system.md</span>. Bracketed values — state,
     years in practice — are placeholders awaiting real details.
   </p>
 </footer>

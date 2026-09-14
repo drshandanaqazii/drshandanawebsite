@@ -125,9 +125,15 @@ primitives live in `global.css`.
   that stranded elements at `opacity: 0` after an instant anchor jump. Since every nav link
   is an anchor, "Questions" landing on a blank FAQ was a worse outcome than a missing fade.
   The reasoning is recorded in `global.css` so it isn't reintroduced by accident.
-- **Single-theme by design.** This is a bone-paper brand; the palette only reads correctly
-  on its own ground. Every colour is painted explicitly rather than inherited.
-- **The serif is never bolded.** Contrast comes from size alone. One italic word per
-  headline, maximum — that is the signature of the system.
-- Fonts are Instrument Serif + Inter from Google Fonts. Self-hosting them would remove a
-  third-party request and is worth doing before launch if you want the last few LCP points.
+- **Single-theme by design.** The page is white and amethyst is the only colour on it; every
+  colour is painted explicitly rather than inherited.
+- **A white surface on a white page needs an edge before a shadow.** Cards, the nav pill and
+  the map panel set `inset 0 0 0 1px var(--hairline)` ahead of their shadow. Any rule that
+  replaces `box-shadow` on hover has to restate the hairline — see the two notes in
+  `motion.css`, which is where that has already bitten once.
+- **Emphasis is colour, not slant.** One `<em>` per display headline, rendered in
+  `--amethyst-600`. Outfit has no true italic, so a slant would be synthesised.
+- Fonts are Outfit + Inter from Google Fonts, both variable. Outfit is requested from weight
+  200 because the ghost numerals in the care section set it there. Self-hosting both would
+  remove a third-party request and is worth doing before launch if you want the last few LCP
+  points.

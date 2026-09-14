@@ -3,52 +3,58 @@
    Mirrors design/tokens.css. Component-specific rules live scoped inside
    their own .astro files; only shared tokens and primitives belong here.
 
-   Single-theme by design: this is a bone-paper brand, and the palette only
-   reads correctly on its own ground. Every colour is painted explicitly.
+   Single-theme by design: a white page with one colour on it. Nothing is
+   tinted that doesn't have to be, and every colour is painted explicitly.
    ========================================================================== */
 
 :root {
-  /* Foundation */
-  --paper:        #F6F3EE;
-  --paper-deep:   #EDE8E0;
+  /* Foundation — a genuinely white page. The only non-white grounds are the
+     band, the footer, and the panel behind the cut-out portrait. */
+  --paper:        #FFFFFF;
+  --paper-deep:   #F5F4F8;   /* alternating band; the faintest step off white */
   --surface:      #FFFFFF;
-  --hairline:     #E2DCD3;
+  --hairline:     #E5E3EC;
 
-  /* Ink — all ≥ 4.5:1 on --paper */
-  --ink:          #191C1A;
-  --ink-body:     #5F6360;
-  --ink-muted:    #6C6F69;
-  --ink-on-dark:  #EEF2EF;
+  /* Ink — very slightly violet-shifted so it belongs to the amethyst rather
+     than fighting it. All well clear on white (ink 16.6, body 7.8, muted 5.6). */
+  --ink:          #1A1622;
+  --ink-body:     #55505F;
+  --ink-muted:    #6B6577;
+  --ink-on-dark:  #F3F0F8;
 
-  /* Evergreen — the only saturated colour in the system */
-  --forest-900:   #1F3A34;
-  --forest-800:   #294A43;
-  --forest-600:   #3D655C;
-  --forest-100:   #D3E0D8;
-  --forest-50:    #E8EEEA;
+  /* Amethyst — the only colour on the page. On white it has to carry the whole
+     brand, so it is used at full strength and never diluted into a wash. */
+  --amethyst-900: #3E2E5C;   /* 12:1 on white; buttons, links, footer ground */
+  --amethyst-800: #4B3970;
+  --amethyst-600: #6A4E96;   /* 6.7:1; hover, focus ring, emphasis */
+  --amethyst-100: #E7E0F4;
+  --amethyst-50:  #F2ECFA;
 
-  /* Ambient wash — deep enough to separate the tinted panels from the paper
-     without ever reading as a second brand colour. */
-  --wash-sage:    #CFDED5;
-  --wash-sand:    #ECDECB;
-  /* Vertical reach of the page wash: sticky nav + hero + credential bar */
-  --wash-h:       clamp(620px, 92vh, 980px);
+  /* Gilt — one warm mark, for large numerals and quote marks only.
+     Never body text, never a fill: 4:1 on white carries large type alone. */
+  --gilt-600:     #A9762F;
 
-  /* Type */
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  /* Type
+     Outfit sets every display line: geometric, open, and light enough at large
+     sizes to read as calm rather than as a banner. Inter carries all
+     functional text. No serif anywhere — the page's character comes from
+     weight, size and white space instead. */
+  --font-display: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 
-  --fs-display-xl: clamp(2.75rem, 6.2vw, 5.25rem);
-  --fs-display-lg: clamp(2.25rem, 4.6vw, 4rem);
-  --fs-display-md: clamp(1.875rem, 3.2vw, 2.75rem);
-  --fs-card-title: clamp(1.375rem, 1.8vw, 1.625rem);
-  --fs-eyebrow:    clamp(1.1875rem, 1.5vw, 1.375rem);
+  --fs-display-xl: clamp(2.5rem, 5.6vw, 4.75rem);
+  --fs-display-lg: clamp(2.125rem, 4.2vw, 3.5rem);
+  --fs-display-md: clamp(1.75rem, 2.9vw, 2.5rem);
+  --fs-card-title: clamp(1.1875rem, 1.5vw, 1.375rem);
+  --fs-eyebrow:    clamp(1.0625rem, 1.3vw, 1.25rem);
   --fs-body:       1rem;
   --fs-body-sm:    0.875rem;
   --fs-credential: 0.75rem;
   --fs-label:      0.65625rem;
 
-  --ls-display: -0.02em;
+  /* A geometric sans needs real negative tracking at display size; the same
+     value at 20px would close the counters, hence the separate card step. */
+  --ls-display: -0.03em;
   --ls-cred:     0.08em;
   --ls-label:    0.18em;
 
@@ -69,10 +75,14 @@
   --r-hero:  24px;
   --r-arch: 999px 999px 0 0;
 
-  /* Depth */
-  --shadow-sm:   0 1px 2px  rgba(25, 28, 26, .04);
-  --shadow-card: 0 8px 28px rgba(25, 28, 26, .06);
-  --shadow-nav:  0 6px 24px rgba(25, 28, 26, .08);
+  /* Depth — on a white page a shadow can no longer be the thing that separates
+     a card from its ground, because there is no tonal step to help it. Every
+     lifted surface gets a hairline first and a shadow second; the shadows below
+     are deliberately soft, and tinted with the brand colour rather than black
+     so they never grey the paper. */
+  --shadow-sm:   0 1px 2px  rgba(26, 22, 34, .04);
+  --shadow-card: 0 10px 30px rgba(26, 22, 34, .05);
+  --shadow-nav:  0 8px 26px rgba(26, 22, 34, .07);
 
   /* Motion */
   --ease: cubic-bezier(.2, .7, .2, 1);
@@ -100,6 +110,7 @@ body {
   font-family: var(--font-sans);
   font-size: var(--fs-body);
   line-height: 1.7;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -112,10 +123,9 @@ body {
    bottom margin, so the last section slides away and uncovers it.
 
    Two things this depends on:
-     - .page must be opaque, or the footer shows through the whole document.
-       This is also why the wash lives here and not on <body>: <body> is behind
-       the fixed footer, so a wash painted there would be covered by it.
-       Wrapping the nav too keeps the wash running behind it without a seam.
+     - .page must be opaque, or the fixed footer shows through the whole
+       document. It is plain white for exactly that reason — this is where the
+       page's ground is painted, not on <body>, which sits behind the footer.
      - --footer-h is measured by src/scripts/motion.ts. The fallback below is
        only used for the first frame, or if that script never runs.
 
@@ -126,14 +136,7 @@ body {
 .page {
   position: relative;
   z-index: 1;
-  /* The wash starts at the very top of the page so it runs behind the sticky
-     nav and into the hero without a seam. Height covers nav + hero. */
-  background:
-    radial-gradient(60% 50% at 0% 22%,  var(--wash-sage) 0%, transparent 62%)
-      0 0 / 100% var(--wash-h) no-repeat,
-    radial-gradient(55% 45% at 100% 8%, var(--wash-sand) 0%, transparent 60%)
-      0 0 / 100% var(--wash-h) no-repeat,
-    var(--paper);
+  background: var(--paper);
 }
 
 @media (min-height: 620px) {
@@ -146,15 +149,21 @@ img, svg, video { display: block; max-width: 100%; }
 img { height: auto; }
 button { font: inherit; color: inherit; }
 
-a { color: var(--forest-900); text-underline-offset: 3px; }
+a { color: var(--amethyst-900); text-underline-offset: 3px; }
+
+/* The footer is the one dark ground on the site, so the default link colour is
+   invisible on it — amethyst on amethyst. This floor means a footer link can
+   never disappear, whatever the component's own styles do or fail to do; the
+   scoped rules in Footer.astro are more specific and still win. */
+.footer a { color: inherit; }
 
 :where(a, button, summary, input, [tabindex]):focus-visible {
-  outline: 2px solid var(--forest-600);
+  outline: 2px solid var(--amethyst-600);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-::selection { background: var(--forest-50); color: var(--ink); }
+::selection { background: var(--amethyst-50); color: var(--ink); }
 
 .visually-hidden {
   position: absolute;
@@ -172,7 +181,7 @@ a { color: var(--forest-900); text-underline-offset: 3px; }
   transform: translateX(-50%);
   z-index: 100;
   padding: 12px 20px;
-  background: var(--forest-900);
+  background: var(--amethyst-900);
   color: #fff;
   border-radius: 0 0 var(--r-media) var(--r-media);
   text-decoration: none;
@@ -185,24 +194,32 @@ a { color: var(--forest-900); text-underline-offset: 3px; }
    Type primitives
    -------------------------------------------------------------------------- */
 
+/* All display type is Outfit. With no serif in the system, the hierarchy is
+   carried by weight and size alone: the two largest steps run light, and weight
+   climbs as size falls so a 20px card title still holds its own. */
 .display-xl, .display-lg, .display-md, .card-title, .eyebrow-serif {
   font-family: var(--font-display);
-  font-weight: 400;              /* the serif is never bolded */
   color: var(--ink);
   text-wrap: balance;
 }
 
-.display-xl { font-size: var(--fs-display-xl); line-height: 1.02; letter-spacing: var(--ls-display); }
-.display-lg { font-size: var(--fs-display-lg); line-height: 1.05; letter-spacing: var(--ls-display); }
-.display-md { font-size: var(--fs-display-md); line-height: 1.10; letter-spacing: -.01em; }
-.card-title { font-size: var(--fs-card-title); line-height: 1.20; letter-spacing: -.01em; }
-.eyebrow-serif { font-size: var(--fs-eyebrow); line-height: 1.4; }
+.display-xl { font-size: var(--fs-display-xl); font-weight: 300; line-height: 1.08; letter-spacing: var(--ls-display); }
+.display-lg { font-size: var(--fs-display-lg); font-weight: 300; line-height: 1.12; letter-spacing: var(--ls-display); }
+.display-md { font-size: var(--fs-display-md); font-weight: 400; line-height: 1.18; letter-spacing: -.02em; }
+.card-title { font-size: var(--fs-card-title); font-weight: 500; line-height: 1.32; letter-spacing: -.01em; }
+.eyebrow-serif { font-size: var(--fs-eyebrow); font-weight: 400; line-height: 1.45; }
 
-/* The signature move: exactly one italic word per line — reserved for the main
-   headings. Anywhere else it stops being a signature and becomes a tic, so
-   smaller serif type (card titles, eyebrows) keeps the emphasis roman. */
+/* The signature move: exactly one emphasised word per headline. It used to flip
+   to serif italic; with no serif in the system it takes the brand colour
+   instead — Outfit has no true italic, and a synthesised slant is the one thing
+   that would cheapen the whole page. Colour is also the only emphasis a
+   geometric sans carries without looking like a different font.
+
+   Reserved for the main headings: anywhere else it stops being a signature and
+   becomes a tic, so card titles and eyebrows leave their <em> alone. */
 :where(.display-xl, .display-lg, .display-md) em {
-  font-style: italic;
+  font-style: normal;
+  color: var(--amethyst-600);
 }
 
 :where(.card-title, .eyebrow-serif) em {
@@ -231,15 +248,15 @@ a { color: var(--forest-900); text-underline-offset: 3px; }
   width: fit-content;
   padding: 5px 14px;
   border-radius: var(--r-pill);
-  background: var(--forest-50);
-  box-shadow: inset 0 0 0 1px rgba(31, 58, 52, .08);
+  background: var(--amethyst-50);
+  box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .08);
   font-family: var(--font-sans);
   font-size: var(--fs-body-sm);
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: .01em;
   text-transform: capitalize;
-  color: var(--forest-900);
+  color: var(--amethyst-900);
 }
 
 .credential {
@@ -275,14 +292,18 @@ a { color: var(--forest-900); text-underline-offset: 3px; }
 }
 
 .section { padding-block: var(--section-y); }
-.section--band { background: var(--paper-deep); }
 
-.wash {
-  background:
-    radial-gradient(60% 50% at 0% 18%,  var(--wash-sage) 0%, transparent 62%),
-    radial-gradient(55% 45% at 100% 4%, var(--wash-sand) 0%, transparent 60%),
-    var(--paper);
+/* The one tonal step on the page. It is deliberately almost nothing — enough to
+   mark a change of subject, not enough to read as a coloured band. Hairlines
+   top and bottom do the rest of the work. */
+.section--band {
+  background: var(--paper-deep);
+  border-block: 1px solid var(--hairline);
 }
+
+/* Note for anything new: on a white page a lifted white surface needs an edge
+   before it needs a shadow. Cards, the nav pill and the map panel each set
+   `inset 0 0 0 1px var(--hairline)` ahead of their shadow. */
 
 /* Centred story block: eyebrow → headline → subline */
 .statement {
