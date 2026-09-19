@@ -116,6 +116,13 @@ function reveal(el: HTMLElement) {
   // One member entering brings the whole group in, so a row of cards reads as
   // a single gesture.
   const items = Array.from(group.querySelectorAll<HTMLElement>(':scope > [data-reveal]'));
+
+  // `el` itself is not always in that list. Several sections wrap their eyebrow
+  // and heading in a .section-head that is not its own group, which makes those
+  // two grandchildren of the group — revealing only the direct children would
+  // leave the heading permanently invisible while the rows beneath it arrived.
+  if (!items.includes(el)) items.push(el);
+
   items.forEach((item) => item.classList.add('is-in'));
 
   // The stagger delay lives on the same transition-delay the hover lift uses.
@@ -215,9 +222,16 @@ function initParallax() {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Footer curtain — publishes the footer's height as --footer-h so .page can
- * reserve exactly that much bottom margin. Measured rather than guessed: the
- * footer's height moves with the viewport width as its nav wraps.
+ * Footer curtain — decides whether the footer can be uncovered rather than
+ * scrolled to, and publishes its height as --footer-h so .page can reserve
+ * exactly that much bottom margin.
+ *
+ * Both halves of that are measured rather than guessed. The footer is a
+ * four-column site map, so its height moves a long way between a wide window
+ * and a phone, where the columns stack. Past roughly half the window it stops
+ * being a curtain and becomes a screen of purple the reader has to scroll
+ * through, so beyond that ratio the flag is dropped and the footer goes back
+ * into normal flow — every rule that makes it fixed is scoped to the flag.
  *
  * Unlike the reveals, this is not gated on data-motion. The curtain is a
  * layout, not an animation — it has nothing to soften for reduced motion, and
@@ -226,16 +240,73 @@ function initParallax() {
 function initCurtain() {
   const footer = document.querySelector<HTMLElement>('.footer');
   if (!footer) return;
+  const page = document.querySelector<HTMLElement>('.page');
+
+  /** Above this share of the window, uncovering the footer is worse than
+   *  scrolling to it. Three quarters rather than a half: at a desktop width
+   *  the site map lands a little over half the window, and the tighter ceiling
+   *  meant the curtain was almost never taken — the footer just sat at the end
+   *  of the page. Below it there is still a strip of paper above the footer at
+   *  full scroll, which is what keeps it reading as uncovered. */
+  const MAX_SHARE = 0.75;
+
+  /** …and never so tall that the page above it is a sliver. */
+  const MIN_STRIP = 120;
+
+  let on = false;
 
   const sync = () => {
-    root.style.setProperty('--footer-h', `${footer.offsetHeight}px`);
+    const h = footer.offsetHeight;
+    root.style.setProperty('--footer-h', `${h}px`);
+
+    on = h > 0 && h <= window.innerHeight * MAX_SHARE && h <= window.innerHeight - MIN_STRIP;
+
+    if (on) {
+      root.setAttribute('data-curtain', 'on');
+    } else {
+      root.removeAttribute('data-curtain');
+      // Resting value. In flow the footer is simply there, fully drawn.
+      root.style.setProperty('--curtain', '1');
+    }
+
+    track();
+  };
+
+  /**
+   * How much of the footer the page has slid off, 0 → 1, published as
+   * --curtain for the footer's own styles to lean on.
+   *
+   * `.page` reserves exactly the footer's height as bottom margin, so the gap
+   * between the bottom of its content and the bottom of the window *is* the
+   * uncovered strip. Decorative only: the stylesheet's fallback is 1, so a
+   * value that never gets written renders the footer at rest rather than
+   * blank — the same contract as --progress.
+   */
+  const track = () => {
+    if (!on || !page) return;
+    const h = footer.offsetHeight;
+    if (h <= 0) return;
+    const uncovered = window.innerHeight - page.getBoundingClientRect().bottom;
+    root.style.setProperty('--curtain', Math.min(1, Math.max(0, uncovered / h)).toFixed(3));
+  };
+
+  let queued = false;
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      track();
+    });
   };
 
   if (typeof ResizeObserver === 'function') {
     new ResizeObserver(sync).observe(footer);
-  } else {
-    addEventListener('resize', sync, { passive: true });
   }
+  // Needed either way: ResizeObserver watches the element, and the decision
+  // above also depends on the window it is being measured against.
+  addEventListener('resize', sync, { passive: true });
+  addEventListener('scroll', schedule, { passive: true });
   sync();
 }
 

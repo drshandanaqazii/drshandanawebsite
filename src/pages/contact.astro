@@ -1,0 +1,354 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import headerImage from '../assets/cta-morning.jpg';
+import PracticeMap from '../components/PracticeMap.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { PAGE_SEO, PRACTICE, DOCTOR } from '../consts';
+import { TEL_HREF, UAN_HREF, WHATSAPP_HREF, MAIL_HREF, MAPS_HREF } from '../lib/practice-links';
+
+const trail = [{ name: 'Contact', href: '/contact' }];
+
+/* The three ways to reach the practice, in the order they actually work. The
+   phone is first because it is the one that produces an appointment today. */
+const CHANNELS = [
+  {
+    icon: 'phone',
+    label: 'By phone',
+    value: PRACTICE.bookingPhoneDisplay,
+    href: TEL_HREF,
+    note: 'The fastest route to a slot. Call during clinic hours and ask for an appointment with Dr. Shandana Qazi.',
+  },
+  {
+    icon: 'whatsapp',
+    label: 'On WhatsApp',
+    value: 'Send a message',
+    href: WHATSAPP_HREF,
+    external: true,
+    note: 'For when calling is difficult, or you would rather write than speak. Replies come during working hours.',
+  },
+  {
+    icon: 'mail',
+    label: 'By email',
+    value: PRACTICE.email,
+    href: MAIL_HREF,
+    note: 'Best for reports and documents rather than for booking. Please do not send anything time-sensitive by email.',
+  },
+] as const;
+
+/* The hours, rendered from the same array that becomes openingHoursSpecification
+   in the schema — so the two cannot disagree. */
+const dayLabel = (days: readonly string[]) =>
+  days.length === 1 ? days[0] : `${days[0]}–${days[days.length - 1]}`;
+
+const time = (t: string) => {
+  const [h, m] = t.split(':').map(Number);
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
+};
+---
+
+<BaseLayout
+  title={PAGE_SEO.contact.title}
+  description={PAGE_SEO.contact.description}
+  pageType="ContactPage"
+  breadcrumbs={trail}
+>
+  <MediaHeader
+    image={headerImage}
+    imageAlt="Early morning light coming through curtains into a quiet bedroom"
+    layout="split"
+    trail={trail}
+    title="Start with one"
+    titleEm="conversation"
+    lede="Appointments with Dr. Shandana Qazi are held at Rehman Medical Institute in Hayatabad, Peshawar. There is no form to fill in. A phone call is the shortest route to a slot."
+    scrollTo="channels"
+    scrollLabel="Scroll to how to get in touch"
+  />
+
+  <section class="section" id="channels" style="padding-top: 0;" aria-labelledby="channels-heading">
+    <div class="container">
+      <h2 class="visually-hidden" id="channels-heading">How to get in touch</h2>
+
+      <ul class="channels" data-reveal-group>
+        {CHANNELS.map((c) => (
+          <li class="channel" data-reveal>
+            <a
+              class="channel__link"
+              href={c.href}
+              rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              target={c.href.startsWith('http') ? '_blank' : undefined}
+            >
+              <span class="channel__icon"><Icon name={c.icon} /></span>
+              <span class="label">{c.label}</span>
+              <span class="channel__value">{c.value}</span>
+            </a>
+            <p class="body-sm channel__note">{c.note}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--band" aria-labelledby="where-heading">
+    <div class="container where">
+      <PracticeMap />
+
+      <div class="where__copy" data-reveal-group>
+        <div class="section-head" style="margin-bottom: var(--s-5);">
+          <p class="eyebrow" data-reveal>The clinic</p>
+          <h2 class="display-md" id="where-heading" data-reveal>
+            Rehman Medical Institute, <em>Hayatabad</em>
+          </h2>
+        </div>
+
+        {/* The NAP block — name, address, phone. It has to match the Google
+            Business Profile character for character; a mismatched phone number
+            across directories is the single most common thing suppressing a
+            local ranking. Everything here comes from PRACTICE in consts.ts,
+            which is also what feeds the schema. */}
+        <dl class="details" data-reveal>
+          <div>
+            <dt><Icon name="pin" size="sm" /> Address</dt>
+            <dd>
+              <address>
+                {PRACTICE.address.street}<br />
+                {PRACTICE.address.locality}, {PRACTICE.address.region} {PRACTICE.address.postalCode}<br />
+                Pakistan
+              </address>
+              <a class="details__link" href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
+                Open in Google Maps
+              </a>
+            </dd>
+          </div>
+
+          <div>
+            <dt><Icon name="clock" size="sm" /> Clinic hours</dt>
+            <dd>
+              <ul class="hours">
+                {PRACTICE.hours.map((h) => (
+                  <li>
+                    <span>{dayLabel(h.days)}</span>
+                    <span class="tabular">{time(h.opens)} – {time(h.closes)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="details__note">
+                Hours are subject to change. Please confirm when you call.
+              </p>
+            </dd>
+          </div>
+
+          <div>
+            <dt><Icon name="phone" size="sm" /> Telephone</dt>
+            <dd>
+              <a href={TEL_HREF}>{PRACTICE.bookingPhoneDisplay}</a><br />
+              <a href={UAN_HREF}>Hospital UAN {PRACTICE.hospitalUan}</a>
+            </dd>
+          </div>
+
+          <div>
+            <dt><Icon name="speech" size="sm" /> Languages</dt>
+            <dd>{DOCTOR.languages.join(', ')}</dd>
+          </div>
+        </dl>
+
+        <div class="where__actions" data-reveal>
+          <Button href={TEL_HREF} icon="phone" external>Call {PRACTICE.bookingPhoneDisplay}</Button>
+          <Button href={WHATSAPP_HREF} variant="ghost" icon="whatsapp" external>WhatsApp</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="visit-heading">
+    <div class="container visit">
+      <div class="rich" data-reveal-group>
+        <div class="section-head" style="margin-bottom: 0;" data-reveal>
+          <p class="eyebrow">Your visit</p>
+          <h2 class="display-md" id="visit-heading" style="margin-top: var(--s-3);">
+            Finding it, and what to <em>bring</em>.
+          </h2>
+        </div>
+
+        <p data-reveal>
+          Rehman Medical Institute is on 5-B/2, Phase-V, Hayatabad, on the western side of
+          Peshawar. It is well known locally and every rickshaw and taxi driver in the city
+          will recognise the name; if you are driving, the map above will take you to the
+          gate. Parking is on site.
+        </p>
+
+        <p data-reveal>
+          Psychiatry consultations are held in the outpatient department. Ask at reception
+          for Dr. Shandana Qazi, Consultant Psychiatrist, and you will be directed. Arriving
+          ten or fifteen minutes early leaves room for registration without eating into the
+          appointment itself.
+        </p>
+
+        <p data-reveal>
+          Bring any medication you are currently taking, along with previous prescriptions,
+          discharge summaries or test results. You are welcome to bring a family member, and
+          you can also ask to be seen alone for part of the appointment. That is a normal
+          request and it causes no offence.
+          <a href="/faq">The questions page</a> covers what happens in the room, and most
+          of what people want to know before a first appointment.
+        </p>
+      </div>
+
+      <aside class="callout visit__urgent" data-reveal>
+        <span class="callout__icon"><Icon name="pulse" size="sm" /></span>
+        <div>
+          <p class="callout__title">In an emergency, do not wait for an appointment</p>
+          <p>
+            If you or someone you are with is at immediate risk of harm, go to the emergency
+            department at Rehman Medical Institute, or call the hospital UAN. An outpatient
+            booking is not the right route for something that cannot wait.
+          </p>
+          <p class="visit__uan"><a href={UAN_HREF}>Hospital UAN {PRACTICE.hospitalUan}</a></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* --- The three channels ------------------------------------------------ */
+
+  .channels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5);
+  }
+
+  .channel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-6) var(--s-5);
+    background: var(--surface);
+    border-radius: var(--r-card);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
+  }
+
+  .channel__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    text-decoration: none;
+  }
+
+  .channel__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .channel__link:hover .channel__icon {
+    background: var(--amethyst-900);
+    color: #fff;
+  }
+
+  .channel__value {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    color: var(--ink);
+    word-break: break-word;
+  }
+  .channel__link:hover .channel__value { color: var(--amethyst-900); }
+
+  .channel__note { margin-top: auto; }
+
+  /* --- The clinic -------------------------------------------------------- */
+
+  .where {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .details { border-top: 1px solid var(--hairline); }
+  .details > div {
+    display: grid;
+    grid-template-columns: minmax(0, 150px) minmax(0, 1fr);
+    gap: var(--s-2) var(--s-4);
+    padding-block: var(--s-4);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .details dt {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+  }
+  .details dt :global(.icon) { flex: 0 0 auto; }
+  .details dd {
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    line-height: 1.7;
+  }
+  .details address { font-style: normal; }
+  .details a { color: var(--ink); text-decoration: none; }
+  .details a:hover { color: var(--amethyst-600); text-decoration: underline; }
+  .details__link {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--amethyst-900) !important;
+    font-weight: 500;
+  }
+  .details__note {
+    margin-top: 6px;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+  }
+
+  .hours { display: flex; flex-direction: column; gap: 2px; }
+  .hours li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-4);
+    justify-content: space-between;
+    max-width: 280px;
+  }
+
+  .where__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
+
+  /* --- Your visit -------------------------------------------------------- */
+
+  .visit {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+  .visit__uan {
+    margin-top: var(--s-3);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+  }
+  .visit__uan a { text-underline-offset: 4px; }
+
+  @media (max-width: 1000px) {
+    .channels { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 900px) {
+    .where { grid-template-columns: 1fr; }
+    .visit { grid-template-columns: 1fr; }
+    .details > div { grid-template-columns: 1fr; }
+  }
+</style>

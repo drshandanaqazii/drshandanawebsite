@@ -1,0 +1,83 @@
+---
+/**
+ * The visible trail. Its structured-data twin is built in StructuredData.astro
+ * from the same array, passed down from the page — one list, two renderings, so
+ * the markup and the schema cannot describe different paths.
+ *
+ * "Home" is prepended here, exactly as it is there.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Levels below the root, in order. The last one is the current page. */
+  trail: readonly { name: string; href: string }[];
+  /** `light` for a trail sitting on a photograph or any dark ground. */
+  tone?: 'default' | 'light';
+}
+
+const { trail, tone = 'default' } = Astro.props;
+const items = [{ name: 'Home', href: '/' }, ...trail];
+---
+
+<nav class:list={['crumbs', { 'crumbs--light': tone === 'light' }]} aria-label="Breadcrumb">
+  <ol>
+    {items.map((item, i) => {
+      const isLast = i === items.length - 1;
+      return (
+        <li>
+          {isLast
+            ? <span aria-current="page">{item.name}</span>
+            : <a href={item.href}>{item.name}</a>}
+          {!isLast && (
+            <span class="crumbs__sep" aria-hidden="true"><Icon name="caret" size="sm" /></span>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>
+
+<style>
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px var(--s-1);
+  }
+
+  .crumbs li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-1);
+    font-size: var(--fs-body-sm);
+    color: var(--ink-muted);
+  }
+
+  .crumbs a {
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease);
+  }
+  .crumbs a:hover { color: var(--amethyst-600); text-decoration: underline; }
+
+  .crumbs [aria-current="page"] { color: var(--ink); }
+
+  /* The caret points down in the icon set, so it is turned rather than drawn
+     again — see the note on the prev arrow in Testimonials.astro. */
+  .crumbs__sep {
+    display: grid;
+    place-items: center;
+    color: var(--hairline);
+  }
+  .crumbs__sep :global(.icon) { transform: rotate(-90deg); }
+
+  /* On a photograph. Solid tones rather than white at an opacity, for the same
+     reason the footer uses them: the ground underneath is not knowable, and a
+     stacked alpha over a light patch of image goes to nothing. The scrim is
+     what guarantees these clear. */
+  .crumbs--light li { color: #CFC7DE; }
+  .crumbs--light a { color: #CFC7DE; }
+  .crumbs--light a:hover { color: #FFFFFF; }
+  .crumbs--light [aria-current="page"] { color: #FFFFFF; }
+  .crumbs--light .crumbs__sep { color: rgba(255, 255, 255, .34); }
+</style>

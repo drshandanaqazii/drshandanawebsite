@@ -1,0 +1,257 @@
+---
+/**
+ * The only page on the site carrying FAQPage structured data.
+ *
+ * The homepage shows five of these questions and deliberately passes no `faqs`
+ * prop to BaseLayout: the same question-and-answer pairs marked up on two URLs
+ * is a duplicate signal, not two chances at a rich result. Service pages have
+ * their own, distinct sets.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import headerImage from '../assets/care-evaluation.jpg';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import Motif from '../components/Motif.astro';
+import { FAQ_GROUPS, ALL_FAQS, PAGE_SEO } from '../consts';
+
+const trail = [{ name: 'Questions', href: '/faq' }];
+---
+
+<BaseLayout
+  title={PAGE_SEO.faq.title}
+  description={PAGE_SEO.faq.description}
+  breadcrumbs={trail}
+  faqs={ALL_FAQS}
+>
+  <MediaHeader
+    image={headerImage}
+    imageAlt="A spiral notebook, a pen and a pair of glasses on a white table"
+    imagePosition="50% 72%"
+    layout="split"
+    trail={trail}
+    title="Things people ask"
+    titleEm="first"
+    lede="The questions below are the ones that come up before a first appointment. If yours is not here, it is always worth asking on the phone."
+    scrollTo="questions"
+    scrollLabel="Scroll to the questions"
+  />
+
+  <section class="section questions" id="questions" style="padding-top: 0;" aria-labelledby="questions-heading">
+    <div class="container">
+      <h2 class="visually-hidden" id="questions-heading">Frequently asked questions</h2>
+
+      {FAQ_GROUPS.map((group, gi) => (
+        <div class="qgroup">
+          {/* One small brain, in the first group only. It sits in the run-off
+              under the sticky head, where nothing is ever read — see the note
+              on placement scarcity above .motif in global.css. */}
+          {gi === 0 && <Motif name="brain" opacity={0.022} class="qgroup__motif" />}
+
+          <div class="qgroup__head" data-reveal-group>
+            {/* The badge and the numeral are the whole reason this column is
+                here: three headings alone down the left of a white page read as
+                a table of contents someone forgot to finish. */}
+            <div class="qgroup__badge" data-reveal>
+              <span class="qgroup__icon"><Icon name={group.icon} /></span>
+              <span class="qgroup__num">{String(gi + 1).padStart(2, '0')}</span>
+            </div>
+            <h3 class="qgroup__heading" data-reveal>{group.heading}</h3>
+            <p class="body-sm qgroup__blurb" data-reveal>{group.blurb}</p>
+            <p class="qgroup__count" data-reveal>
+              {group.items.length} question{group.items.length === 1 ? '' : 's'}
+            </p>
+          </div>
+
+          {/* One `name` per group, not one for the page: with a single shared
+              name, opening a question in the third group would silently close
+              the one the reader had open in the first, several screens up. */}
+          <div class="qgroup__list" data-reveal-group>
+            {group.items.map((item) => (
+              <details
+                class="faq__item"
+                name={`faq-${group.heading.toLowerCase().replace(/\s+/g, '-')}`}
+                data-reveal
+                style="--reveal-from: 10px;"
+              >
+                <summary class="faq__q">
+                  <span>{item.q}</span>
+                  <span class="faq__sign" aria-hidden="true"></span>
+                </summary>
+                <div class="faq__a"><p class="body-sm">{item.a}</p></div>
+              </details>
+            ))}
+          </div>
+        </div>
+      ))}
+
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Still have a question?"
+    title="Ask it on the phone, or at the"
+    titleEm="consultation"
+    body="If your question is not above, call the clinic and reception will answer it gladly."
+  />
+</BaseLayout>
+
+<style>
+  /* The page is white and the cards are white, so the only thing keeping this
+     stretch from reading as a blank sheet is the amethyst: the badges, the
+     numerals, the open card, and one motif drifting off the right edge. */
+  .questions { position: relative; isolation: isolate; overflow: hidden; }
+
+  /* Two on the page, both small. At this size the shape is a mark in the
+     margin, not a drawing behind the content. */
+  /* Scoped through .qgroup — see the note in Hero.astro. */
+  .qgroup :global(.qgroup__motif) {
+    top: 300px;
+    left: 8px;
+    width: 76px;
+  }
+
+
+  .qgroup {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 280px) 1fr;
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+    padding-block: clamp(32px, 4vw, 48px);
+  }
+  .qgroup + .qgroup { border-top: 1px solid var(--hairline); }
+  .qgroup:first-child { padding-top: 0; }
+
+  .qgroup__head { position: sticky; top: 108px; }
+
+  .qgroup__badge {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-bottom: var(--s-4);
+  }
+
+  .qgroup__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+    box-shadow: inset 0 0 0 1px var(--amethyst-100);
+  }
+
+  /* Gilt, and only here: the numerals are the one warm mark the token set
+     allows, and at this size they carry the colour without being read as text. */
+  .qgroup__num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -.02em;
+    color: var(--gilt-600);
+  }
+
+  .qgroup__heading {
+    font-family: var(--font-display);
+    font-size: var(--fs-card-title);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -.01em;
+    color: var(--ink);
+  }
+
+  .qgroup__blurb { margin-top: var(--s-2); max-width: 34ch; color: var(--ink-body); }
+
+  .qgroup__count {
+    margin-top: var(--s-4);
+    font-size: var(--fs-credential);
+    font-weight: 500;
+    letter-spacing: var(--ls-cred);
+    text-transform: uppercase;
+    color: var(--amethyst-600);
+  }
+
+  /* The accordion styling is shared with the homepage FAQ, whose rules are
+     scoped inside Faq.astro. Restated here rather than reached into — see the
+     same note on the service page template. */
+  .qgroup__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Cards, not a ruled stack — the same treatment the homepage gives its five
+     questions, so a reader arriving from there meets the thing they clicked. */
+  .faq__item {
+    border-radius: var(--r-media);
+    /* On the homepage these cards sit on the tinted band and can be plain
+       white. Here the ground is white too, so the card carries the faintest
+       tint of its own — otherwise the hairline is doing all the work. */
+    background: linear-gradient(180deg, var(--amethyst-50), var(--paper) 70%);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    transition: box-shadow var(--dur-fast) var(--ease);
+  }
+
+  .faq__item:hover { box-shadow: inset 0 0 0 1px var(--amethyst-100); }
+
+  .faq__item[open] {
+    box-shadow: inset 0 0 0 1px var(--amethyst-100), var(--shadow-card);
+  }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+    padding: 20px clamp(20px, 2.2vw, 28px);
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 450;
+    line-height: 1.45;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__q:hover { color: var(--amethyst-600); }
+
+  .faq__item[open] .faq__q { color: var(--ink); padding-bottom: 12px; }
+
+  .faq__sign {
+    position: relative;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--ink-muted);
+  }
+  .faq__sign::before,
+  .faq__sign::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto 0;
+    height: 1.25px;
+    background: currentColor;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .faq__sign::after { transform: rotate(90deg); }
+
+  .faq__item[open] .faq__sign { color: var(--amethyst-600); }
+  .faq__item[open] .faq__sign::before { transform: rotate(45deg); }
+  .faq__item[open] .faq__sign::after { transform: rotate(135deg); }
+
+  .faq__a { padding: 0 clamp(20px, 2.2vw, 28px) 22px; }
+  .faq__a p { max-width: 62ch; }
+
+  @media (max-width: 900px) {
+    .qgroup { grid-template-columns: 1fr; }
+    .qgroup__head { position: static; }
+    /* One column: there is no run-off left to draw in, only the questions. */
+    .qgroup :global(.qgroup__motif) { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__sign::before, .faq__sign::after { transition: none; }
+  }
+</style>

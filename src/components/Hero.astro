@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
+import Motif from './Motif.astro';
 import { DOCTOR, CREDENTIAL_BAR } from '../consts';
 import portrait from '../assets/shandana-portrait.png';
 ---
@@ -19,12 +20,12 @@ import portrait from '../assets/shandana-portrait.png';
         an ordinary day: assessed properly, and explained in language you can actually use.
       </p>
 
-      {/* The secondary sends people who are not ready to book to the section
-          that explains what an appointment actually involves — the usual
-          reason for hesitating at this point. */}
+      {/* The secondary sends people who are not ready to book to the answers —
+          not knowing what an appointment involves is the usual reason for
+          hesitating at this point. */}
       <div class="hero__actions" data-reveal>
-        <Button href="#contact">Book a consultation</Button>
-        <Button href="#care" variant="ghost">How treatment works</Button>
+        <Button href="/contact">Book a consultation</Button>
+        <Button href="/faq" variant="ghost">Questions before booking</Button>
       </div>
 
       <p class="hero__meta" data-reveal>
@@ -38,6 +39,19 @@ import portrait from '../assets/shandana-portrait.png';
     {/* The whole arch-plus-portrait unit drifts, not the cut-out inside it —
         moving the portrait alone would break the way it stands on the panel. */}
     <figure class="hero__media" data-reveal="media" data-parallax="30">
+      {/* The panel was the flattest surface on the page: a gradient and
+          nothing else, for 530px. The brain sits in it rather than on the
+          paper because this is the one ground already tinted — on white the
+          same drawing would have to be so faint to stay quiet that it would
+          disband into the page at the first sunlit screen. Placed high and
+          off the right edge, so the portrait's head crosses it rather than
+          standing in front of a complete shape. */}
+      {/* `spark` runs one point of amethyst light around a circuit through the
+          drawing — a signal crossing it, which is the one piece of movement on
+          this panel. 22s is a deliberate crawl: at anything under about 15 the
+          eye tracks it as an object moving and stops reading the headline. */}
+      <Motif name="brain" class="hero__motif" spark={22} />
+
       <Image
         src={portrait}
         alt={`${DOCTOR.name}, consultant psychiatrist, in a white coat`}
@@ -136,6 +150,11 @@ import portrait from '../assets/shandana-portrait.png';
      The panel spans the full column so its edges line up with the copy and
      the credential bar below. */
   .hero__media {
+    /* Positioning ancestor for the motif; the overflow below is what crops it
+       against the panel's rounded edge, and the isolation is what keeps the
+       motif's negative z-index inside this panel. */
+    position: relative;
+    isolation: isolate;
     width: 100%;
     /* No aspect-ratio: the height comes from the stretched grid row, which is
        what keeps the panel flush with the copy beside it. */
@@ -158,6 +177,29 @@ import portrait from '../assets/shandana-portrait.png';
       );
     box-shadow: inset 0 0 0 1px var(--hairline);
   }
+  /* Reached into from the parent rather than written as a bare `.hero__motif`.
+     The class is passed to <Motif /> and lands on an element rendered by that
+     component, which carries Motif's scope attribute and not this file's — so
+     the obvious `.hero__motif { … }` compiles to a selector that matches
+     nothing and the drawing falls back to its intrinsic size in the corner.
+     `.hero__media` is this file's own element, so the descendant part is what
+     keeps the rule scoped to this component.
+
+     One selector for both the drawing and the light that travels it — see the
+     note in Motif.astro on why they are two elements. Placing them together is
+     what guarantees they stay in register. */
+  .hero__media :global(.hero__motif) {
+    top: -6%;
+    right: -14%;
+    width: 86%;
+    /* Well above the .motif default of .03. It is drawn on the tint rather
+       than on paper, so the gradient eats a good deal of it — and it is the
+       one motif on the site with a light running over it, which only reads as
+       a light on a line if the line under it is actually visible. Still low
+       enough to stay texture: the coat in front of it is the subject. */
+    --motif-opacity: .1;
+  }
+
   .hero__media :global(img) {
     width: 100%;
     height: 100%;

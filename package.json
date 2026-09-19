@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
+    "og": "node scripts/make-og-image.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

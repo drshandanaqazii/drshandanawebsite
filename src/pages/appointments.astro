@@ -1,0 +1,830 @@
+---
+/**
+ * /appointments — the booking page.
+ *
+ * It is not /contact, and the split between them is worth stating because the
+ * two pages were one page until this was added:
+ *
+ *   /appointments  what kind of appointment, and how to book it. The page a
+ *                  person reads while deciding to book.
+ *   /contact       where the building is, how to reach the practice, how to get
+ *                  through the door. The page a person reads once they have.
+ *
+ * So the clinic block below carries the address, the hours and the map because
+ * a booking page that cannot tell you where to turn up is useless — but it does
+ * not repeat /contact's directions copy, and it links there instead. Keep that
+ * line. The moment this page starts explaining which rickshaw to take, the two
+ * pages are competing for the same search result again.
+ *
+ * No FAQPage structured data here: the questions at the foot are a subset of
+ * /faq, which carries the markup for all of them. See the note in consts.ts.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import headerImage from '../assets/appointments-hero.webp';
+import PracticeMap from '../components/PracticeMap.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import {
+  APPOINTMENT_MODES,
+  APPOINTMENT_FAQS,
+  BOOKING_STEPS,
+  ALL_FAQS,
+  PAGE_SEO,
+  PRACTICE,
+} from '../consts';
+import { TEL_HREF, UAN_HREF, WHATSAPP_HREF, MAIL_HREF, MAPS_HREF } from '../lib/practice-links';
+
+const trail = [{ name: 'Appointments', href: '/appointments' }];
+
+/* The booking action for each mode. Kept here rather than in consts.ts because
+   the hrefs come from lib/practice-links, which imports consts — putting them
+   in the data would make the import circular. */
+const MODE_CTA: Record<string, { label: string; href: string; icon: 'phone' | 'whatsapp' }> = {
+  'in-person': { label: `Call ${PRACTICE.bookingPhoneDisplay}`, href: TEL_HREF, icon: 'phone' },
+  online: { label: 'Ask about an online slot', href: WHATSAPP_HREF, icon: 'whatsapp' },
+};
+
+/* The same two helpers /contact uses, for the same reason: the hours table is
+   rendered from the array that becomes openingHoursSpecification in the schema,
+   so the printed hours and the declared hours cannot drift apart. */
+const dayLabel = (days: readonly string[]) =>
+  days.length === 1 ? days[0] : `${days[0]}–${days[days.length - 1]}`;
+
+const time = (t: string) => {
+  const [h, m] = t.split(':').map(Number);
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
+};
+
+/* Three ways to reach the desk, in the order they actually produce a booking.
+   Deliberately terser than /contact's version of this row — there it is the
+   subject of the page and each channel gets a paragraph; here it is the thing
+   you do after reading, so it is a bar rather than three cards. */
+const CHANNELS = [
+  { icon: 'phone', label: 'Call', value: PRACTICE.bookingPhoneDisplay, href: TEL_HREF },
+  { icon: 'whatsapp', label: 'WhatsApp', value: 'Send a message', href: WHATSAPP_HREF },
+  { icon: 'mail', label: 'Email', value: PRACTICE.email, href: MAIL_HREF },
+] as const;
+---
+
+<BaseLayout
+  title={PAGE_SEO.appointments.title}
+  description={PAGE_SEO.appointments.description}
+  breadcrumbs={trail}
+>
+  <MediaHeader
+    image={headerImage}
+    imageAlt=""
+    imagePosition="50% 16%"
+    layout="split"
+    trail={trail}
+    title="Book an "
+    titleEm="appointment."
+    lede="Appointments with Dr. Shandana Qazi are held at Rehman Medical Institute in Hayatabad, Peshawar, and by video for patients who cannot travel."
+    scrollTo="modes"
+    scrollLabel="Scroll to the two kinds of appointment"
+  />
+
+  {/* ---------------------------------------------------------------------
+      The two modes. One frame divided down the middle rather than two cards
+      side by side: they are a pair being compared, and a shared edge is what
+      says so. The divider becomes horizontal when the panel stacks.
+      --------------------------------------------------------------------- */}
+  <section class="section" id="modes" style="padding-top: 0;" aria-labelledby="modes-heading">
+    <div class="container">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>The appointment</p>
+        <h2 class="display-md" id="modes-heading" data-reveal>
+          In the clinic, or on a <em>video call</em>.
+        </h2>
+        <p class="body-sm modes__lede" data-reveal>
+          Both are a full consultation with the same doctor, and both end with the same
+          thing: a diagnosis explained in plain language and a plan you agreed to. The
+          difference is what each one can safely do.
+        </p>
+      </div>
+
+      <div class="modes" data-reveal-group>
+        {APPOINTMENT_MODES.map((mode) => {
+          const cta = MODE_CTA[mode.slug];
+          return (
+            <article class="mode" id={mode.slug} data-reveal>
+              <div class="mode__head">
+                <span class="mode__icon"><Icon name={mode.icon} /></span>
+                <div class="mode__heading">
+                  <p class="label">{mode.label}</p>
+                  <p class="mode__avail">{mode.availability}</p>
+                </div>
+              </div>
+
+              <h3 class="card-title mode__title">{mode.title}</h3>
+
+              <dl class="mode__facts">
+                {mode.facts.map((f) => (
+                  <div>
+                    <dt>{f.label}</dt>
+                    <dd>{f.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <p class="mode__suits-label">Best suited to</p>
+              <ul class="mode__suits">
+                {mode.suits.map((s) => <li>{s}</li>)}
+              </ul>
+
+              <p class="mode__note">{mode.note}</p>
+
+              {/* Pushed to the foot by the auto margin above it, so the two
+                  buttons line up across the divider however unevenly the two
+                  columns of copy come out. */}
+              {cta && (
+                <div class="mode__cta">
+                  <Button
+                    href={cta.href}
+                    icon={cta.icon}
+                    variant={mode.slug === 'in-person' ? 'solid' : 'ghost'}
+                    external
+                  >
+                    {cta.label}
+                  </Button>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------------------
+      How to book — three steps, then the three channels.
+      --------------------------------------------------------------------- */}
+  <section class="section section--band" aria-labelledby="book-heading">
+    <div class="container">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Booking</p>
+        <h2 class="display-md" id="book-heading" data-reveal>
+          Three steps, and none of them are a <em>form</em>.
+        </h2>
+      </div>
+
+      <ol class="steps" data-reveal-group>
+        {BOOKING_STEPS.map((step) => (
+          <li class="step" data-reveal>
+            <span class="step__num" aria-hidden="true">{step.number}</span>
+            <h3 class="step__title">{step.title}</h3>
+            <p class="body-sm step__body">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="desk" data-reveal>
+        <p class="desk__label">Reception is open {PRACTICE.hoursDisplay}</p>
+        <ul class="desk__channels">
+          {CHANNELS.map((c) => (
+            <li>
+              <a
+                class="desk__channel"
+                href={c.href}
+                rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                target={c.href.startsWith('http') ? '_blank' : undefined}
+              >
+                <span class="desk__icon"><Icon name={c.icon} size="sm" /></span>
+                <span class="desk__lines">
+                  <span class="desk__kind">{c.label}</span>
+                  <span class="desk__value">{c.value}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="desk__note">
+          Email is for reports and documents rather than for booking. Please do not send
+          anything time-sensitive to it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------------------
+      The clinic. Address, hours and the map — everything needed to turn up.
+      Directions and parking stay on /contact; see the header note.
+      --------------------------------------------------------------------- */}
+  {/* White, not a band. With the two white sections that used to sit either
+      side of this one gone, leaving it tinted put three bands back to back —
+      the alternation stops marking a change of subject and the three read as
+      one long grey block with hairlines ruled through it. The map carries its
+      own white mount, hairline and shadow, so it sits on paper unchanged. */}
+  <section class="section" aria-labelledby="clinic-heading">
+    <div class="container clinic">
+      <PracticeMap />
+
+      <div class="clinic__copy" data-reveal-group>
+        <div class="section-head" style="margin-bottom: var(--s-5);">
+          <p class="eyebrow" data-reveal>Where it happens</p>
+          <h2 class="display-md" id="clinic-heading" data-reveal>
+            Rehman Medical Institute, <em>Hayatabad</em>
+          </h2>
+        </div>
+
+        {/* The NAP block — name, address, phone. It has to match the Google
+            Business Profile character for character; a mismatched phone number
+            across directories is the single most common thing suppressing a
+            local ranking. Everything comes from PRACTICE in consts.ts, which is
+            also what feeds the schema. */}
+        <ul class="clinic__rows" data-reveal>
+          <li class="clinic__row">
+            <span class="clinic__icon"><Icon name="pin" size="sm" /></span>
+            <div>
+              <p class="clinic__label">Address</p>
+              <address class="clinic__value">
+                {PRACTICE.address.street}<br />
+                {PRACTICE.address.locality}, {PRACTICE.address.region} {PRACTICE.address.postalCode}<br />
+                Pakistan
+              </address>
+              <a class="clinic__link" href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
+                Open in Google Maps
+              </a>
+            </div>
+          </li>
+
+          <li class="clinic__row">
+            <span class="clinic__icon"><Icon name="clock" size="sm" /></span>
+            <div>
+              <p class="clinic__label">Clinic hours</p>
+              <ul class="hours">
+                {PRACTICE.hours.map((h) => (
+                  <li>
+                    <span>{dayLabel(h.days)}</span>
+                    <span class="tabular">{time(h.opens)} – {time(h.closes)}</span>
+                  </li>
+                ))}
+              </ul>
+              
+            </div>
+          </li>
+
+          <li class="clinic__row">
+            <span class="clinic__icon"><Icon name="phone" size="sm" /></span>
+            <div>
+              <p class="clinic__label">Telephone</p>
+              <p class="clinic__value">
+                <a href={TEL_HREF}>{PRACTICE.bookingPhoneDisplay}</a><br />
+                <a href={UAN_HREF}>Hospital UAN {PRACTICE.hospitalUan}</a>
+              </p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="clinic__actions" data-reveal>
+          <Button href={TEL_HREF} icon="phone" external>Call {PRACTICE.bookingPhoneDisplay}</Button>
+          <Button href="/contact" variant="ghost">Directions and parking</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------------------
+      Questions asked while deciding to book. Display only — /faq carries the
+      FAQPage markup for all of them.
+      --------------------------------------------------------------------- */}
+  <section class="section section--band" aria-labelledby="asked-heading">
+    <div class="container asked">
+      <div class="asked__head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Before you book</p>
+        <h2 class="display-md" id="asked-heading" data-reveal>
+          Asked before the first <em>call</em>.
+        </h2>
+        <p class="body-sm asked__blurb" data-reveal>
+          The six that come up most often while someone is deciding whether to pick up the
+          phone. The rest are answered in full on the questions page.
+        </p>
+        <div data-reveal>
+          <Button href="/faq" variant="ghost">All {ALL_FAQS.length} questions</Button>
+        </div>
+      </div>
+
+      {/* The accordion styling is shared with the homepage FAQ and /faq, whose
+          rules are scoped inside their own files. Restated here rather than
+          reached into — the same call /faq makes. */}
+      <div class="asked__list" data-reveal-group>
+        {APPOINTMENT_FAQS.map((item, i) => (
+          <details class="faq__item" name="appointment-faq" open={i === 0} data-reveal style="--reveal-from: 10px;">
+            <summary class="faq__q">
+              <span>{item.q}</span>
+              <span class="faq__sign" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a"><p class="body-sm">{item.a}</p></div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Booking"
+    title="The whole thing starts with one"
+    titleEm="call"
+    body="You do not need to have worked out what is wrong, or which kind of appointment you need. Narrowing that down is the first consultation's job, not yours."
+  />
+</BaseLayout>
+
+<style>
+  /* ========================================================================
+     The two modes
+     ======================================================================== */
+
+  .modes__lede { max-width: 62ch; color: var(--ink-body); }
+
+  /* One frame, divided. `overflow: hidden` lets the divider run corner to
+     corner without either half needing a radius of its own. */
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: var(--r-hero);
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
+  }
+
+  .mode {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(28px, 3.4vw, 48px);
+  }
+
+  /* The divider. A border on the second child rather than a gap, so the two
+     halves stay one surface — a gap here would make them two cards again. */
+  .mode + .mode { border-left: 1px solid var(--hairline); }
+
+  /* The primary mode gets the faintest tint, top-down, so the pair reads as a
+     recommendation and an alternative rather than two equal options. It is the
+     same gradient the FAQ cards use, at the same strength. */
+  .mode:first-child {
+    background: linear-gradient(175deg, var(--amethyst-50), var(--paper) 58%);
+  }
+
+  .mode__head {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-bottom: var(--s-5);
+  }
+
+  .mode__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+    box-shadow: inset 0 0 0 1px var(--amethyst-100);
+  }
+
+  .mode__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-1) var(--s-3);
+  }
+
+  /* The availability chip. Muted and small: it qualifies the label, and a
+     second piece of emphasis on the same line would fight it. */
+  /* Sized to match .label on the line beside it exactly, so the two read as a
+     label and its qualifier rather than as two competing captions — at
+     --fs-credential the qualifier came out larger than the thing it qualifies.
+     Colour is the only difference, and it is the one warm mark on the card. */
+  .mode__avail {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--gilt-600);
+  }
+
+  .mode__title { color: var(--ink); }
+
+  /* Ruled rows, not a two-column table: the values are sentences of very
+     different lengths, and a fixed label column would leave "Where" sitting
+     beside a line that wraps three times. */
+  .mode__facts {
+    margin-top: var(--s-5);
+    border-top: 1px solid var(--hairline);
+  }
+  .mode__facts > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-4);
+    justify-content: space-between;
+    padding-block: 10px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .mode__facts dt {
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+  }
+  .mode__facts dd {
+    max-width: 30ch;
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .mode__suits-label {
+    margin-top: var(--s-5);
+    color: var(--ink);
+    font-size: var(--fs-credential);
+    font-weight: 500;
+    letter-spacing: var(--ls-cred);
+    text-transform: uppercase;
+  }
+
+  /* The same drawn dash .rich and .checklist use, so the three lists on the
+     site are one family. */
+  .mode__suits {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .mode__suits li {
+    position: relative;
+    padding-left: var(--s-5);
+    color: var(--ink-body);
+    font-size: var(--fs-body-sm);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+  .mode__suits li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    width: 10px;
+    height: 1.25px;
+    background: var(--amethyst-600);
+  }
+
+  .mode__note {
+    margin-top: var(--s-5);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+    max-width: 48ch;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* `auto` above the button is what levels the two CTAs across the divider. */
+  .mode__cta { margin-top: auto; padding-top: var(--s-5); }
+
+  /* ========================================================================
+     How to book
+     ======================================================================== */
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(24px, 3vw, 48px);
+  }
+
+  .step {
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+  }
+
+  /* Gilt, light, and large — the same warm numeral the care model and the
+     question groups use. It is the one colour on the site that is not the
+     amethyst, and it is only ever a numeral. */
+  .step__num {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(44px, 5.2vw, 64px);
+    font-weight: 200;
+    line-height: 1;
+    letter-spacing: -.04em;
+    color: var(--gilt-600);
+    opacity: .5;
+  }
+
+  .step__title {
+    margin-top: var(--s-4);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--fs-card-title);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -.01em;
+  }
+
+  .step__body { margin-top: var(--s-2); max-width: 42ch; color: var(--ink-body); }
+
+  /* --- the desk ---------------------------------------------------------- */
+
+  .desk {
+    margin-top: clamp(40px, 5vw, 64px);
+    padding: clamp(24px, 3vw, 36px);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
+  }
+
+  .desk__label {
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+  }
+
+  .desk__channels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+  }
+
+  .desk__channel {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: 10px;
+    border-radius: var(--r-media);
+    text-decoration: none;
+    transition: background var(--dur-fast) var(--ease);
+  }
+  .desk__channel:hover { background: var(--amethyst-50); }
+
+  .desk__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .desk__channel:hover .desk__icon { background: var(--amethyst-900); color: #fff; }
+
+  .desk__lines { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+
+  /* Capitalised rather than set in caps, and not using .label for that reason.
+     "WhatsApp" is a proper noun with a capital in the middle of it, and all-caps
+     throws that away — WHATSAPP is the one spelling of the name that is nobody's.
+     Dropping the caps means dropping the tracking with it: --ls-label exists to
+     open up capitals, and on lower case it reads as a spacing fault. A step up
+     in size compensates for the smaller cap height. */
+  .desk__kind {
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    color: var(--ink-muted);
+  }
+
+  .desk__value {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+  .desk__channel:hover .desk__value { color: var(--amethyst-900); }
+
+  .desk__note {
+    margin-top: var(--s-4);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+  }
+
+  /* ========================================================================
+     The clinic
+     ======================================================================== */
+
+  .clinic {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .clinic__rows {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .clinic__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding-block: var(--s-4);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .clinic__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    color: var(--amethyst-600);
+  }
+
+  /* Sentence case at body size rather than the small letterspaced caps the
+     --fs-label/--ls-label pair gives. Those caps are for a one- or two-word
+     tag; here the label sits directly above an address block and reads as its
+     heading, and at 11px uppercase it was smaller than everything it was
+     supposed to be introducing. The capitals are in the markup, not applied by
+     `text-transform` — so what is rendered is what is written. */
+  .clinic__label {
+    margin-bottom: 5px;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    letter-spacing: .01em;
+  }
+
+  .clinic__value {
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    font-style: normal;
+    line-height: 1.7;
+  }
+  .clinic__value a { color: var(--ink); text-decoration: none; }
+  .clinic__value a:hover { color: var(--amethyst-600); text-decoration: underline; }
+
+  .clinic__link {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--amethyst-900);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+  }
+
+  .clinic__aside {
+    margin-top: 6px;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+  }
+
+  .hours {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+  }
+  .hours li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-4);
+    justify-content: space-between;
+    max-width: 280px;
+  }
+
+  .clinic__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
+
+  /* ========================================================================
+     Questions
+     ======================================================================== */
+
+  .asked {
+    display: grid;
+    grid-template-columns: minmax(0, 380px) 1fr;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .asked__head {
+    position: sticky;
+    top: 108px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+  }
+
+  .asked__blurb { max-width: 36ch; color: var(--ink-body); }
+
+  .asked__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .faq__item {
+    border-radius: var(--r-media);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    transition: box-shadow var(--dur-fast) var(--ease);
+  }
+  .faq__item:hover { box-shadow: inset 0 0 0 1px var(--amethyst-100); }
+  .faq__item[open] { box-shadow: inset 0 0 0 1px var(--amethyst-100), var(--shadow-card); }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+    padding: 20px clamp(20px, 2.2vw, 28px);
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 450;
+    line-height: 1.45;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__q:hover { color: var(--amethyst-600); }
+
+  .faq__item[open] .faq__q { color: var(--ink); padding-bottom: 12px; }
+
+  .faq__sign {
+    position: relative;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--ink-muted);
+  }
+  .faq__sign::before,
+  .faq__sign::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto 0;
+    height: 1.25px;
+    background: currentColor;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .faq__sign::after { transform: rotate(90deg); }
+
+  .faq__item[open] .faq__sign { color: var(--amethyst-600); }
+  .faq__item[open] .faq__sign::before { transform: rotate(45deg); }
+  .faq__item[open] .faq__sign::after { transform: rotate(135deg); }
+
+  .faq__a { padding: 0 clamp(20px, 2.2vw, 28px) 22px; }
+  .faq__a p { max-width: 62ch; }
+
+  /* ========================================================================
+     Narrowing
+     ======================================================================== */
+
+  @media (max-width: 1000px) {
+    .asked { grid-template-columns: 1fr; }
+    .asked__head { position: static; }
+    .desk__channels { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 900px) {
+    /* The divider turns with the stack — the two halves stay one panel. */
+    .modes { grid-template-columns: 1fr; }
+    .mode + .mode { border-left: 0; border-top: 1px solid var(--hairline); }
+
+    .steps { grid-template-columns: 1fr; }
+
+    .clinic { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    /* Right-aligned values stop reading as a table once they wrap, so the rows
+       become label-over-value instead. */
+    .mode__facts > div { flex-direction: column; }
+    .mode__facts dd { max-width: none; text-align: left; }
+
+    /* On a phone the two cards stack, so the "Best suited to" lists and their
+       caveats turn into a long scroll between the reader and the booking
+       buttons. The facts above already say what each mode is; the detail is
+       dropped here rather than stacked. */
+    .mode__suits-label,
+    .mode__suits,
+    .mode__note { display: none; }
+
+    /* The reception desk — hours line, the three channels, and the note about
+       email — is hidden on phones. Stacked one per row it is a screen and a
+       half of scrolling, and the same phone, WhatsApp and email routes are
+       already on the mode cards above and in the footer. */
+    .desk { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__sign::before, .faq__sign::after { transition: none; }
+  }
+</style>

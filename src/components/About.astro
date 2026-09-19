@@ -63,11 +63,12 @@ import aboutPortrait from '../assets/shandana-portrait2.jpeg';
         ))}
       </ul>
 
-      {/* The credentials list states them; the hospital's own profile is what
-          verifies them, so the link out is the natural end of this column. */}
+      {/* Two ends to this column: the page that says more, and the hospital's
+          own profile, which is what actually verifies the list above it. */}
       <div class="about__cta" data-reveal>
+        <Button href="/about">More about Dr. Qazi</Button>
         <Button href={PRACTICE.profileUrl} variant="ghost" external>
-          View Credentials
+          View credentials
         </Button>
       </div>
     </div>
@@ -132,7 +133,12 @@ import aboutPortrait from '../assets/shandana-portrait2.jpeg';
   .creds__detail { flex: 1 1 200px; font-size: var(--fs-body-sm); }
   .creds__year { flex: 0 0 auto; color: var(--ink-muted); font-size: var(--fs-body-sm); }
 
-  .about__cta { margin-top: var(--s-2); }
+  .about__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
 
   @media (max-width: 900px) {
     .about { grid-template-columns: 1fr; }

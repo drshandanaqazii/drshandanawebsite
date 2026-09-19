@@ -4,7 +4,7 @@ import type { IconName } from '../lib/icons';
 
 interface Props {
   href: string;
-  variant?: 'solid' | 'ghost' | 'on-dark';
+  variant?: 'solid' | 'ghost' | 'on-dark' | 'on-dark-ghost';
   icon?: IconName;
   class?: string;
   /** Set for tel:, wa.me and other off-site destinations. */
@@ -88,6 +88,17 @@ const target = external && href.startsWith('http') ? '_blank' : undefined;
   }
   .btn--on-dark:hover { background: #fff; }
   .btn--on-dark .btn__arrow { background: var(--amethyst-900); color: #fff; }
+
+  /* The secondary on an amethyst ground. Outlined in white at low alpha rather
+     than filled, so the pair reads as one primary and one alternative — two
+     white pills side by side would read as two primaries. */
+  .btn--on-dark-ghost {
+    background: transparent;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .34);
+  }
+  .btn--on-dark-ghost:hover { background: rgba(255, 255, 255, .1); }
+  .btn--on-dark-ghost .btn__arrow { background: rgba(255, 255, 255, .16); color: #fff; }
 
   @media (prefers-reduced-motion: reduce) {
     .btn:hover .btn__arrow { transform: none; }

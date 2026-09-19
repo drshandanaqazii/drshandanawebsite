@@ -34,6 +34,11 @@ export const ICON_PATHS = {
   hourglass: '<path d="M6.5 3.5h11M6.5 20.5h11"/><path d="M8 3.5v3.3c0 2.6 4 3.6 4 5.2s-4 2.6-4 5.2v3.3"/><path d="M16 3.5v3.3c0 2.6-4 3.6-4 5.2s4 2.6 4 5.2v3.3"/>',
   loop:      '<path d="M4.8 10.2a7.5 7.5 0 0 1 12.6-3.1l2 2"/><path d="M19.2 13.8a7.5 7.5 0 0 1-12.6 3.1l-2-2"/><path d="M19.5 4.5v4.6h-4.6M4.5 19.5v-4.6h4.6"/>',
   quote:     '<path d="M9.5 6.5C6.9 7.6 5.5 9.7 5.5 12.6v4.9h5.9v-6H8.2c0-1.6.6-2.9 1.9-3.6zM20 6.5c-2.6 1.1-4 3.2-4 6.1v4.9h5.9v-6h-3.2c0-1.6.6-2.9 1.9-3.6z"/>',
+  /* A rosette, not a certificate sheet: a page with a seal on it needs detail
+     at 24px that this stroke weight cannot carry, and it reads as "document"
+     rather than "qualification". The seal sits high so the two ribbon tails
+     have room to fall without crowding the baseline. */
+  rosette:   '<circle cx="12" cy="9" r="5.4"/><path d="M8.3 13.3L7.1 20.8 12 18.5l4.9 2.3-1.2-7.5"/>',
   menu:      '<path d="M4 7.5h16M4 12h16M4 16.5h16"/>',
   close:     '<path d="M6 6l12 12M18 6L6 18"/>',
   whatsapp:  '<path d="M12.04 3.5a8.4 8.4 0 0 0-7.2 12.72L3.75 20.5l4.4-1.05a8.4 8.4 0 1 0 3.89-15.95z"/><path d="M9.2 8.3c.2-.5.4-.5.6-.5h.5c.2 0 .4 0 .6.5l.7 1.6c.1.2 0 .4-.1.5l-.4.5c-.1.2-.2.3-.1.5a5.6 5.6 0 0 0 2.6 2.3c.3.1.4 0 .5-.1l.5-.6c.1-.2.3-.2.5-.1l1.5.8c.2.1.3.2.3.4 0 .6-.4 1.4-1.3 1.6-1 .2-2.4 0-4.2-1.3a8 8 0 0 1-2.6-3.4c-.4-1-.3-1.9.1-2.4z"/>',

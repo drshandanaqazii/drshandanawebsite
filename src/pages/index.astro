@@ -1,36 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Nav from '../components/Nav.astro';
 import Hero from '../components/Hero.astro';
 import CareModel from '../components/CareModel.astro';
 import Services from '../components/Services.astro';
 import About from '../components/About.astro';
-import Testimonials from '../components/Testimonials.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
-import Footer from '../components/Footer.astro';
+
+/* The homepage carries every subject in short form and links onward to the page
+   that covers it. It does not carry FAQPage markup — /faq does, and these five
+   questions are a subset of that page's. See the note in consts.ts.
+
+   <Testimonials /> is not in this list. The component and its data are still in
+   the repo, but they hold lorem ipsum: publishing invented reviews for a named,
+   practising doctor is both misleading and a medical-advertising problem, so the
+   section stays out of the page until real, consented reviews exist. Adding it
+   back is one import and one tag. */
 ---
 
 <BaseLayout>
-  {/* .page is the sheet that scrolls over the fixed footer — see the curtain
-      note in global.css. The nav is inside it so it rides on the same white
-      ground as the hero, with no seam between them. */}
-  <div class="page">
-    <Nav />
-
-    <main id="main">
-      <Hero />
-      <About />
-      <Services />
-      <CareModel />
-
-      {/* ⚠️ Lorem ipsum placeholders — replace with consented reviews or remove. */}
-      <Testimonials />
-
-      <Faq />
-      <Contact />
-    </main>
-  </div>
-
-  <Footer />
+  <Hero />
+  <About />
+  <Services />
+  <CareModel />
+  <Faq />
+  <Contact />
 </BaseLayout>

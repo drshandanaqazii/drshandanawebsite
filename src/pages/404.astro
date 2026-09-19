@@ -1,0 +1,66 @@
+---
+/**
+ * noindex — a 404 that Google indexes is a 404 that appears in the results.
+ * Astro's static build emits this as /404.html, which Netlify, Vercel, Cloudflare
+ * Pages and GitHub Pages all serve automatically for an unmatched path.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import headerImage from '../assets/still-vessels.jpg';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import Button from '../components/Button.astro';
+import { SERVICES, PAGE_SEO } from '../consts';
+
+/* The three people are most likely to have been looking for. */
+const suggestions = SERVICES.filter((c) =>
+  ['depression', 'anxiety-and-panic', 'sleep-problems'].includes(c.slug)
+);
+---
+
+<BaseLayout
+  title={PAGE_SEO.notFound.title}
+  description={PAGE_SEO.notFound.description}
+  index={false}
+>
+  <MediaHeader
+    image={headerImage}
+    imageAlt="Two pale ceramic vases and dried stems arranged on a white table"
+    eyebrow="404"
+    size="md"
+    title="That page is not"
+    titleEm="here"
+    lede="The link may be out of date, or the address may have a typo in it. Everything on the site is reachable from the four places below."
+  />
+
+  <section class="section" style="padding-top: 0;" aria-labelledby="lost-heading">
+    <div class="container">
+      <h2 class="visually-hidden" id="lost-heading">Where to go instead</h2>
+
+      <div class="lost__actions" data-reveal>
+        <Button href="/">Back to the homepage</Button>
+        <Button href="/services" variant="ghost">Services</Button>
+        <Button href="/about" variant="ghost">About Dr. Qazi</Button>
+        <Button href="/contact" variant="ghost">Book an appointment</Button>
+      </div>
+
+      <p class="lost__note" data-reveal>Or start with one of these:</p>
+
+      <ServiceGrid items={suggestions} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lost__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+
+  .lost__note {
+    margin-top: clamp(48px, 6vw, 72px);
+    margin-bottom: var(--s-5);
+    font-size: var(--fs-body-sm);
+    color: var(--ink-muted);
+  }
+</style>

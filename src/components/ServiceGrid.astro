@@ -1,0 +1,145 @@
+---
+/**
+ * The text-led service grid: /services, and the "related" block at the foot
+ * of each service page.
+ *
+ * Deliberately not the photographed cards used on the homepage. Those six exist
+ * to make a stranger recognise themselves; this grid is navigation, and nine
+ * photographs of distress in one view is a different and much heavier thing than
+ * six spread down a long page. Icon, title, one line, arrow.
+ */
+import Icon from './Icon.astro';
+import type { Service } from '../data/services';
+
+interface Props {
+  items: readonly Service[];
+  /** Three across on the landing page, three across for related links too. */
+  columns?: 2 | 3;
+}
+
+const { items, columns = 3 } = Astro.props;
+---
+
+{/* Every caller puts this under an <h2>, so the titles are <h3>. They are real
+    headings rather than styled spans because on /services this grid is the
+    page's entire outline, and an outline made of spans is not one. The anchor
+    is inside the heading and stretched over the card — see the note in
+    Services.astro for why it is one link and not two. */}
+<ul class="clist" style={`--cols: ${columns}`} data-reveal-group data-parallax="-12">
+  {items.map((c) => (
+    <li class="clist__item" data-reveal>
+      <span class="clist__icon"><Icon name={c.icon} /></span>
+      <div class="clist__body">
+        {/* The short label, not the two-part card headline used on the
+            homepage. That split exists so one word can take the emphasis
+            colour, which the card-title step does not apply — so here it bought
+            nothing and broke "Obsessive–compulsive symptoms" across two lines
+            in a narrow column. The labels are also the words in the breadcrumb
+            and the nav, which is what a navigation grid should agree with. */}
+        <h3 class="card-title">
+          <a class="clist__link" href={`/services/${c.slug}`}>{c.label}</a>
+        </h3>
+        <p class="body-sm clist__text">{c.card.body}</p>
+      </div>
+      <span class="clist__arrow" aria-hidden="true"><Icon name="arrow" size="sm" /></span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .clist {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+    gap: var(--s-4);
+  }
+
+  .clist__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--s-4);
+    height: 100%;
+    padding: var(--s-5);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    /* Hairline first, shadow second — see the note in global.css. The hover
+       rule below replaces box-shadow outright, so it has to restate both. */
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-sm);
+    /* --lift, not a bare `transform` on hover: the reveal rules in motion.css
+       own this element's transform and compose --lift into it. Writing
+       `transform` here would be overwritten the moment the card reveals — the
+       same reason .card in motion.css does it this way. */
+    transform: translate3d(0, var(--lift, 0px), 0);
+    transition:
+      box-shadow var(--dur-fast) var(--ease),
+      transform var(--dur-fast) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .clist__item:hover {
+      --lift: -2px;
+      box-shadow: inset 0 0 0 1px var(--amethyst-100), var(--shadow-card);
+    }
+  }
+
+  .clist__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* Stretched over the whole card, so the one link is also the whole target.
+     The radius is named rather than inherited — ::after inherits from the <a>,
+     which has none of its own. */
+  .clist__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--r-card);
+  }
+  .clist__item:hover .clist__link { color: var(--amethyst-900); }
+
+  .clist__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+  }
+
+  .clist__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .clist__text { color: var(--ink-body); }
+
+  .clist__arrow {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    color: var(--ink-muted);
+    transition: color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .clist__item:hover .clist__arrow {
+    color: var(--amethyst-600);
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 1000px) {
+    .clist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 640px) {
+    .clist { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clist__item:hover { --lift: 0px; }
+    .clist__item:hover .clist__arrow { transform: none; }
+  }
+</style>

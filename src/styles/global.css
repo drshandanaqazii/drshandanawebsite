@@ -118,7 +118,7 @@ body {
 /* --------------------------------------------------------------------------
    Footer curtain
 
-   The footer is fixed to the bottom of the viewport at z-index 0; `main` rides
+   The footer is fixed to the bottom of the viewport at z-index 0; `.page` rides
    over it on its own opaque background and reserves the footer's height as
    bottom margin, so the last section slides away and uncovers it.
 
@@ -126,12 +126,16 @@ body {
      - .page must be opaque, or the fixed footer shows through the whole
        document. It is plain white for exactly that reason — this is where the
        page's ground is painted, not on <body>, which sits behind the footer.
-     - --footer-h is measured by src/scripts/motion.ts. The fallback below is
-       only used for the first frame, or if that script never runs.
+     - Both this rule and the `position: fixed` in Footer.astro are scoped to
+       data-curtain, an attribute src/scripts/motion.ts sets only when the
+       measured footer fits inside about three quarters of the window, with a
+       strip of paper still above it. No JS, a short window,
+       or a phone where the footer's columns have stacked into a tall block, and
+       the flag is never set: the footer stays in flow, `.page` reserves nothing,
+       and the page behaves like any ordinary document.
 
-   Short viewports opt out (the media query on .footer): under ~620px the
-   reserved margin eats most of the window, and a fixed panel that tall is
-   worse than a footer you simply scroll to.
+   Anything added to the footer therefore has a layout consequence — it is also
+   the gap the reader has to scroll past. Keep it compact.
    -------------------------------------------------------------------------- */
 .page {
   position: relative;
@@ -139,8 +143,8 @@ body {
   background: var(--paper);
 }
 
-@media (min-height: 620px) {
-  .page { margin-bottom: var(--footer-h, 340px); }
+:root[data-curtain="on"] .page {
+  margin-bottom: var(--footer-h, 340px);
 }
 
 h1, h2, h3, h4, p, figure, blockquote, ul, ol, dl, dd { margin: 0; }
@@ -236,20 +240,15 @@ a { color: var(--amethyst-900); text-underline-offset: 3px; }
   color: var(--ink-muted);
 }
 
-/* Section eyebrow. Same tinted chip as the qualification pills in the hero, so
-   the two read as one family. Capitalised rather than shouted — the enclosure
-   already does the work that all-caps used to, and sentence case needs less
-   tracking. inline-block keeps it centred inside centred story blocks. */
+/* Section eyebrow — plain text, no enclosure. It labels the section it sits
+   above, so the amethyst and the weight are all the separation it needs from
+   the headline underneath. */
 .eyebrow {
   /* fit-content, not inline-block: in a stretching flex column an inline-block
      child still fills the line, and an explicit width is what stops it. It also
-     leaves the centred .statement blocks free to centre the chip themselves. */
+     leaves the centred .statement blocks free to centre the label themselves. */
   display: block;
   width: fit-content;
-  padding: 5px 14px;
-  border-radius: var(--r-pill);
-  background: var(--amethyst-50);
-  box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .08);
   font-family: var(--font-sans);
   font-size: var(--fs-body-sm);
   font-weight: 500;
@@ -295,10 +294,38 @@ a { color: var(--amethyst-900); text-underline-offset: 3px; }
 
 /* The one tonal step on the page. It is deliberately almost nothing — enough to
    mark a change of subject, not enough to read as a coloured band. Hairlines
-   top and bottom do the rest of the work. */
+   top and bottom do the rest of the work.
+
+   `isolation` is what lets the texture below sit at z-index -1: it keeps the
+   negative layer inside the section's own stacking context, behind the content
+   but still in front of the section's background, instead of dropping through
+   to whatever is behind the page. */
 .section--band {
+  position: relative;
+  isolation: isolate;
   background: var(--paper-deep);
   border-block: 1px solid var(--hairline);
+}
+
+/* The band's texture: a fine dot grid, masked so it is only ever present at
+   the top of the band and has faded out entirely by the time the reader is in
+   the middle of the copy. Across the whole band at a readable strength it is
+   wallpaper; as a fade off the top edge it does the one job it is here for,
+   which is to stop the tonal step reading as a flat grey rectangle.
+
+   Tuned to be nearly subliminal: a 1px dot at 5% on a ground that is itself
+   only two steps off white. If you can pick out individual dots while reading
+   a paragraph over them, it is too strong. */
+.section--band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(circle at center, rgba(62, 46, 92, .05) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 42%);
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 42%);
+  pointer-events: none;
 }
 
 /* Note for anything new: on a white page a lifted white surface needs an edge
@@ -312,6 +339,181 @@ a { color: var(--amethyst-900); text-underline-offset: 3px; }
   flex-direction: column;
   align-items: center;
   gap: var(--s-4);
+}
+
+/* On a phone the centred opening reads as a ragged column: every line breaks at
+   a different width and the eye has no margin to return to. The section heads
+   start at the margin instead, like the copy under them. Desktop is unchanged. */
+@media (max-width: 640px) {
+  .statement {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+
+/* The same block, left-aligned. The homepage centres its section openings
+   because each one introduces a new subject to a browsing reader; an inner page
+   has already declared its subject in the <h1>, and its sections are steps
+   through one argument, so they start at the margin like the paragraphs under
+   them. */
+.section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+/* --------------------------------------------------------------------------
+   Long-form content
+
+   .rich is the one place on the site where headings, paragraphs and lists are
+   styled by element rather than by class — the legal pages and the body of a
+   condition page are continuous prose, and putting a class on every <p> in them
+   would be noise. Everything outside a .rich still styles explicitly.
+   -------------------------------------------------------------------------- */
+
+.rich {
+  max-width: 68ch;
+}
+
+.rich > * + * { margin-top: var(--s-5); }
+
+.rich h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-display-md);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin-top: clamp(40px, 5vw, 64px);
+  text-wrap: balance;
+}
+
+.rich h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-card-title);
+  font-weight: 500;
+  line-height: 1.32;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  margin-top: var(--s-7);
+}
+
+.rich h2 + *, .rich h3 + * { margin-top: var(--s-4); }
+
+.rich p { text-wrap: pretty; }
+
+.rich a {
+  color: var(--amethyst-900);
+  text-decoration: underline;
+  text-decoration-color: var(--amethyst-100);
+  text-decoration-thickness: 1.5px;
+  transition: text-decoration-color var(--dur-fast) var(--ease);
+}
+.rich a:hover { text-decoration-color: var(--amethyst-600); }
+
+.rich ul, .rich ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.rich li {
+  position: relative;
+  padding-left: var(--s-5);
+}
+
+/* A drawn dash rather than a list marker: ::marker cannot be positioned, and a
+   bullet at this text size sits too heavy against the hairlines everywhere
+   else on the page. */
+.rich ul > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75em;
+  width: 10px;
+  height: 1.25px;
+  background: var(--amethyst-600);
+}
+
+.rich ol { counter-reset: rich-ol; }
+.rich ol > li { counter-increment: rich-ol; }
+.rich ol > li::before {
+  content: counter(rich-ol) ".";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--amethyst-600);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A standalone recognition or preparation list, outside .rich. Same dash, but
+   the items are separated by rules because they are scanned rather than read. */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--hairline);
+}
+.checklist li {
+  position: relative;
+  padding: 14px 0 14px var(--s-5);
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.45em;
+  width: 10px;
+  height: 1.25px;
+  background: var(--amethyst-600);
+}
+
+/* --------------------------------------------------------------------------
+   Callout
+
+   Used for one thing only: the notice on a condition page telling a reader in
+   danger not to wait for an appointment. It is the loudest element on the site
+   and it stays that way because it is rare — a page that decorates three asides
+   like this has nowhere left to go when something actually is urgent.
+   -------------------------------------------------------------------------- */
+
+.callout {
+  display: flex;
+  gap: var(--s-4);
+  max-width: 68ch;
+  padding: var(--s-5);
+  border-radius: var(--r-card);
+  background: var(--amethyst-50);
+  box-shadow: inset 0 0 0 1px var(--amethyst-100);
+}
+.callout__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--amethyst-900);
+  color: #fff;
+}
+.callout__title {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+.callout p {
+  margin-top: 6px;
+  font-size: var(--fs-body-sm);
+  line-height: 1.65;
+  text-wrap: pretty;
 }
 
 /* --------------------------------------------------------------------------
@@ -334,6 +536,75 @@ a { color: var(--amethyst-900); text-underline-offset: 3px; }
   overflow: hidden;
 }
 .arch img { width: 100%; height: 100%; object-fit: cover; }
+
+/* --------------------------------------------------------------------------
+   Motifs
+
+   The line drawings painted behind a handful of sections — see
+   components/Motif.astro and lib/motifs.ts. Everything here is the part that
+   is the same wherever one is used; position and size belong to the section
+   that hosts it.
+
+   Where they are, and why only there. A site whose subject is the mind can
+   carry a brain or a synapse in the background; a site that carries one in
+   every section is a stock template. Three placements, each on a ground that
+   was otherwise a flat rectangle:
+
+     Hero panel   brain    — the tinted panel behind the cut-out portrait
+     PageHeader   neurons  — beside the <h1> block on inner pages
+     CTA panel    calm     — the settling waves, under the booking copy
+
+   Two others were built and then removed on review — one in CareModel, one in
+   the footer. Worth knowing before either is proposed again: the CareModel one
+   sat in the same corner as the PageHeader's on the page below it and read as a
+   repeating tile, and the footer is already the single densest block on the
+   site, so a drawing behind four columns of links only crowded them. The rule
+   the remaining three follow is that a motif goes where the layout has left
+   real empty space, never behind something a reader has to work through.
+   -------------------------------------------------------------------------- */
+
+.motif {
+  position: absolute;
+  /* Behind everything in the host, in front of the host's own background.
+     This is why every host sets `isolation: isolate` alongside its
+     `position: relative` — isolation pins the -1 to the host's stacking
+     context. Drop the isolation and the motif falls through the page to sit
+     behind `.page`'s white ground, where it is invisible.
+
+     The alternative — z-index 0 and lifting each sibling to 1 — was worse: an
+     absolutely positioned element paints in front of static in-flow content,
+     so every paragraph in every host section would have needed its own
+     z-index, and the first one anybody forgot would have a 500px drawing over
+     its text. */
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* The whole reason a hairline drawing survives being scaled to 700px. Without
+     it the viewBox scale multiplies the stroke and the motif turns into an
+     illustration. */
+  vector-effect: non-scaling-stroke;
+  opacity: var(--motif-opacity);
+}
+
+/* Amethyst on paper, white on the two dark grounds. The opacities are not the
+   same number because they are not doing the same thing: dark ink on a near
+   white page carries much further than white ink on amethyst does. */
+.motif--light { color: var(--amethyst-900); --motif-opacity: .03; }
+.motif--dark  { color: #FFFFFF;             --motif-opacity: .03; }
+
+/* The one filled part of the set: a neuron is a cell and a cell is not an
+   outline. At r=2.5 in a 260-unit drawing these stay dots at any size. */
+.motif [data-node] { fill: currentColor; stroke: none; }
+
+/* Deliberately no `will-change` here. It is the obvious thing to reach for —
+   large vectors behind parallaxing content — but each of these would then hold
+   its own composited layer at up to 900px square for the life of the page, and
+   nothing in the set animates or is animated over. Measure before adding it. */
 
 /* --------------------------------------------------------------------------
    Motion

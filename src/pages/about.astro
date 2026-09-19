@@ -1,0 +1,943 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { DOCTOR, CREDENTIALS, PRACTICE, PAGE_SEO, SERVICES } from '../consts';
+import portrait from '../assets/about-main-portrait.jpeg';
+
+import heroImage from '../assets/about-shandana.webp';
+
+const trail = [{ name: 'About', href: '/about' }];
+
+/* The scatter in the "what she treats" cloud is authored, not random: a fixed
+   cycle of rotation, vertical nudge and tint, indexed by position. Random
+   values would differ between the server render and any rebuild, and the
+   arrangement is a composition — the rows are meant to read as staggered
+   rather than as noise.
+
+   Four tints, all drawn from the existing palette (white, amethyst-100, a
+   warm wash off --gilt-600, and a cool grey-violet). The reference for this
+   layout uses a rainbow; a rainbow on a psychiatry page reads as a startup
+   careers board, so the variation here is tonal instead of chromatic. */
+const SCATTER = [
+  { rot: -4, dy:   0, tint: 1 },
+  { rot:  3, dy:  12, tint: 2 },
+  { rot: -2, dy:  -8, tint: 3 },
+  { rot:  5, dy:   6, tint: 4 },
+  { rot: -6, dy:  -4, tint: 2 },
+  { rot:  2, dy:  14, tint: 1 },
+  { rot: -3, dy: -10, tint: 4 },
+  { rot:  4, dy:   4, tint: 3 },
+  { rot: -5, dy:   9, tint: 2 },
+] as const;
+
+/* The biography, as four labelled facts rather than four paragraphs.
+   Everything here was previously prose in the profile card; splitting it lets
+   a reader take the one line they came for — which languages, what she treats
+   — without reading the other three.
+
+   The service list that used to sit under "areas of expertise" is gone from
+   this copy on purpose: the tag cloud at the foot of the page is the same nine
+   items, linked, and naming them twice on one page helps nobody. */
+const FACTS = [
+  {
+    icon: 'clipboard',
+    label: 'Training',
+    body: 'MBBS from Rehman Medical College in 2018, then Fellowship of the College of Physicians and Surgeons Pakistan in Psychiatry in 2025.',
+  },
+  {
+    icon: 'mind',
+    label: 'Areas of expertise',
+    body: 'Adolescent and adult psychiatry, with a particular focus on female mental health, including perinatal and postnatal care. Also a certified practitioner of Psychological First Aid.',
+  },
+  {
+    icon: 'heart',
+    label: 'Approach',
+    body: 'Empathetic, culturally sensitive and evidence-based. The reasoning behind a recommendation is explained before any decision is made.',
+  },
+] as const;
+
+/* Reading order around the qualifications diagram: top-left, top-right,
+   bottom-left, bottom-right. CREDENTIALS is chronological, so the two degrees
+   take the top row and the two ongoing certifications the bottom. */
+const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
+
+---
+
+<BaseLayout
+  title={PAGE_SEO.about.title}
+  description={PAGE_SEO.about.description}
+  pageType="AboutPage"
+  breadcrumbs={trail}
+>
+  <MediaHeader
+    image={heroImage}
+    imageAlt={`${DOCTOR.name} speaking at a microphone in a meeting room`}
+    imagePosition="50% 30%"
+    layout="split"
+    trail={trail}
+    title="Care that makes sense where you"
+    titleEm="live"
+    lede="Dr. Shandana Qazi is a Consultant Psychiatrist working in adolescent and adult psychiatry with a particular focus on female mental health."
+    scrollTo="profile"
+    scrollLabel="Scroll to her profile"
+  />
+
+  <section class="section" id="profile" style="padding-top: 0;" aria-labelledby="profile-heading">
+    <div class="container">
+      {/* One split card rather than two columns on open paper: the portrait and
+          the biography are a single introduction, and boxing them together is
+          what stops the photograph from floating beside an unrelated wall of
+          text. The tint is carried by the card, not by the section. */}
+      <div class="bio-card">
+        {/* Media first in the source, so it is the left half on a wide screen
+            and the top block once the card stacks — no `order` needed, and the
+            reading order stays the one the markup already describes. */}
+        <div class="bio-card__media" data-reveal="media">
+          <Image
+            src={portrait}
+            alt={`${DOCTOR.name}, consultant psychiatrist at Rehman Medical Institute`}
+            widths={[620, 900, 1200]}
+            sizes="(max-width: 900px) 100vw, 50vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+
+        <div class="bio-card__copy" data-reveal-group>
+          <h2 class="display-md" id="profile-heading" data-reveal>
+            A psychiatrist in Peshawar, trained in <em>Peshawar</em>
+          </h2>
+
+          <p class="bio-card__lede" data-reveal>
+            Consultant Psychiatrist at
+            <a href={PRACTICE.affiliationUrl} rel="noopener noreferrer" target="_blank">Rehman
+            Medical Institute</a> in Hayatabad.
+          </p>
+
+          {/* The same four facts that used to run as four paragraphs. Labelled
+              and iconed, they can be scanned in the order the reader cares
+              about rather than the order they were written in, and each one is
+              cut to the sentence that actually carries it. */}
+          <ul class="facts" data-reveal>
+            {FACTS.map((f) => (
+              <li class="fact">
+                <span class="fact__icon"><Icon name={f.icon} size="sm" /></span>
+                <div>
+                  <h3 class="fact__label">{f.label}</h3>
+                  <p class="fact__body" set:html={f.body} />
+                </div>
+              </li>
+            ))}
+          </ul>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="credentials-heading">
+    <div class="container">
+      <div class="section-head section-head--center" data-reveal-group>
+        <p class="eyebrow" data-reveal>Qualifications</p>
+        <h2 class="display-md" id="credentials-heading" data-reveal>
+          Training and <em>certification</em>.
+        </h2>
+      </div>
+
+      {/* Four credentials around a claim, rather than a four-row table. The
+          table was accurate and completely inert; the point of this section is
+          that the qualifications are checkable, so the claim goes in the middle
+          with the link that proves it, and the credentials sit around it. */}
+      {/* The group is on the <ul>, not on .qual: the reveal controller staggers
+          and un-hides `:scope > [data-reveal]` only, so the <li>s have to be
+          direct children of whatever carries data-reveal-group. On .qual they
+          are a level too deep — they would be hidden by the global rule and
+          never revealed, leaving just the core panel. */}
+      <div class="qual">
+        <ul class="qual__items" data-reveal-group>
+          {CREDENTIALS.map((c, i) => (
+            <li class={`qual__item qual__item--${QUADRANTS[i]}`} data-reveal>
+              <span class="qual__mark" aria-hidden="true"></span>
+              <h3 class="qual__label">{c.label}</h3>
+              <p class="qual__detail">
+                {c.detail}{c.year && <span class="tabular"> · {c.year}</span>}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        {/* The leads sit on .qual, not inside the seal and not on the cards.
+            Inside the seal their percentage heights would resolve against a
+            164px box and could never reach a card sitting far outside it; on a
+            card they would start wherever that card's text ended. On the grid
+            they can be measured from its centre, which is the one point both
+            the seal and the cards are positioned against. */}
+        <span class="qual__lead qual__lead--tl" aria-hidden="true"></span>
+        <span class="qual__lead qual__lead--tr" aria-hidden="true"></span>
+        <span class="qual__lead qual__lead--bl" aria-hidden="true"></span>
+        <span class="qual__lead qual__lead--br" aria-hidden="true"></span>
+
+        <div class="qual__core" data-reveal>
+          <Icon name="rosette" class="qual__seal" />
+        </div>
+      </div>
+
+      {/* The two rows the old table carried that are not credentials. They stay
+          on the page because nothing else states them outright — the languages
+          in particular are only implied elsewhere. */}
+      <p class="qual__meta" data-reveal>
+        {DOCTOR.jobTitle}, {PRACTICE.affiliation}, Hayatabad, Peshawar
+        <span aria-hidden="true"> · </span>
+        Consultations in {DOCTOR.languages.join(', ')}
+      </p>
+
+      {/* Displaced from the middle of the diagram when the core became a seal.
+          It stays on the page deliberately: RMI is the primary source for every
+          credential above, and a qualifications section that cannot be checked
+          is just a list of assertions. */}
+      <div class="qual__verify" data-reveal>
+        <Button href={PRACTICE.profileUrl} variant="ghost" external>
+          Verify on the RMI website
+        </Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section focus-section" aria-labelledby="focus-heading">
+    {/* The section drawn as one brain, wall to wall: the silhouette runs the
+        full width and height of the band, and the heading and tags sit inside
+        it. The viewBox is the contour's own bounding box rather than a round
+        number — 66,26 to 1122,478 — so with `preserveAspectRatio="none"` the
+        outline lands exactly on the section's four edges: no margin of blank
+        paper inside it, nothing running past it to be clipped.
+        Decoration only: aria-hidden, gradient stroke. */}
+    <svg
+      class="brain"
+      viewBox="66 26 1056 452"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        {/* User space, not the default bounding box: the gradient has to run
+            once across the whole drawing, otherwise every path restarts it and
+            each fold comes out its own colour. */}
+        <linearGradient
+          id="brain-stroke"
+          gradientUnits="userSpaceOnUse"
+          x1="60" y1="500" x2="1140" y2="40"
+        >
+          <stop offset="0%" stop-color="var(--amethyst-600)" />
+          <stop offset="52%" stop-color="var(--amethyst-900)" />
+          <stop offset="100%" stop-color="var(--gilt-600)" />
+        </linearGradient>
+      </defs>
+
+      {/* The outer contour — lobed across the top, cerebellum bottom-right. */}
+      <g class="brain__shell">
+        <path d="M78 300c-28-78 6-152 92-190 54-58 156-78 240-48 66-46 176-46 240 4 78-38 188-22 240 38 100 8 200 58 218 148 14 70-38 134-112 148-40 50-120 66-180 40-60 40-160 36-200-4-80 36-180 26-220-20-100 10-190-16-224-66-46 0-80-14-94-50Z" />
+        <path d="M980 412c34 18 78 12 106-14M992 448c32 18 74 10 100-16" />
+      </g>
+
+      {/* The folds, spread across the whole width so no part of the band is
+          empty ground. */}
+      <g class="brain__lines">
+        <path d="M180 196c86-32 128 30 84 74-38 38 12 88 84 70" />
+        <path d="M336 112c32 74-32 118 0 180 28 56 116 50 104 116" />
+        <path d="M520 84c28 84-52 128-20 194 30 62 114 50 108 124" />
+        <path d="M700 90c32 84-46 128-12 192 34 62 112 48 110 126" />
+        <path d="M880 136c28 74-42 112-6 174 32 54 100 44 100 98" />
+        <path d="M1032 194c-48 26-48 88 4 112" />
+        <path d="M146 296c54-10 86 34 70 74" />
+        <path d="M600 196c50-16 92 18 84 62" />
+        <path d="M414 240c44-14 78 16 72 54" />
+      </g>
+
+      {/* Synapse points on the fold ends. */}
+      <g class="brain__nodes">
+        <circle cx="348" cy="382" r="6" />
+        <circle cx="440" cy="408" r="6" />
+        <circle cx="608" cy="402" r="6" />
+        <circle cx="798" cy="408" r="6" />
+        <circle cx="974" cy="408" r="6" />
+        <circle cx="216" cy="370" r="6" />
+        <circle cx="1036" cy="306" r="6" />
+        <circle cx="684" cy="258" r="6" />
+      </g>
+    </svg>
+
+    <div class="container">
+      <div class="focus-panel">
+        <div class="focus-head" data-reveal-group>
+          <p class="focus-eyebrow" data-reveal>Areas of practice</p>
+          <h2 class="display-md" id="focus-heading" data-reveal>
+            What she <em>treats</em>.
+          </h2>
+          <p class="focus-lede body-sm" data-reveal>
+            Nine areas, each with a page explaining what the condition actually is, how it is
+            assessed, and what treatment involves. Start wherever describes you.
+          </p>
+        </div>
+
+        {/* The reveal system owns `transform` on any [data-reveal] element, so
+            the scatter lives on the inner <a> instead of the <li>. The two
+            would otherwise overwrite each other and the tags would land
+            square. */}
+        <ul class="tags" data-reveal-group>
+          {SERVICES.map((c, i) => {
+            const s = SCATTER[i % SCATTER.length];
+            return (
+              <li data-reveal style="--reveal-from: 10px;">
+                <a
+                  class={`tag tag--t${s.tint}`}
+                  href={`/services/${c.slug}`}
+                  style={`--rot: ${s.rot}deg; --dy: ${s.dy}px;`}
+                >
+                  {c.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Below the cloud, not above it: the nine tags are the section's
+            content, and the catch-all belongs after you have read them. */}
+        <div class="focus-cta" data-reveal-group>
+          <div data-reveal>
+            <Button href="/services">View all services</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Booking"
+    title="The first step is one"
+    titleEm="appointment"
+    body="You are welcome to come alone or to bring someone with you."
+  />
+</BaseLayout>
+
+<style>
+  /* ------------------------------------------------------------------------
+     The profile card
+
+     A tinted copy panel and a full-bleed portrait sharing one rounded frame.
+     `overflow: hidden` is doing the work: the image is sized to overflow its
+     half and the card's radius is what crops it, so the photograph meets the
+     card's corners exactly with no radius of its own to keep in sync.
+     ------------------------------------------------------------------------ */
+  .bio-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    border-radius: var(--r-hero);
+    overflow: hidden;
+    background: var(--amethyst-50);
+    box-shadow: inset 0 0 0 1px var(--amethyst-100), var(--shadow-card);
+  }
+
+  .bio-card__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--s-4);
+    padding: clamp(32px, 4.2vw, 64px);
+  }
+
+  /* A standfirst, so it sits between the headline and the body on both size
+     and weight. Any heavier and it competes with the h2 it is explaining. */
+  .bio-card__lede {
+    max-width: 40ch;
+    color: var(--ink);
+    font-size: clamp(1rem, 1.25vw, 1.125rem);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .bio-card__lede a {
+    color: var(--amethyst-900);
+    text-decoration: underline;
+    text-decoration-color: var(--amethyst-100);
+    text-underline-offset: 3px;
+  }
+  .bio-card__lede a:hover { text-decoration-color: var(--amethyst-600); }
+
+  /* Divided rather than carded: four bordered boxes inside an already-bordered
+     card is three frames deep. A hairline between rows separates them for the
+     same cost and keeps the panel reading as one surface. */
+  .facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    margin-top: var(--s-2);
+  }
+  .fact {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--amethyst-100);
+  }
+
+  .fact__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .08);
+    color: var(--amethyst-600);
+  }
+
+  .fact__label {
+    margin-bottom: 3px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--fs-body-sm);
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+
+  .fact__body {
+    max-width: 46ch;
+    color: var(--ink-body);
+    font-size: var(--fs-body-sm);
+    line-height: 1.65;
+  }
+  .fact__body :global(strong) { color: var(--ink); font-weight: 500; }
+
+  /* The panel has no height of its own — it takes whatever the copy column
+     comes out at, and the portrait fills it. The min-height only matters once
+     the card has stacked and the copy is no longer setting the height. */
+  .bio-card__media {
+    position: relative;
+    min-height: 100%;
+    background: var(--amethyst-100); /* shows only while the image decodes */
+  }
+  .bio-card__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Anchored high: centred, the crop takes the top off her head. */
+    object-position: 50% 12%;
+  }
+
+  .section-head--center {
+    align-items: center;
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------------------
+     Qualifications — four credentials around a claim
+
+     One grid, three columns: credentials down the outside, the claim spanning
+     both rows in the middle. The items are a single <ul> in document order and
+     are placed into their quadrants explicitly, so the reading order stays
+     chronological however the grid is arranged.
+     ------------------------------------------------------------------------ */
+  .qual {
+    /* Both are variables because two different rules have to agree on them:
+       --lead is the column gap AND the length of a lead line, --seal is the
+       seal's width AND what the leads measure out from the centre. Written as
+       literals they would drift apart the first time either is tuned. */
+    --lead: clamp(28px, 5vw, 76px);
+    --seal: clamp(116px, 14vw, 164px);
+
+    position: relative;
+    display: grid;
+    /* Equal 1fr flanks, which is what actually centres the seal: a capped
+       column (minmax(0, 270px)) sizes to its own content, so the shorter side
+       ends up narrower and the middle column drifts off-centre. The items are
+       capped individually instead, and pushed against the middle with
+       justify-self, so the distance from seal to text is the gap and nothing
+       else. */
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: 1fr 1fr;
+    align-items: center;
+    row-gap: clamp(32px, 5vw, 64px);
+    column-gap: var(--lead);
+  }
+
+  /* A faint ruled ground, the one thing holding the four quadrants together as
+     a diagram rather than four loose captions. Masked to nothing at the edges
+     so it has no visible boundary of its own. */
+  .qual::before {
+    content: '';
+    position: absolute;
+    inset: -40px -24px;
+    background-image:
+      repeating-linear-gradient(to right, rgba(62, 46, 92, .05) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(to bottom, rgba(62, 46, 92, .05) 0 1px, transparent 1px 72px);
+    -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 50%, #000 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 62% at 50% 50%, #000 40%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* `display: contents` so the <li>s become grid items of .qual directly. The
+     list stays a list for assistive tech; the <ul> box itself does not need to
+     exist for the layout. */
+  .qual__items { display: contents; }
+
+  /* Minimal cards: white, one hairline, the smallest shadow in the system.
+     `width: 100%` with a cap rather than shrink-to-fit, so all four come out
+     identical — sized to content, "MBBS" would be a third the width of the
+     card opposite it and the diagram would read as lopsided. */
+  .qual__item {
+    position: relative;
+    width: 100%;
+    max-width: 280px;
+    padding: var(--s-5);
+    border-radius: var(--r-card);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-sm);
+    /* Per-item, not `align-items: stretch` on the grid: the two cards in a row
+       should match height even when one label wraps, but the seal spans both
+       rows and stretching it would destroy its square. */
+    align-self: stretch;
+  }
+  /* Pushed against the middle so every lead line is the same length. */
+  .qual__item--tl,
+  .qual__item--bl { justify-self: end; }
+  .qual__item--tr,
+  .qual__item--br { justify-self: start; }
+
+  .qual__item--tl { grid-column: 1; grid-row: 1; }
+  .qual__item--tr { grid-column: 3; grid-row: 1; }
+  .qual__item--bl { grid-column: 1; grid-row: 2; }
+  .qual__item--br { grid-column: 3; grid-row: 2; }
+
+  .qual__mark {
+    display: block;
+    width: 9px;
+    height: 9px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+    background: var(--amethyst-600);
+  }
+
+  .qual__label {
+    color: var(--amethyst-900);
+    font-family: var(--font-display);
+    font-size: var(--fs-card-title);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -.01em;
+  }
+
+  .qual__detail {
+    margin-top: 5px;
+    color: var(--ink-body);
+    font-size: var(--fs-body-sm);
+    line-height: 1.5;
+  }
+  .qual__detail .tabular { color: var(--ink-muted); }
+
+  /* The four leads. Each is an L — a horizontal arm leaving the seal's edge and
+     a vertical arm turning toward its card — drawn as two borders on one box
+     with a rounded corner between them.
+
+     Every edge is measured from the grid's centre, which is the only point the
+     seal and the cards are both positioned against:
+
+       right: calc(50% + var(--seal) / 2)   the seal's left edge exactly
+       width: var(--lead)                   the column gap exactly, so the far
+                                            edge lands on the card's edge
+       top / bottom: 25% / 75%              the middle of each card's row
+
+     So the horizontal arm starts on the seal and the vertical arm ends on the
+     card, with no number here that is not derived from the grid itself.
+
+     Drawn at 2px in --amethyst-600 rather than a hairline in --amethyst-100:
+     these are the thing that makes the section a diagram instead of four
+     captions, so they are meant to be seen. Decorative — aria-hidden. */
+  .qual__lead {
+    position: absolute;
+    width: var(--lead);
+    border-color: var(--amethyst-600);
+    border-style: solid;
+    border-width: 0;
+  }
+
+  /* The node where a lead meets its card. Sized and offset to sit centred on
+     the 2px stroke it caps. */
+  .qual__lead::after {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--amethyst-600);
+  }
+
+  .qual__lead--tl {
+    right: calc(50% + var(--seal) / 2);
+    top: 25%;
+    bottom: calc(50% + var(--seal) * .24);
+    border-left-width: 2px; border-bottom-width: 2px;
+    border-bottom-left-radius: 14px;
+  }
+  .qual__lead--bl {
+    right: calc(50% + var(--seal) / 2);
+    top: calc(50% + var(--seal) * .24);
+    bottom: 25%;
+    border-left-width: 2px; border-top-width: 2px;
+    border-top-left-radius: 14px;
+  }
+  .qual__lead--tr {
+    left: calc(50% + var(--seal) / 2);
+    top: 25%;
+    bottom: calc(50% + var(--seal) * .24);
+    border-right-width: 2px; border-bottom-width: 2px;
+    border-bottom-right-radius: 14px;
+  }
+  .qual__lead--br {
+    left: calc(50% + var(--seal) / 2);
+    top: calc(50% + var(--seal) * .24);
+    bottom: 25%;
+    border-right-width: 2px; border-top-width: 2px;
+    border-top-right-radius: 14px;
+  }
+
+  .qual__lead--tl::after { top: -4px; left: -4px; }
+  .qual__lead--bl::after { bottom: -4px; left: -4px; }
+  .qual__lead--tr::after { top: -4px; right: -4px; }
+  .qual__lead--br::after { bottom: -4px; right: -4px; }
+
+  /* A seal rather than a panel of copy. It is the hub the four leads meet at,
+     so it is square and compact — a wide block of text would make the leads on
+     the long sides read as arriving at nothing in particular. */
+  .qual__core {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: var(--seal);
+    aspect-ratio: 1;
+    justify-self: center;
+    border-radius: var(--r-hero);
+    background: var(--amethyst-900);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* The warm mark, as on the CTA band — the one place the palette allows a
+     colour other than the amethyst, and the reason the seal reads as a stamp
+     rather than a button. */
+  .qual__core :global(.qual__seal) {
+    width: clamp(46px, 5.5vw, 62px);
+    height: clamp(46px, 5.5vw, 62px);
+    color: #E0C79B;
+  }
+
+  .qual__verify {
+    margin-top: var(--s-6);
+    text-align: center;
+  }
+
+  .qual__meta {
+    max-width: 640px;
+    margin: clamp(40px, 5vw, 64px) auto 0;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  /* ------------------------------------------------------------------------
+     What she treats — the section drawn as a brain
+
+     No tinted slab: the background *is* the drawing. The silhouette is
+     stretched to the section's own box so the band is literally enclosed by
+     it, with a faint wash pooled inside the contour so the shape reads as a
+     shape rather than as loose line work.
+     ------------------------------------------------------------------------ */
+  .focus-section {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(72px, 10vw, 128px);
+    overflow: hidden;
+  }
+
+  /* Stretched to all four edges. `preserveAspectRatio="none"` on the SVG is
+     what makes width/height 100% actually fill rather than letterbox. */
+  /* Full height of the band, but held off the viewport's left and right edges
+     so the silhouette reads as a shape sitting on the page rather than as a
+     graphic that ran out of room. The inset scales with the viewport, so the
+     brain stays roughly as wide as the content it encloses. */
+  .brain {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0;
+    z-index: -1;
+    /* Explicit width, centred. Left/right insets with `width: auto` would not
+       do it: an SVG with a viewBox has an intrinsic aspect ratio, so `auto`
+       resolves to height × ratio and the box only moves off the left edge. */
+    width: calc(100% - 2 * clamp(16px, 7vw, 180px));
+    height: 100%;
+    fill: none;
+    pointer-events: none;
+  }
+
+  /* The enclosing contour, and the only filled part of the drawing: a wash
+     inside the silhouette, so the content sits *within* the brain instead of
+     merely in front of some lines. */
+  .brain__shell {
+    fill: rgba(124, 92, 176, .05);
+    stroke: url(#brain-stroke);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .55;
+  }
+
+  .brain__lines {
+    stroke: url(#brain-stroke);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .2;
+    /* The folds are cleared out of the middle, where the heading, lede and
+       button sit — they stay at full strength out towards the contour, which
+       is where they are doing the drawing's work anyway. */
+    mask-image: radial-gradient(
+      42% 46% at 50% 40%,
+      transparent 0%,
+      rgba(0, 0, 0, .35) 62%,
+      #000 100%
+    );
+  }
+
+  /* The stretch would otherwise smear the strokes — thick where the drawing is
+     scaled up, hairline where it is squeezed. Set on the paths themselves
+     because vector-effect does not inherit from the group. */
+  .brain__shell path,
+  .brain__lines path { vector-effect: non-scaling-stroke; }
+
+  /* The synapse points, stronger than the lines so the drawing has somewhere
+     for the eye to land. */
+  .brain__nodes {
+    fill: var(--amethyst-600);
+    opacity: .3;
+  }
+
+  @media (max-width: 640px) {
+    /* The band goes portrait while the drawing's box is landscape, so the
+       stretch is severe enough that nothing in it reads as a brain. Dropped on
+       phones; the tags carry the section on their own. */
+    .brain { display: none; }
+  }
+
+  .focus-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-4);
+    max-width: 640px;
+    margin-inline: auto;
+    margin-bottom: clamp(48px, 6vw, 72px);
+    text-align: center;
+  }
+
+  /* An outlined chip rather than the site's plain .eyebrow: centred over a
+     centred headline, a bare line of text has nothing holding it down. */
+  .focus-eyebrow {
+    padding: 5px 16px;
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--amethyst-100);
+    color: var(--amethyst-900);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    letter-spacing: .01em;
+  }
+
+  .focus-lede { color: var(--ink-body); max-width: 46ch; }
+
+  /* Centred flex wrap, not a grid: the rows are meant to come out at unequal
+     widths so the block reads as a scattered cloud. The max-width is what
+     decides how many rows that is — widen it and the cloud flattens. */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--s-4) var(--s-3);
+    max-width: 860px;
+    margin-inline: auto;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: var(--r-pill);
+    color: var(--amethyst-900);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transform: translateY(var(--dy, 0)) rotate(var(--rot, 0deg));
+    transition:
+      transform var(--dur-fast) var(--ease),
+      box-shadow var(--dur-fast) var(--ease);
+  }
+
+  /* Hover straightens the tag and lifts it out of the pile. The rotation is
+     what makes the cloud look casual; removing it on hover is what makes the
+     individual tag look clickable. */
+  .tag:hover,
+  .tag:focus-visible {
+    transform: translateY(calc(var(--dy, 0px) - 3px)) rotate(0deg);
+  }
+
+  .tag--t1 {
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .10), var(--shadow-sm);
+  }
+  .tag--t2 {
+    background: var(--amethyst-100);
+    box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .10), var(--shadow-sm);
+  }
+  /* The single warm tag, tinted off --gilt-600 — the same one warm mark the
+     palette already allows, at wash strength. */
+  .tag--t3 {
+    background: #F7EFE2;
+    box-shadow: inset 0 0 0 1px rgba(169, 118, 47, .16), var(--shadow-sm);
+  }
+  .tag--t4 {
+    background: #EAE6F2;
+    box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .10), var(--shadow-sm);
+  }
+
+  .tag:hover { box-shadow: inset 0 0 0 1px var(--amethyst-600), var(--shadow-card); }
+
+  .focus-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(40px, 5vw, 56px);
+  }
+
+  @media (max-width: 900px) {
+    /* Stacked, the portrait keeps its source position at the top: at full width
+       it is the introduction, whereas underneath the four facts it would read
+       as a footnote. */
+    .bio-card { grid-template-columns: 1fr; }
+    .bio-card__media {
+      min-height: 0;
+      aspect-ratio: 4 / 3;
+    }
+    /* The diagram needs a middle column to point at. Below this there is not
+       room for one, so it becomes the claim followed by the four credentials
+       in two columns — and the elbows and the ruled ground, which only mean
+       anything in the radial arrangement, are dropped rather than redrawn. */
+    .qual {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      /* Both resets matter: the capped columns become full-width here, and the
+         desktop `1fr 1fr` rows would otherwise force the core and the two
+         credential rows to equal heights across three rows. */
+      grid-template-rows: auto;
+      justify-content: stretch;
+      align-items: start;
+      gap: var(--s-6) var(--s-5);
+    }
+    .qual::before { display: none; }
+    .qual__lead { display: none; }
+
+    /* The seal keeps its square; only its placement changes. Without the reset
+       the desktop rule would still span it across both rows. */
+    .qual__core {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      align-self: center;
+    }
+
+    /* Stacked, the items are ordinary left-aligned blocks again — the
+       justify-self that pushed them against the seal would now pull the left
+       column away from the text above it. */
+    .qual__item {
+      justify-self: start;
+      max-width: none;
+    }
+    .qual__item--tl { grid-column: 1; grid-row: 2; }
+    .qual__item--tr { grid-column: 2; grid-row: 2; }
+    .qual__item--bl { grid-column: 1; grid-row: 3; }
+    .qual__item--br { grid-column: 2; grid-row: 3; }
+  }
+
+  /* At roughly one or two tags to a row the scatter stops reading as a cloud
+     and starts reading as misalignment — tilted pills next to a straight screen
+     edge, with the vertical offsets pulling neighbouring rows into each other.
+     On phones the tags sit flat in honest rows instead. */
+  @media (max-width: 640px) {
+    .tags { gap: var(--s-2); }
+    .tag {
+      padding: 0 18px;
+      transform: none;
+    }
+    .tag:hover,
+    .tag:focus-visible { transform: translateY(-3px); }
+  }
+
+  @media (max-width: 560px) {
+    .qual { grid-template-columns: minmax(0, 1fr); }
+    .qual__item--tl { grid-row: 2; }
+    .qual__item--tr { grid-row: 3; }
+    .qual__item--bl { grid-row: 4; }
+    .qual__item--br { grid-row: 5; }
+    .qual__item--tl,
+    .qual__item--tr,
+    .qual__item--bl,
+    .qual__item--br { grid-column: 1; }
+
+    /* Phone only: the four cards stack on one another as you scroll. Each pins
+       a little lower than the one before, so the card arriving slides over the
+       one already parked and leaves its top edge showing — the section reads as
+       one deck of credentials rather than four full screens of scrolling.
+
+       Sticky, not a scroll-driven script: the offsets are the whole effect, and
+       the grid container is already `position: relative`, so each <li> pins
+       against the diagram it belongs to. Paint order is DOM order, which is
+       chronological, so a later card is always the one on top.
+
+       --stack-top clears the fixed nav. --stack-step is both the offset between
+       pins and the strip of each parked card left visible. */
+    .qual {
+      --stack-top: 86px;
+      --stack-step: 16px;
+      row-gap: 0;
+    }
+    /* row-gap: 0 took the space under the seal with it — the cards set their own
+       spacing here, so the seal has to set its own too. */
+    .qual__core { margin-bottom: var(--s-6); }
+    .qual__item {
+      position: sticky;
+      /* Opaque already via --surface, but stated so a parked card can never
+         show the card sliding beneath it. */
+      background: var(--surface);
+      /* The travel between one card and the next. Without it the cards pin
+         nose-to-tail and nothing appears to stack. */
+      margin-bottom: clamp(24px, 6vw, 36px);
+    }
+    .qual__item--tl { top: var(--stack-top); }
+    .qual__item--tr { top: calc(var(--stack-top) + var(--stack-step)); }
+    .qual__item--bl { top: calc(var(--stack-top) + var(--stack-step) * 2); }
+    .qual__item--br {
+      top: calc(var(--stack-top) + var(--stack-step) * 3);
+      margin-bottom: 0;
+    }
+  }
+</style>

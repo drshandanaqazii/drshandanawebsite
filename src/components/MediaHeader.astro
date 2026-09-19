@@ -1,0 +1,444 @@
+---
+/**
+ * The photographic page header — a rounded panel carrying the <h1> over an
+ * image, with a notch bitten out of its bottom edge and a scroll button sitting
+ * in it.
+ *
+ * The text-led PageHeader is still the default for an inner page, and for a
+ * good reason: a page that has to answer a search query wants that answer in
+ * its first line, not below a picture. This one is for the pages where the
+ * subject *is* the picture — /about, where the thing being introduced is a
+ * person and a place.
+ *
+ * Three details worth knowing before editing:
+ *
+ * 1. The notch is a real hole, cut with a radial-gradient mask on the media
+ *    layer rather than covered by a white circle on top. A painted circle would
+ *    only be invisible while the section below happens to be white, and
+ *    .section--band is one class away at all times. Where `mask` is
+ *    unsupported, the notch simply does not appear and the button sits on the
+ *    panel's edge — which is a perfectly reasonable second-best.
+ *
+ * 2. The button is deliberately outside the masked layer. Inside it, the mask
+ *    would eat it along with the notch.
+ *
+ * 3. The scrim is not optional and is not subtle. This component takes whatever
+ *    photograph it is given, and the white text over it has to clear contrast
+ *    on a bright one, so the grade is set for the worst case rather than for
+ *    the placeholder.
+ */
+import { Image } from 'astro:assets';
+import Breadcrumbs from './Breadcrumbs.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  /**
+   * Omit for a plain amethyst panel.
+   *
+   * Everything else about the header is unchanged — same panel, same notch,
+   * same white type — so a page without a picture still reads as one of the
+   * family. It is the right call for the legal pages, where any photograph is
+   * necessarily decoration: there is nothing to take a picture of, and a still
+   * life at the top of a disclaimer is just something to scroll past.
+   */
+  image?: ImageMetadata;
+  /**
+   * Describes the photograph. Not the page — this is not a caption.
+   *
+   * Empty string is the right answer while the image is a decorative ground
+   * that carries no information, and the wrong answer the moment it becomes a
+   * photograph of a real place or person.
+   */
+  imageAlt?: string;
+  /**
+   * `object-position` for the photograph, for subjects that sit against an edge
+   * of their source frame. The panel is a wide letterbox and most of these
+   * pictures are not, so the default centre crop is not always the right one.
+   */
+  imagePosition?: string;
+  /**
+   * The small line above the headline — but only used when there is no `trail`.
+   * A breadcrumb already ends in the page's own name, so a trail and an eyebrow
+   * together print "About" twice in two type sizes, one above the other.
+   */
+  eyebrow?: string;
+  /** Split so exactly one word can carry the emphasis colour. */
+  title: string;
+  titleEm?: string;
+  lede?: string;
+  trail?: readonly { name: string; href: string }[];
+  /**
+   * Fragment the notch button jumps to — the id of the first section below.
+   * Omit and no button is drawn, which also leaves the notch off: a hole with
+   * nothing in it reads as a rendering fault.
+   */
+  scrollTo?: string;
+  /** Accessible name for that button. It has no text of its own. */
+  scrollLabel?: string;
+  /**
+   * `lg` for the section landing pages, `md` for legal and utility pages —
+   * a shorter panel and a smaller headline. The same distinction PageHeader
+   * draws, for the same reason: a page nobody arrives at deliberately should
+   * not open with the tallest block on the site.
+   */
+  size?: 'lg' | 'md';
+  /**
+   * Where the copy sits on the panel.
+   *
+   * `center` is the default and is right for a photograph with no single
+   * subject — a room, a still life, a wall of light. There is nothing in the
+   * frame for type to land on top of.
+   *
+   * `split` is for a photograph of a person. Centred type would print the
+   * headline across their face; this holds the copy to the left half, anchors
+   * the crop to the right so the subject has that half to themselves, and
+   * grades the scrim left-to-right rather than top-to-bottom so the side
+   * carrying the type is the dark side.
+   */
+  layout?: 'center' | 'split';
+}
+
+const {
+  image,
+  imageAlt = '',
+  imagePosition,
+  eyebrow,
+  title,
+  titleEm,
+  lede,
+  trail = [],
+  scrollTo,
+  scrollLabel = 'Scroll to the page content',
+  size = 'lg',
+  layout = 'center',
+} = Astro.props;
+---
+
+<header
+  class:list={[
+    'mhead',
+    {
+      'mhead--md': size === 'md',
+      'mhead--split': layout === 'split',
+      'mhead--plain': !image,
+    },
+  ]}
+>
+  <div class="container">
+    <div class:list={['mhead__panel', { 'has-notch': !!scrollTo }]}>
+      {/* Behind everything, and the only layer the mask touches. It is drawn
+          whether or not there is a picture: without one it is the amethyst
+          ground, and it still has to be the layer the notch is cut out of. */}
+      <div class="mhead__media">
+        {image && (
+          <Image
+            src={image}
+            alt={imageAlt}
+            widths={[900, 1400, 2000]}
+            sizes="(max-width: 1248px) 100vw, 1200px"
+            loading="eager"
+            fetchpriority="high"
+            style={imagePosition ? `object-position: ${imagePosition}` : undefined}
+          />
+        )}
+      </div>
+
+      <div class="mhead__inner">
+        <div class="mhead__copy" data-reveal-group>
+          {/* The trail takes the eyebrow's place rather than sitting in a
+              corner above it. It is already the page's label — its last crumb
+              is the page name — so running both printed "About" twice, and a
+              corner trail on a centred composition was the only thing on the
+              panel not on the middle axis. */}
+          {trail.length > 0
+            ? <div class="mhead__crumbs" data-reveal><Breadcrumbs trail={trail} tone="light" /></div>
+            : eyebrow && <p class="mhead__eyebrow" data-reveal>{eyebrow}</p>}
+
+          <h1 class:list={[size === 'lg' ? 'display-lg' : 'display-md', 'mhead__title']} data-reveal>
+            {title}{titleEm && <> <em>{titleEm}</em></>}
+          </h1>
+          {lede && <p class="mhead__lede" data-reveal>{lede}</p>}
+        </div>
+      </div>
+
+      {scrollTo && (
+        <a class="mhead__scroll" href={`#${scrollTo}`} aria-label={scrollLabel}>
+          <Icon name="caret" />
+        </a>
+      )}
+    </div>
+  </div>
+</header>
+
+<style>
+  .mhead {
+    /* The notch button hangs half its height below the panel. This is the room
+       it hangs into — the section under it opens straight onto its own content
+       with no top padding of its own. */
+    padding-top: clamp(12px, 1.6vw, 24px);
+    padding-bottom: clamp(60px, 7vw, 92px);
+
+    /* Both the hole and the disc are drawn from these two, so they cannot drift
+       apart. --notch is the radius of the bite; --disc is the button's full
+       width, so the ring of paper between them is --notch minus half of --disc.
+       Around 18px is what reads as a disc seated in a bay; much more and it
+       reads as a disc that missed. */
+    --notch: clamp(44px, 4.6vw, 54px);
+    --disc: clamp(56px, 6vw, 72px);
+    --panel-radius: clamp(20px, 2.6vw, 34px);
+  }
+
+  /* Legal and utility pages. Only the panel's height changes — the scrim, the
+     notch and the type colours are the whole point of the component and stay
+     identical, so the pages still read as one family. */
+  .mhead--md { --mhead-min-h: clamp(260px, 32vh, 360px); }
+
+  /* Taller than the centred panel. The subject is a person in a 4:3 frame going
+     into a letterbox, and every pixel of panel height is a pixel of them the
+     crop does not have to throw away. */
+  .mhead--split { --mhead-min-h: clamp(420px, 56vh, 560px); }
+
+  .mhead__panel { position: relative; }
+
+  .mhead__media {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--panel-radius);
+    overflow: hidden;
+    background: var(--amethyst-900);
+
+    /* The notch. One gradient: transparent inside the circle, opaque
+       everywhere else — so the bite is a hole rather than something painted
+       over the top. Centred on the bottom edge, so only its upper half falls
+       inside the panel. */
+    -webkit-mask-image: radial-gradient(
+      circle var(--notch) at 50% 100%,
+      transparent 98%,
+      #000 100%
+    );
+    mask-image: radial-gradient(
+      circle var(--notch) at 50% 100%,
+      transparent 98%,
+      #000 100%
+    );
+  }
+
+  /* No button means no hole. See the note in the component header. */
+  .mhead__panel:not(.has-notch) .mhead__media {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .mhead__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The scrim. Two layers: a vertical grade that is heaviest at top and bottom
+     where the crumbs and the headline sit, and a flat amethyst wash that pulls
+     whatever photograph this is towards the one colour on the site. */
+  .mhead__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(26, 22, 34, .62) 0%,
+        rgba(26, 22, 34, .44) 44%,
+        rgba(26, 22, 34, .74) 100%
+      ),
+      linear-gradient(0deg, rgba(62, 46, 92, .3), rgba(62, 46, 92, .3));
+  }
+
+  /* --- no photograph ----------------------------------------------------- */
+
+  /* A plain amethyst panel. The scrim above exists to drag a photograph towards
+     this colour, so with no photograph there is nothing for it to do and it is
+     switched off rather than stacked on top of the ground — two dark washes over
+     each other is how a purple panel turns black.
+
+     Still a gradient rather than one flat fill: at this size a single hex is a
+     slab, and the shift across it is what keeps the panel reading as lit. */
+  .mhead--plain .mhead__media {
+    background: linear-gradient(152deg, #52407A 0%, var(--amethyst-900) 52%, #2E2246 100%);
+  }
+  .mhead--plain .mhead__media::after { content: none; }
+
+  /* --- the split layout -------------------------------------------------- */
+
+  /* Graded across rather than down: the left half has to carry white type, the
+     right half has to stay clear enough to see who is in the picture. The last
+     stop lifts again at the very edge so the panel's right corner does not go
+     flat white against the paper. */
+  .mhead--split .mhead__media::after {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(26, 22, 34, .88) 0%,
+        rgba(26, 22, 34, .74) 34%,
+        rgba(26, 22, 34, .34) 62%,
+        rgba(26, 22, 34, .22) 82%,
+        rgba(26, 22, 34, .40) 100%
+      ),
+      linear-gradient(0deg, rgba(62, 46, 92, .18), rgba(62, 46, 92, .18));
+  }
+
+  /* `object-position` cannot move the subject sideways here: the photograph is
+     already filling the panel's width, so the crop is vertical only and the
+     subject stays wherever they are in the frame — which, for a portrait, is
+     usually the middle, directly under the headline.
+
+     So the picture is given a box wider than the panel and anchored to its left
+     edge. The right of the source is clipped, and everything else slides right
+     by the overflow. At 125% a subject standing at the middle of the frame
+     lands at about 65% across — clear of the copy column, capped at 52%. */
+  .mhead--split .mhead__media img {
+    width: 125%;
+    max-width: none;
+  }
+
+  /* Inset from the panel's left edge rather than sitting on the gutter. The
+     centred layout needs no such room — its type is nowhere near an edge — but
+     flush left the copy reads as pinned to the corner, and the panel's own
+     rounded corner cuts towards it. Scales with the viewport so it does not eat
+     the column on a small laptop. */
+  .mhead--split .mhead__inner {
+    padding-left: clamp(24px, 5vw, 80px);
+  }
+
+  .mhead--split .mhead__copy {
+    /* Left, and vertically centred — `auto` on the right only. */
+    margin: auto auto auto 0;
+    align-items: flex-start;
+    max-width: min(52%, 30rem);
+    text-align: left;
+  }
+  .mhead--split .mhead__crumbs :global(.crumbs ol) { justify-content: flex-start; }
+  .mhead--split .mhead__title { max-width: 14ch; }
+  .mhead--split .mhead__lede { max-width: 42ch; }
+
+  /* The notch and its disc stay on the middle axis, which on a split panel is
+     the boundary between the type and the subject rather than the middle of
+     either — which is exactly where a piece of furniture belongs. */
+
+  .mhead__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: var(--mhead-min-h, clamp(360px, 44vh, 480px));
+    padding:
+      clamp(24px, 3vw, 36px)
+      var(--gutter)
+      calc(var(--notch) + clamp(28px, 3.5vw, 44px));
+  }
+
+  /* `auto` on both sides centres the block in whatever the breadcrumb row
+     leaves behind, which lands it very slightly below true centre — which is
+     where it should be, because the notch below it is holding weight too. */
+  .mhead__copy {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-4);
+    text-align: center;
+  }
+
+  /* Breadcrumbs.astro lays its list out flush left, which is right everywhere
+     else it is used. On the middle axis it has to centre, and the rule has to
+     reach into that component to say so. */
+  .mhead__crumbs :global(.crumbs ol) { justify-content: center; }
+
+  /* .eyebrow is amethyst on paper and vanishes here, so the tone is restated
+     rather than the class reused — the same call the footer and the CTA band
+     make. Only reached for when a page has no trail. */
+  .mhead__eyebrow {
+    font-family: var(--font-sans);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    letter-spacing: .01em;
+    color: #D6CFE6;
+  }
+
+  .mhead__title {
+    max-width: 17ch;
+    color: #FFFFFF;
+  }
+  /* --amethyst-600 is the emphasis colour on paper and is invisible on a dark
+     ground. Here emphasis is the warm mark instead, exactly as in CtaBand. */
+  .mhead__title em { color: #E0C79B; }
+
+  .mhead__lede {
+    max-width: 56ch;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: #E3DEEE;
+    text-wrap: pretty;
+  }
+
+  /* --- the disc in the notch -------------------------------------------- */
+
+  .mhead__scroll {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+    display: grid;
+    place-items: center;
+    width: var(--disc);
+    height: var(--disc);
+    border-radius: 50%;
+    background: var(--amethyst-900);
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: background var(--dur-fast) var(--ease);
+  }
+  .mhead__scroll:hover { background: var(--amethyst-600); }
+
+  .mhead__scroll :global(.icon) {
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .mhead__scroll:hover :global(.icon) { transform: translateY(2px); }
+
+  /* Only the chevron's nudge is cancelled. The disc's own transform is not a
+     motion effect — it is what centres it on the notch, and resetting it here
+     would drop the button a full radius down the page. */
+  @media (prefers-reduced-motion: reduce) {
+    .mhead__scroll:hover :global(.icon) { transform: none; }
+  }
+
+  /* Narrow enough that there are no longer two halves to split. The copy takes
+     the full width again and the scrim goes back to a vertical grade — but the
+     crop stays anchored wherever the page put it, so the subject keeps whatever
+     room is left above the type. */
+  @media (max-width: 860px) {
+    .mhead--split { --mhead-min-h: clamp(400px, 62vh, 520px); }
+
+    .mhead--split .mhead__copy {
+      margin: auto 0 0;
+      max-width: none;
+    }
+    .mhead--split .mhead__media::after {
+      background:
+        linear-gradient(
+          180deg,
+          rgba(26, 22, 34, .58) 0%,
+          rgba(26, 22, 34, .34) 34%,
+          rgba(26, 22, 34, .86) 78%,
+          rgba(26, 22, 34, .92) 100%
+        ),
+        linear-gradient(0deg, rgba(62, 46, 92, .22), rgba(62, 46, 92, .22));
+    }
+    .mhead--split .mhead__title { max-width: none; }
+    /* Nothing to slide out of the way of any more. */
+    .mhead--split .mhead__media img { width: 100%; }
+    /* And full width means the copy wants the ordinary gutter back. */
+    .mhead--split .mhead__inner { padding-left: var(--gutter); }
+  }
+
+  @media (max-width: 640px) {
+    .mhead__title { max-width: none; }
+  }
+</style>

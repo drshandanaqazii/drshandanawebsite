@@ -1,0 +1,228 @@
+---
+/**
+ * A single decorative motif, painted behind a section.
+ *
+ * Layout is the caller's job and is done in the caller's scoped CSS, not here:
+ * every placement is a one-off crop against that particular section's content,
+ * and a `position`/`size` prop API would only be a worse way of writing the
+ * same four declarations. This component supplies the drawing, the stacking
+ * (behind content, no pointer events) and the opacity; the caller gives it a
+ * class and positions it.
+ *
+ *   <Motif name="brain" class="hero__motif" />
+ *
+ *   .hero__motif { top: -8%; right: -12%; width: 78%; }
+ *
+ * Two things the caller has to get right:
+ *   - The positioning ancestor needs `position: relative`, and usually
+ *     `overflow: hidden` since these are meant to bleed off an edge.
+ *   - `on` must match the ground. On white the motif is amethyst; on the
+ *     footer and the CTA panel it has to be white, or it disappears into the
+ *     purple it is drawn on.
+ */
+import { MOTIFS, type MotifName } from '../lib/motifs';
+
+interface Props {
+  name: MotifName;
+  /** Which ground it sits on. Decides the ink and the default opacity. */
+  on?: 'light' | 'dark';
+  /** Override the default opacity. Above ~0.08 on light it stops being texture. */
+  opacity?: number;
+  class?: string;
+  /**
+   * Run a single point of light around the motif, once every `spark` seconds.
+   *
+   * Only for motifs that declare a `spark` route in lib/motifs.ts — asking for
+   * one on a motif without a route is a no-op rather than an error, since the
+   * whole feature is decoration and a missing decoration is not worth a build
+   * failure.
+   *
+   * Use it on one motif per page at the very most. The drawings are quiet on
+   * purpose; a second moving light on the same screen turns a still page into
+   * a pair of competing animations.
+   */
+  spark?: number;
+}
+
+const { name, on = 'light', opacity, class: className = '', spark } = Astro.props;
+
+const motif = MOTIFS[name];
+
+/* The light rides in its own <svg>, laid over the drawing on the same viewBox
+   rather than added to it. It has to: .motif carries `opacity` in the low
+   hundredths, and a child of it cannot be brighter than its parent — a lit dot
+   inside the drawing would be a 6%-opaque lit dot. Both elements get the
+   caller's class, so the caller's one positioning rule places both and they
+   cannot drift apart. */
+const sparkOn = spark !== undefined && !!motif.spark;
+---
+
+<svg
+  class:list={['motif', `motif--${on}`, className]}
+  viewBox={motif.viewBox}
+  style={opacity !== undefined ? `--motif-opacity: ${opacity}` : undefined}
+  preserveAspectRatio="xMidYMid meet"
+  aria-hidden="true"
+  focusable="false"
+  set:html={motif.markup}
+/>
+
+{sparkOn && (
+  <svg
+    class:list={['motif-spark', className]}
+    viewBox={motif.viewBox}
+    preserveAspectRatio="xMidYMid meet"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <defs>
+      {/* Scoped to this motif's viewBox units, so the halo is the same size
+          relative to the drawing however large the drawing is rendered. */}
+      <filter id={`spark-blur-${name}`} x="-120%" y="-120%" width="340%" height="340%">
+        <feGaussianBlur stdDeviation="4" />
+      </filter>
+    </defs>
+
+    {/* The route. Three passes over the same `d`, back to front: an invisible
+        copy for the dot to follow, a wide blurred stroke for the glow the
+        trail throws, and a crisp hairline on top.
+
+        `pathLength="100"` is what makes the dash arithmetic below legible —
+        it renormalises the path so every length is a percentage of the whole,
+        whatever the real geometry measures. Without it the numbers would have
+        to be derived from the path and would silently go wrong the moment
+        anyone edited a control point. */}
+    <path id={`spark-path-${name}`} d={motif.spark} fill="none" stroke="none" />
+
+    {/* The line filling in behind the dot. `stroke-dasharray="100 100"` is one
+        dash the length of the whole route followed by an equal gap, so walking
+        the offset from 100 down to 0 uncovers the route from its start — the
+        drawn part grows, nothing travels. The second 100 is not decorative: at
+        `100 0` the pattern repeats immediately and the path is drawn in full at
+        every offset.
+
+        The fill runs linearly over the same duration as the dot's lap, so the
+        end of the drawn line stays under the dot the whole way round.
+
+        Both are SMIL on the same document timeline, not CSS. A CSS dash
+        animation and a SMIL motion animation start from different clocks, and
+        a few hundred milliseconds of drift — which never recovers — is the
+        difference between a dot drawing a line and a dot near a line. */}
+    {[
+      { cls: 'motif-spark__line-glow', filter: true },
+      { cls: 'motif-spark__line', filter: false },
+    ].map((layer) => (
+      <path
+        class={layer.cls}
+        d={motif.spark}
+        pathLength="100"
+        fill="none"
+        filter={layer.filter ? `url(#spark-blur-${name})` : undefined}
+        stroke-dasharray="100 100"
+        stroke-linecap="round"
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="100;0"
+          dur={`${spark}s`}
+          repeatCount="indefinite"
+          calcMode="linear"
+        />
+
+        {/* The route is a closed loop, so once it is fully drawn there is
+            nowhere further to go — without this the completed line would
+            simply blink out as the offset wrapped to 100. Instead it dissolves
+            over the last eighth of the lap, while the dot closes the circuit.
+            The snap back to full opacity at the wrap is invisible: at offset
+            100 there is no line on screen to see it happen to. */}
+        <animate
+          attributeName="stroke-opacity"
+          values="1;1;0"
+          keyTimes="0;0.88;1"
+          dur={`${spark}s`}
+          repeatCount="indefinite"
+        />
+      </path>
+    ))}
+
+    {/* Three circles, one motion. The halo is the glow, the mid ring gives it
+        a core so it does not read as a smudge, and the 1.6-unit dot is the
+        light itself. They move as a group, so they cannot separate. */}
+    <g class="motif-spark__dot">
+      <circle r="9" class="motif-spark__halo" filter={`url(#spark-blur-${name})`} />
+      <circle r="3.4" class="motif-spark__mid" filter={`url(#spark-blur-${name})`} />
+      <circle r="1.6" class="motif-spark__core" />
+
+      {/* SMIL rather than CSS `offset-path`: offset-path resolves its
+          coordinates against the element's own box in CSS pixels, which for an
+          SVG scaled by a percentage width is a number this component does not
+          know. animateMotion follows the path in viewBox units, so the light
+          tracks the drawing at every size with no arithmetic. Supported
+          everywhere the site targets; where it is not, the dot simply sits at
+          the origin of the group, which is off-canvas. */}
+      <animateMotion
+        dur={`${spark}s`}
+        repeatCount="indefinite"
+        calcMode="linear"
+      >
+        <mpath href={`#spark-path-${name}`} />
+      </animateMotion>
+    </g>
+  </svg>
+)}
+
+<style>
+  /* Positioning comes from the caller's class, exactly as it does for .motif —
+     these two rules are only the things the caller must not have to know. */
+  .motif-spark {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* Amethyst, and brighter than anything else in this component by an order of
+     magnitude. The drawing is texture at 3–6% and the light is the one thing
+     on the panel that is meant to be seen moving; matching it to the drawing's
+     opacity would be a dot nobody ever notices. */
+  .motif-spark__halo { fill: var(--amethyst-600, #7C5CB0); opacity: .34; }
+  .motif-spark__mid  { fill: var(--amethyst-600, #7C5CB0); opacity: .5; }
+  /* The core is nearly white rather than saturated purple: a light source is
+     hottest at its centre, and a flat purple dot inside a purple halo reads as
+     a sticker instead. */
+  .motif-spark__core { fill: #F3ECFF; opacity: .85; }
+
+  /* The drawn line. Deliberately dimmer than the dot at its end — the dot is
+     the light source and the line is what it has lit, so the line matching it
+     would flatten both into one bright shape. */
+  .motif-spark__line {
+    stroke: var(--amethyst-600, #7C5CB0);
+    stroke-width: 1.4;
+    opacity: .42;
+  }
+
+  /* The glow the drawn line throws onto the panel around it. Wider, fainter,
+     blurred — this is the layer that makes the line look lit rather than
+     inked. Stroke widths here are in viewBox units and so scale with the
+     drawing, which is what keeps the glow in proportion at every panel size. */
+  .motif-spark__line-glow {
+    stroke: var(--amethyst-600, #7C5CB0);
+    stroke-width: 4.5;
+    opacity: .3;
+  }
+
+  /* A slow flicker over the top of the travel, on a period unrelated to the
+     lap time so the bright moment lands somewhere new each time round. */
+  .motif-spark__dot { animation: spark-pulse 3.7s ease-in-out infinite; }
+
+  @keyframes spark-pulse {
+    0%, 100% { opacity: .75; }
+    50%      { opacity: 1; }
+  }
+
+  /* The light is pure decoration and its whole nature is movement, so there is
+     nothing to keep a still version of: it goes entirely. */
+  @media (prefers-reduced-motion: reduce) {
+    .motif-spark { display: none; }
+  }
+</style>

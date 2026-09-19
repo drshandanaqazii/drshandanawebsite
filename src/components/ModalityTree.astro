@@ -1,0 +1,408 @@
+---
+/**
+ * The three modalities, drawn as a tree rather than as a row.
+ *
+ * Three equal tiles in a row say "here are three products". The copy above them
+ * says something different — one assessment decides which of the three you need
+ * and in what proportion — so the figure is a root that branches into three,
+ * not a list. The lines are the argument; the cards are the leaves.
+ *
+ * A component rather than scoped CSS on /services because it was originally
+ * used there and on /treatment. That second page is gone; this is kept as a
+ * component because it is a self-contained figure with a fair amount of
+ * connector geometry, not because two pages still share it.
+ *
+ * How the connector is built, because it is the part that looks fragile and
+ * isn't: `.tree__branches` is a grid with exactly the same columns and gap as
+ * the card grid, so each branch cell is centred on the card below it. The outer
+ * two cells draw a rounded corner (a box with two borders and one radius)
+ * running from their own centre toward the middle; the centre cell draws the
+ * horizontal bar across the gaps plus its own drop. Nothing is positioned in
+ * pixels, so the figure survives any container width without an SVG that would
+ * have to be stretched — and a stretched SVG is where the stroke weights go
+ * wrong.
+ *
+ * Below 900px the branches are dropped entirely and the trunk runs straight
+ * down through the stacked cards; a horizontal three-way split has nothing to
+ * span on a phone.
+ */
+import { Image } from 'astro:assets';
+import { MOTIFS } from '../lib/motifs';
+import { MODALITIES } from '../consts';
+
+import evaluation from '../assets/care-evaluation.jpg';
+import medication from '../assets/care-medication.jpg';
+import therapy from '../assets/care-therapy.jpg';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+
+/* One photograph per card, in the order MODALITIES is declared — these three
+   stills were shot for exactly these three ideas and two of them already run as
+   page headers elsewhere on the site, so the set stays consistent.
+
+   No people in any of them, which is the point: a photograph of a stranger on
+   the medication card would read as a patient, and these are procedures rather
+   than conditions. The alt text is empty because the card title says what the
+   card is; the picture is the ground, not information. */
+const PHOTOS = [
+  { src: evaluation, position: '50% 62%' },  // the notepad and glasses sit low in a tall frame
+  { src: medication, position: '50% 50%' },
+  { src: therapy, position: '50% 45%' },
+] as const;
+---
+
+<div class:list={['tree', className]} data-reveal-group>
+  {/* The root the branches come out of. Unlabelled on purpose — the heading
+      above the figure already says what this is, and a caption under the disc
+      only said it a second time. */}
+  <div class="tree__root" data-reveal>
+    <span class="tree__seed">
+      <svg
+        class="tree__brain"
+        viewBox={MOTIFS.brain.viewBox}
+        aria-hidden="true"
+        focusable="false"
+        set:html={MOTIFS.brain.markup}
+      />
+    </span>
+  </div>
+
+  <div class="tree__stem" aria-hidden="true"></div>
+
+  <div class="tree__branches" aria-hidden="true" data-reveal>
+    <span class="tree__branch tree__branch--l"></span>
+    <span class="tree__branch tree__branch--c"></span>
+    <span class="tree__branch tree__branch--r"></span>
+  </div>
+
+  <ul class="tree__cards" data-reveal-group>
+    {MODALITIES.map((m, i) => (
+      <li class="modality" data-reveal style="--reveal-from: 12px;">
+        <span class="modality__node" aria-hidden="true"></span>
+
+        {/* The photograph and its scrim live in their own clipped box. The card
+            itself cannot clip — the node above hangs half outside its top edge —
+            so the rounded corners are held here instead. */}
+        <span class="modality__media" aria-hidden="true">
+          <Image
+            src={PHOTOS[i].src}
+            alt=""
+            widths={[420, 720]}
+            sizes="(max-width: 900px) 92vw, 33vw"
+            loading="lazy"
+            style={`object-position: ${PHOTOS[i].position}`}
+          />
+        </span>
+
+        {/* The numeral and a rule running out to the card's edge — the same
+            hairline language as the connector above, so the count reads as part
+            of the figure rather than as a label stuck on the card. */}
+        <div class="modality__head">
+          <span class="modality__no tabular">{String(i + 1).padStart(2, '0')}</span>
+          <span class="modality__rule" aria-hidden="true"></span>
+        </div>
+
+        <div class="modality__text">
+          <h3 class="card-title">{m.name}</h3>
+          <p class="modality__blurb">{m.blurb}</p>
+        </div>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .tree {
+    /* Both grids read these, which is the whole reason the connector lines up:
+       change the gap here and the branches move with the cards. */
+    --tree-gap: var(--s-5);
+    --tree-line: #D9D0EC;          /* amethyst-100, one step down — a drawn line, not a border */
+    --tree-stem: clamp(24px, 3vw, 36px);
+    --tree-branch: clamp(40px, 5vw, 64px);
+  }
+
+  /* --- Root ------------------------------------------------------------- */
+
+  .tree__root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-3);
+  }
+
+  .tree__seed {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--tree-line), 0 0 0 8px var(--amethyst-50);
+  }
+
+  .tree__brain {
+    width: 46px;
+    height: auto;
+    fill: none;
+    stroke: var(--amethyst-600);
+    /* With non-scaling-stroke this is read in screen pixels, not in the 240-unit
+       drawing's own units — 1.25 here is 1.25px on screen at any size. */
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    opacity: .55;
+  }
+  /* The brain motif is outline-only; nothing in it is a node, but guard anyway
+     so a future edit to the drawing can't drop a filled dot in at 46px. */
+  .tree__brain :global([data-node]) { fill: currentColor; stroke: none; }
+
+  /* --- Trunk and branches ------------------------------------------------ */
+
+  .tree__stem {
+    position: relative;
+    height: var(--tree-stem);
+  }
+  .tree__stem::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 50%;
+    border-left: 1px solid var(--tree-line);
+  }
+
+  .tree__branches {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--tree-gap);
+    height: var(--tree-branch);
+  }
+
+  .tree__branch { position: relative; }
+
+  /* Outer branches: one box, two borders, one radius — the corner is the
+     border-radius doing the drawing, so it stays a true quarter-round at every
+     width instead of a stepped diagonal. The negative inset reaches into the
+     grid gap so the bar is continuous across it. */
+  .tree__branch--l::before,
+  .tree__branch--r::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-top: 1px solid var(--tree-line);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+
+  .tree__branch--l::before {
+    left: 50%;
+    right: calc(var(--tree-gap) / -2);
+    border-left: 1px solid var(--tree-line);
+    border-top-right-radius: 0;
+  }
+
+  .tree__branch--r::before {
+    left: calc(var(--tree-gap) / -2);
+    right: 50%;
+    border-right: 1px solid var(--tree-line);
+    border-top-left-radius: 0;
+  }
+
+  /* Centre: the bar across both gaps, and its own drop straight down. */
+  .tree__branch--c::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(var(--tree-gap) / -2);
+    right: calc(var(--tree-gap) / -2);
+    border-top: 1px solid var(--tree-line);
+  }
+  .tree__branch--c::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 50%;
+    border-left: 1px solid var(--tree-line);
+  }
+
+  /* --- Cards ------------------------------------------------------------- */
+
+  .tree__cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--tree-gap);
+  }
+
+  .modality {
+    position: relative;
+    /* Keeps the media's stacking to this card, so a z-index here can never be
+       resolved against whatever context the page happens to provide. */
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    /* The numeral goes to the top, the title to the bottom: the picture is what
+       fills the space between them. */
+    justify-content: space-between;
+    gap: var(--s-5);
+    padding: var(--s-5);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-card);
+    /* The picture needs a band to be a picture rather than a texture — below
+       this the crop is a strip and the photographs stop reading. */
+    min-height: clamp(240px, 24vw, 300px);
+    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+
+  .modality:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(62, 46, 92, .18);
+  }
+
+  /* --- The photograph ---------------------------------------------------- */
+
+  .modality__media {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    background: var(--amethyst-900);
+  }
+  .modality__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Slower than the card's own lift — the picture should still be settling
+       after the box has arrived. */
+    transition: transform 600ms var(--ease);
+  }
+  .modality:hover .modality__media img { transform: scale(1.04); }
+
+  /* The scrim. All three photographs are pale and high-key, so white type needs
+     real cover under it rather than a token wash — amethyst rather than black,
+     so the cards stay in the site's colour instead of going grey. The lower
+     band is where the title sits, hence the weight at that end. */
+  .modality__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgba(43, 31, 66, .92) 0%, rgba(43, 31, 66, .55) 48%, rgba(43, 31, 66, .30) 100%);
+  }
+
+  /* Where the branch lands. Sits half outside the card, which is why nothing
+     in this component clips its overflow. */
+  .modality__node {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--paper);
+    box-shadow: inset 0 0 0 1px var(--tree-line);
+    transform: translate(-50%, -50%);
+    transition: background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  }
+  .modality:hover .modality__node {
+    background: var(--amethyst-600);
+    box-shadow: inset 0 0 0 1px var(--amethyst-600), 0 0 0 4px var(--amethyst-50);
+  }
+
+  .modality__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+  }
+
+  /* Small and spaced rather than a large numeral: over a photograph the title
+     is already competing with the picture, and a third loud element on the card
+     is one too many. */
+  .modality__no {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--amethyst-100);
+  }
+
+  .modality__rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(231, 224, 244, .5), transparent);
+  }
+
+  .modality__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+  }
+
+  .modality .card-title {
+    color: #fff;
+    /* The scrim carries most of the contrast; this is for the one frame whose
+       lower band is lighter than the other two. */
+    text-shadow: 0 1px 12px rgba(26, 22, 34, .45);
+  }
+
+  /* Deliberately short — see the `blurb` note in consts.ts. All three are
+     written to land in two lines; the clamp is the safety valve, so a future
+     edit that runs long costs the card an ellipsis rather than the photograph
+     the band it is read against. */
+  .modality__blurb {
+    max-width: 40ch;
+    color: rgba(255, 255, 255, .84);
+    font-size: var(--fs-body-sm);
+    line-height: 1.5;
+    text-shadow: 0 1px 10px rgba(26, 22, 34, .4);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+
+  /* --- Stacked ----------------------------------------------------------- */
+
+  /* No three-way split on a phone: the trunk simply continues down through the
+     cards, each one hanging off it at its own node. */
+  @media (max-width: 900px) {
+    .tree { --tree-gap: var(--s-7); }
+
+    .tree__branches { display: none; }
+
+    .tree__cards { grid-template-columns: 1fr; }
+
+    .modality::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 100%;
+      height: var(--tree-gap);
+      border-left: 1px solid var(--tree-line);
+    }
+    /* The first card already meets the stem — the branch row it would have
+       spanned is gone, so there is no gap left to bridge. */
+    .modality:first-child::before { display: none; }
+
+    /* Full width, so the same height is a much wider band — shallower here, or
+       three of them fill the screen on their own. */
+    .modality { min-height: 210px; }
+  }
+
+  @media (max-width: 520px) {
+    .modality {
+      padding: var(--s-4);
+      min-height: 180px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modality:hover { transform: none; }
+    .modality:hover .modality__media img { transform: none; }
+  }
+</style>

@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import Icon from '../components/Icon.astro';
+import { PAGE_SEO, PRACTICE, DOCTOR } from '../consts';
+import { UAN_HREF } from '../lib/practice-links';
+
+const trail = [{ name: 'Terms & medical disclaimer', href: '/terms' }];
+const updated = 'September 2026';
+---
+
+<BaseLayout
+  title={PAGE_SEO.terms.title}
+  description={PAGE_SEO.terms.description}
+  breadcrumbs={trail}
+>
+  <MediaHeader
+    trail={trail}
+    title="Terms and medical"
+    titleEm="disclaimer"
+    size="md"
+    lede={`The terms governing use of this website, and the status of the health information published on it. Last updated ${updated}.`}
+  />
+
+  <section class="section" style="padding-top: 0;" aria-label="Terms of use and medical disclaimer">
+    <div class="container terms">
+      {/* The emergency notice goes first, before any of the terms. It is the
+          only thing on this page a person in trouble needs, and burying it under
+          eight numbered clauses would be a drafting decision with a cost. */}
+      <aside class="callout" data-reveal>
+        <span class="callout__icon"><Icon name="pulse" size="sm" /></span>
+        <div>
+          <p class="callout__title">This website is not for emergencies</p>
+          <p>
+            If you or someone else is at immediate risk of harm, do not use this website.
+            Go to the emergency department at {PRACTICE.affiliation}, or call the hospital
+            directly. <a href={UAN_HREF}>Hospital UAN {PRACTICE.hospitalUan}</a>
+          </p>
+        </div>
+      </aside>
+
+      <div class="rich" data-reveal-group>
+        <h2 data-reveal>1. Medical disclaimer</h2>
+        <p data-reveal>
+          Everything published on this website is general health information. It describes
+          conditions, symptoms and treatments in the way a good leaflet would, and it is
+          written to help you decide whether to seek an assessment.
+        </p>
+        <p data-reveal>
+          It is <strong>not</strong> medical advice about you, and reading it does not create
+          a doctor–patient relationship. A diagnosis depends on your history, your
+          examination, your physical health and your circumstances, none of which a web page
+          has access to. Several of the conditions described here share symptoms with each
+          other and with physical illnesses that need entirely different treatment. Telling
+          them apart is what a consultation is for.
+        </p>
+        <p data-reveal>
+          Do not use this site to diagnose yourself, to diagnose someone else, or to start,
+          change or stop any medication. Stopping a psychiatric medication abruptly can be
+          harmful, and it should only be done under supervision.
+        </p>
+
+        <h2 data-reveal>2. Accuracy and currency</h2>
+        <p data-reveal>
+          The clinical content is written to reflect current, mainstream psychiatric
+          practice, and care is taken to keep it accurate. Medicine changes, however, and no
+          guarantee is given that every page reflects the most recent evidence at the moment
+          you read it. Where this site and your treating clinician disagree, follow your
+          clinician.
+        </p>
+        <p data-reveal>
+          Clinic hours, fees and contact details are published in good faith but are set by
+          {PRACTICE.affiliation} and can change without notice. Please confirm them by
+          telephone before travelling.
+        </p>
+
+        <h2 data-reveal>3. Appointments and fees</h2>
+        <p data-reveal>
+          This website does not take bookings. Appointments are arranged through
+          {PRACTICE.affiliation}, and consultation fees, payment methods and any accepted
+          health plans are set by the hospital rather than here. Nothing on this site
+          constitutes an offer of treatment or a guarantee of availability.
+        </p>
+
+        <h2 data-reveal>4. No guarantee of outcome</h2>
+        <p data-reveal>
+          Psychiatric treatment is effective for most people, and this site says so. It does
+          not promise a particular result for you. Response to treatment varies between
+          individuals, timelines given on these pages are typical rather than certain, and no
+          statement here should be read as a guarantee of recovery.
+        </p>
+
+        <h2 data-reveal>5. Links to other websites</h2>
+        <p data-reveal>
+          This site links to {PRACTICE.affiliation} and to Dr. Qazi's consultant profile
+          there. Those sites are controlled by others, and no responsibility is taken for
+          their content, their accuracy or their privacy practices.
+        </p>
+
+        <h2 data-reveal>6. Copyright</h2>
+        <p data-reveal>
+          The text, design and code of this website belong to {DOCTOR.name} and may not be
+          reproduced or republished without permission. Photographs used on the site are
+          licensed stock images and remain the property of their respective creators. You
+          are welcome to link to any page here, and to print pages for your own use or to
+          discuss with your family.
+        </p>
+
+        <h2 data-reveal>7. Testimonials and reviews</h2>
+        <p data-reveal>
+          No patient testimonial appears on this site unless it is genuine and published with
+          the written consent of the person who gave it. No patient is identified anywhere on
+          this website.
+        </p>
+
+        <h2 data-reveal>8. Limitation of liability</h2>
+        <p data-reveal>
+          To the extent permitted by law, no liability is accepted for any loss or harm
+          arising from reliance on the general information published here. Use of this site
+          is at your own discretion, and it is not a substitute for an individual
+          consultation with a qualified clinician.
+        </p>
+
+        <h2 data-reveal>9. Governing law</h2>
+        <p data-reveal>
+          These terms are governed by the laws of the Islamic Republic of Pakistan, and any
+          dispute arising from them falls to the courts of Peshawar, Khyber Pakhtunkhwa.
+        </p>
+
+        <h2 data-reveal>10. Contact</h2>
+        <p data-reveal>
+          Questions about these terms can be sent to
+          <a href={`mailto:${PRACTICE.email}`}>{PRACTICE.email}</a>, or raised at your
+          appointment. For anything clinical, please
+          <a href="/contact">book a consultation</a> rather than writing.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .terms .callout { margin-bottom: clamp(40px, 5vw, 64px); }
+</style>

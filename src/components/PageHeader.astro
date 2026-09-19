@@ -1,0 +1,95 @@
+---
+/**
+ * The opening block on every page except the homepage.
+ *
+ * Text-led and left-aligned, with no photograph. The homepage hero has a
+ * portrait and a panel because it has to introduce a person; an inner page has
+ * to answer a search query in its first line, and a picture between the nav and
+ * that line only delays it. The one and only <h1> on the page lives here.
+ */
+import Breadcrumbs from './Breadcrumbs.astro';
+import Motif from './Motif.astro';
+
+interface Props {
+  eyebrow: string;
+  /** Split so exactly one word can carry the emphasis colour. */
+  title: string;
+  titleEm?: string;
+  lede?: string;
+  trail?: readonly { name: string; href: string }[];
+  /** `lg` for section landing pages, `md` for legal and utility pages. */
+  size?: 'lg' | 'md';
+}
+
+const { eyebrow, title, titleEm, lede, trail = [], size = 'lg' } = Astro.props;
+---
+
+<header class="pagehead">
+  {/* An inner page opens with no photograph by design, which leaves the top of
+      every one of them as text on white. The net fills the space to the right
+      of the headline — the column is capped at 15ch, so that space is empty on
+      every page that uses this header. */}
+  <Motif name="neurons" class="pagehead__motif" />
+
+  <div class="container">
+    {trail.length > 0 && (
+      <div class="pagehead__crumbs"><Breadcrumbs trail={trail} /></div>
+    )}
+
+    <div class="pagehead__copy" data-reveal-group>
+      <p class="eyebrow" data-reveal>{eyebrow}</p>
+      <h1 class={size === 'lg' ? 'display-lg' : 'display-md'} data-reveal>
+        {title}{titleEm && <> <em>{titleEm}</em></>}
+      </h1>
+      {lede && <p class="pagehead__lede" data-reveal>{lede}</p>}
+    </div>
+  </div>
+</header>
+
+<style>
+  .pagehead {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-top: clamp(24px, 3.5vw, 44px);
+    padding-bottom: clamp(40px, 5.5vw, 72px);
+  }
+
+  /* Deliberately weaker than the same motif in CareModel. That one sits beside
+     a centred intro with white space around it; this one shares a line with an
+     <h1>, and the headline has to be the only thing in the top of the page
+     with any weight. */
+  /* Scoped through .pagehead — see the note in Hero.astro. */
+  .pagehead :global(.pagehead__motif) {
+    top: -4%;
+    right: -6%;
+    width: min(38%, 430px);
+    --motif-opacity: .032;
+  }
+
+  /* The headline unwraps past 15ch on a narrow screen and takes the corner
+     back. */
+  @media (max-width: 860px) {
+    .pagehead :global(.pagehead__motif) { display: none; }
+  }
+
+  .pagehead__crumbs { margin-bottom: clamp(24px, 3vw, 40px); }
+
+  .pagehead__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+  }
+
+  /* Each line is measured for its own size. The headline wants a short measure
+     so it breaks into two or three deliberate lines; the sentence under it
+     wants the ordinary reading width. Setting one on the column would force
+     the other to the wrong one. */
+  .pagehead__copy h1 { max-width: 15ch; }
+  .pagehead__lede {
+    max-width: 56ch;
+    font-size: 1.0625rem;
+    text-wrap: pretty;
+  }
+</style>

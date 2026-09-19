@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MediaHeader from '../../components/MediaHeader.astro';
+import headerImage from '../../assets/services-hero.webp';
+import ServiceSelector from '../../components/ServiceSelector.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ModalityTree from '../../components/ModalityTree.astro';
+import { SERVICES, PAGE_SEO } from '../../consts';
+
+const trail = [{ name: 'Services', href: '/services' }];
+---
+
+<BaseLayout
+  title={PAGE_SEO.services.title}
+  description={PAGE_SEO.services.description}
+  pageType="CollectionPage"
+  breadcrumbs={trail}
+>
+  <MediaHeader
+    image={headerImage}
+    imageAlt="Dr. Shandana Qazi speaking at a microphone at a meeting table at Rehman Medical Institute"
+    imagePosition="50% 34%"
+    layout="split"
+    trail={trail}
+    title="What she"
+    titleEm="treats"
+    lede="Adolescent and adult psychiatry at Rehman Medical Institute, Hayatabad. Each page below explains what the condition is, what it looks like day to day, and how it is treated."
+    scrollTo="all-services"
+    scrollLabel="Scroll to all services"
+  />
+
+  <section class="section" id="all-services" style="padding-top: 0;" aria-labelledby="all-heading">
+    <div class="container">
+      <h2 class="visually-hidden" id="all-heading">All services</h2>
+      <ServiceSelector items={SERVICES} />
+
+      <p class="note" data-reveal>
+        This list is not a limit. If what you are dealing with is not on it, it is still
+        worth calling and asking. Being pointed to the right clinician is part of what
+        the call is for.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--band" aria-labelledby="how-heading">
+    <div class="container">
+      {/* Centred, and with no standfirst under it: the tree below is symmetrical
+          about the page's centre line, and a left-aligned heading over it left
+          the trunk looking like it had drifted. */}
+      <div class="section-head how__head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Treatment</p>
+        <h2 class="display-md" id="how-heading" data-reveal>
+          Three ways a condition is <em>treated</em>.
+        </h2>
+      </div>
+
+      <ModalityTree />
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Booking"
+    title="Not sure which of these"
+    titleEm="fits"
+    body="That is a normal place to start, and it is not something you have to work out before you call. Narrowing it down is the first appointment's job, not yours."
+  />
+</BaseLayout>
+
+<style>
+  .how__head {
+    align-items: center;
+    text-align: center;
+  }
+
+  .note {
+    max-width: 62ch;
+    margin-top: clamp(32px, 4vw, 48px);
+    font-size: var(--fs-body-sm);
+    text-wrap: pretty;
+  }
+</style>

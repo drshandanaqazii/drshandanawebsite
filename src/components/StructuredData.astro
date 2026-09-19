@@ -2,33 +2,82 @@
 /**
  * JSON-LD for local + medical search.
  *
- * One @graph containing five linked nodes:
- *   Physician    — the entity Google's local pack ranks
- *   MedicalOrganization — RMI, as her affiliation
- *   WebSite / WebPage   — the site itself
- *   FAQPage      — eligible for FAQ rich results on the SERP
+ * One @graph per page. Three of the nodes describe the practice and are
+ * identical on every page — they carry stable `@id`s, so a crawler reading four
+ * pages sees one Physician referenced four times rather than four physicians:
+ *
+ *   Physician            the entity Google's local pack ranks
+ *   MedicalOrganization  RMI, as her affiliation and employer
+ *   WebSite              the site itself
+ *
+ * The rest are page-specific and are built from the props below:
+ *
+ *   WebPage / MedicalWebPage / AboutPage / ContactPage / CollectionPage
+ *   BreadcrumbList       wherever the page sits below the root
+ *   FAQPage              only where the page actually carries questions
+ *   MedicalCondition     the subject of a service page
  *
  * `Physician` is a subtype of MedicalBusiness → LocalBusiness, which is what
  * makes address, geo and openingHours meaningful for "psychiatrist in Peshawar".
+ *
+ * One rule worth keeping: a FAQPage node belongs on exactly one URL per set of
+ * questions. The homepage shows five of the questions from /faq and deliberately
+ * passes no `faqs` prop, because the same Q&A marked up twice is a duplicate
+ * signal rather than two chances at a rich result.
  */
-import { SITE, DOCTOR, PRACTICE, AREAS_OF_FOCUS, MODALITIES, FAQS, SEO } from '../consts';
+import { SITE, DOCTOR, PRACTICE, SERVICE_KEYWORDS, MODALITIES, SEO } from '../consts';
+
+type PageType =
+  | 'WebPage'
+  | 'AboutPage'
+  | 'ContactPage'
+  | 'CollectionPage'
+  | 'MedicalWebPage';
+
+interface Props {
+  /** Absolute, no trailing slash. Supplied by BaseLayout. */
+  canonical: string;
+  title: string;
+  description: string;
+  pageType?: PageType;
+  /** Root is implicit and is prepended — pass only the levels below it. */
+  breadcrumbs?: readonly { name: string; href: string }[];
+  faqs?: readonly { q: string; a: string }[];
+  condition?: { name: string; alternateName: readonly string[]; description: string };
+}
+
+const {
+  canonical,
+  title,
+  description,
+  pageType = 'WebPage',
+  breadcrumbs = [],
+  faqs = [],
+  condition,
+} = Astro.props;
 
 const base = SITE.url.replace(/\/$/, '');
+const abs = (path: string) => (path.startsWith('http') ? path : `${base}${path}`);
 
 const physicianId = `${base}/#physician`;
 const orgId = `${base}/#rmi`;
 const websiteId = `${base}/#website`;
-const webpageId = `${base}/#webpage`;
+const webpageId = `${canonical}#webpage`;
+const conditionId = `${canonical}#condition`;
 
-const graph = [
+/* -- The practice. Identical on every page, by design. --------------------- */
+
+const practiceNodes = [
   {
     '@type': ['Physician', 'MedicalBusiness'],
     '@id': physicianId,
     name: DOCTOR.name,
     alternateName: `${DOCTOR.givenName} ${DOCTOR.familyName}`,
     honorificPrefix: DOCTOR.honorificPrefix,
+    honorificSuffix: DOCTOR.qualifications,
     givenName: DOCTOR.givenName,
     familyName: DOCTOR.familyName,
+    gender: 'Female',
     jobTitle: DOCTOR.jobTitle,
     description: SEO.description,
     url: base,
@@ -97,15 +146,15 @@ const graph = [
     worksFor: { '@id': orgId },
     affiliation: { '@id': orgId },
 
-    // MODALITIES, not the card grid: the cards are conditions, and a condition
-    // is not a MedicalProcedure. Those are declared as knowsAbout below.
+    // MODALITIES, not the service list: a condition is not a MedicalProcedure.
+    // Those are declared as knowsAbout below.
     availableService: MODALITIES.map((m) => ({
       '@type': 'MedicalProcedure',
       name: m.name,
       description: m.body,
     })),
 
-    knowsAbout: AREAS_OF_FOCUS.map((a) => a.title),
+    knowsAbout: SERVICE_KEYWORDS,
     sameAs: [PRACTICE.profileUrl],
   },
 
@@ -133,30 +182,77 @@ const graph = [
     inLanguage: 'en',
     publisher: { '@id': physicianId },
   },
+];
 
-  {
-    '@type': 'WebPage',
-    '@id': webpageId,
-    url: base,
-    name: SEO.title,
-    description: SEO.description,
-    isPartOf: { '@id': websiteId },
-    about: { '@id': physicianId },
-    primaryImageOfPage: `${base}/og-image.jpg`,
-    inLanguage: 'en',
-  },
+/* -- This page. ------------------------------------------------------------ */
 
-  {
+const webpage: Record<string, unknown> = {
+  '@type': pageType,
+  '@id': webpageId,
+  url: canonical,
+  name: title,
+  description,
+  isPartOf: { '@id': websiteId },
+  about: condition ? { '@id': conditionId } : { '@id': physicianId },
+  primaryImageOfPage: `${base}/og-image.jpg`,
+  inLanguage: 'en',
+};
+
+if (pageType === 'MedicalWebPage') {
+  // Tells Google what kind of medical page this is, which is what separates a
+  // service page from a marketing page in the health results.
+  webpage.specialty = 'https://schema.org/Psychiatric';
+  webpage.audience = { '@type': 'Patient' };
+  webpage.mainContentOfPage = { '@type': 'WebPageElement', cssSelector: '#main' };
+}
+
+if (breadcrumbs.length) {
+  webpage.breadcrumb = { '@id': `${canonical}#breadcrumb` };
+}
+
+const graph: Record<string, unknown>[] = [...practiceNodes, webpage];
+
+if (breadcrumbs.length) {
+  graph.push({
+    '@type': 'BreadcrumbList',
+    '@id': `${canonical}#breadcrumb`,
+    itemListElement: [{ name: 'Home', href: '/' }, ...breadcrumbs].map((crumb, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: crumb.name,
+      item: abs(crumb.href).replace(/\/$/, '') || base,
+    })),
+  });
+}
+
+if (condition) {
+  graph.push({
+    '@type': 'MedicalCondition',
+    '@id': conditionId,
+    name: condition.name,
+    alternateName: [...condition.alternateName],
+    description: condition.description,
+    associatedAnatomy: { '@type': 'AnatomicalStructure', name: 'Brain' },
+    relevantSpecialty: 'https://schema.org/Psychiatric',
+    possibleTreatment: MODALITIES.map((m) => ({
+      '@type': 'MedicalTherapy',
+      name: m.name,
+    })),
+  });
+}
+
+if (faqs.length) {
+  graph.push({
     '@type': 'FAQPage',
-    '@id': `${base}/#faq`,
+    '@id': `${canonical}#faq`,
     isPartOf: { '@id': websiteId },
-    mainEntity: FAQS.map((f) => ({
+    mainEntity: faqs.map((f) => ({
       '@type': 'Question',
       name: f.q,
       acceptedAnswer: { '@type': 'Answer', text: f.a },
     })),
-  },
-];
+  });
+}
 
 const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
 ---

@@ -1,49 +1,23 @@
 ---
+/**
+ * The booking section on the homepage.
+ *
+ * /contact carries the full version — directions, what to bring, the hours in
+ * full. This is the short one, and it exists on the homepage for a reason
+ * beyond convenience: name, address and phone on the page that ranks for her
+ * name is one of the signals the local pack reads, and it has to match the
+ * Google Business Profile exactly.
+ */
 import Button from './Button.astro';
 import Icon from './Icon.astro';
+import PracticeMap from './PracticeMap.astro';
 import { PRACTICE } from '../consts';
-
-const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
-const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
-const mapsQuery = encodeURIComponent(
-  `${PRACTICE.address.street}, ${PRACTICE.address.locality}, ${PRACTICE.address.region}`
-);
-const mapsHref = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
-/* Keyless Google Maps embed — no API key, no billing account, and the pin is
-   resolved from the same address string the link above uses, so the two can
-   never drift apart. */
-const mapEmbedSrc = `https://www.google.com/maps?q=${mapsQuery}&z=16&output=embed`;
+import { TEL_HREF, WHATSAPP_HREF, MAPS_HREF, MAIL_HREF } from '../lib/practice-links';
 ---
 
 <section class="section" id="contact" aria-labelledby="contact-heading">
   <div class="container contact">
-    {/* The map is mounted like a print: paper mount, hairline edge, and the
-        tiles graded down to the site's own palette so it sits in the same room
-        as the photographs. Colour returns on hover, which is also the cue that
-        it is live rather than a picture of a map. */}
-    <figure class="map" data-reveal="media" data-map>
-      <div class="map__mount">
-        <iframe
-          class="map__canvas"
-          src={mapEmbedSrc}
-          title={`Map showing ${PRACTICE.affiliation}, ${PRACTICE.address.locality}`}
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen
-        ></iframe>
-
-        <a class="map__card" href={mapsHref} rel="noopener noreferrer" target="_blank">
-          <span class="map__mark"><Icon name="pin" size="sm" /></span>
-          <span class="map__lines">
-            <span class="map__name">{PRACTICE.affiliation}</span>
-            <span class="map__meta">
-              {PRACTICE.address.locality} · Directions
-            </span>
-          </span>
-          <span class="map__arrow"><Icon name="arrow" size="sm" /></span>
-        </a>
-      </div>
-    </figure>
+    <PracticeMap />
 
     <div class="contact__copy" data-reveal-group>
       <p class="eyebrow" data-reveal>Booking</p>
@@ -57,14 +31,14 @@ const mapEmbedSrc = `https://www.google.com/maps?q=${mapsQuery}&z=16&output=embe
       </p>
 
       <div class="contact__actions" data-reveal>
-        <Button href={telHref} icon="phone" external>Call {PRACTICE.bookingPhoneDisplay}</Button>
-        <Button href={waHref} variant="ghost" icon="whatsapp" external>Message on WhatsApp</Button>
+        <Button href={TEL_HREF} icon="phone" external>Call {PRACTICE.bookingPhoneDisplay}</Button>
+        <Button href={WHATSAPP_HREF} variant="ghost" icon="whatsapp" external>Message on WhatsApp</Button>
       </div>
 
       <ul class="contact__details" data-reveal>
         <li>
           <Icon name="pin" size="sm" />
-          <a href={mapsHref} rel="noopener noreferrer" target="_blank">
+          <a href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
             {PRACTICE.address.street}, {PRACTICE.address.locality}
           </a>
         </li>
@@ -78,9 +52,13 @@ const mapEmbedSrc = `https://www.google.com/maps?q=${mapsQuery}&z=16&output=embe
         </li>
         <li>
           <Icon name="mail" size="sm" />
-          <a href={`mailto:${PRACTICE.email}`}>{PRACTICE.email}</a>
+          <a href={MAIL_HREF}>{PRACTICE.email}</a>
         </li>
       </ul>
+
+      <p class="contact__more" data-reveal>
+        <a href="/contact">Directions, parking and what to bring</a>
+      </p>
     </div>
   </div>
 </section>
@@ -92,112 +70,6 @@ const mapEmbedSrc = `https://www.google.com/maps?q=${mapsQuery}&z=16&output=embe
     gap: clamp(32px, 5vw, 72px);
     align-items: center;
   }
-
-  /* --- The map -----------------------------------------------------------
-     Three layers, outside in: the paper mount that lifts it off the page, the
-     graded tiles, and the locator card that names the building. */
-
-  .map { position: relative; }
-
-  .map__mount {
-    position: relative;
-    padding: 10px;
-    border-radius: var(--r-hero);
-    background: var(--surface);
-    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
-  }
-
-  .map__canvas {
-    display: block;
-    width: 100%;
-    height: clamp(300px, 42vw, 480px);
-    border: 0;
-    border-radius: var(--r-media);
-    /* Google's own palette is blue, white and mint — three colours this system
-       does not own. Graded most of the way to neutral and warmed a little
-       towards the ivory, it reads as ours; the grade lifts on hover so the live
-       map is never left muddy. */
-    filter: grayscale(0.66) sepia(0.16) saturate(0.85) contrast(0.94) brightness(1.05);
-    transition: filter var(--dur) var(--ease);
-    /* Locked until clicked, so a wheel scroll past the section zooms the page
-       and not the map. */
-    pointer-events: none;
-  }
-  .map:hover .map__canvas,
-  .map.is-live .map__canvas {
-    filter: grayscale(0) sepia(0) saturate(1) contrast(1) brightness(1);
-  }
-  .map.is-live .map__canvas,
-  .map:focus-within .map__canvas { pointer-events: auto; }
-
-  .map:not(.is-live) .map__mount { cursor: pointer; }
-
-  /* The locator card. Sits inside the mount's padding so the paper edge reads
-     continuously behind it. */
-  .map__card {
-    position: absolute;
-    left: 22px;
-    right: 22px;
-    bottom: 22px;
-    display: flex;
-    align-items: center;
-    gap: var(--s-3);
-    max-width: 340px;
-    padding: 10px 10px 10px 12px;
-    border-radius: var(--r-pill);
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(6px);
-    box-shadow: var(--shadow-nav);
-    text-decoration: none;
-    transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
-  }
-  .map__card:hover { background: #fff; transform: translateY(-2px); }
-
-  .map__mark {
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--amethyst-50);
-    color: var(--amethyst-900);
-  }
-
-  .map__lines {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-  .map__name {
-    color: var(--ink);
-    font-family: var(--font-display);
-    font-size: 1.0625rem;
-    font-weight: 500;
-    letter-spacing: -.01em;
-    line-height: 1.15;
-  }
-  .map__meta {
-    color: var(--ink-muted);
-    font-size: var(--fs-label);
-    letter-spacing: var(--ls-label);
-    text-transform: uppercase;
-  }
-
-  .map__arrow {
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    width: 34px;
-    height: 34px;
-    margin-left: auto;
-    border-radius: 50%;
-    background: var(--amethyst-900);
-    color: #fff;
-    transition: transform var(--dur-fast) var(--ease);
-  }
-  .map__card:hover .map__arrow { transform: rotate(45deg); }
 
   .contact__copy {
     display: flex;
@@ -233,33 +105,15 @@ const mapEmbedSrc = `https://www.google.com/maps?q=${mapsQuery}&z=16&output=embe
   .contact__details a { color: var(--ink); text-decoration: none; }
   .contact__details a:hover { color: var(--amethyst-600); text-decoration: underline; }
 
+  .contact__more {
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+  }
+  .contact__more a { text-underline-offset: 4px; }
+
+  /* The map already comes first in the source, so stacking needs nothing
+     beyond dropping to one column. */
   @media (max-width: 900px) {
     .contact { grid-template-columns: 1fr; }
-    .map { order: -1; }
-  }
-
-  @media (max-width: 520px) {
-    .map__card {
-      left: 16px;
-      right: 16px;
-      bottom: 16px;
-      max-width: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .map__canvas { transition: none; }
-    .map__card:hover { transform: none; }
-    .map__card:hover .map__arrow { transform: none; }
   }
 </style>
-
-<script>
-  /* A map that pans and zooms under the cursor is a scroll trap on a one-page
-     site. It stays inert until the visitor asks for it — one click, or a tab
-     into the frame — and the grade lifting on hover is the affordance that
-     says it will respond. */
-  const map = document.querySelector<HTMLElement>('[data-map]');
-
-  map?.addEventListener('click', () => map.classList.add('is-live'), { once: true });
-</script>

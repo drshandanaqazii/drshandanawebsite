@@ -1,0 +1,290 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import headerImage from '../assets/care-therapy.jpg';
+import CareModel from '../components/CareModel.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import Button from '../components/Button.astro';
+import ModalityTree from '../components/ModalityTree.astro';
+import { PAGE_SEO, PRACTICE } from '../consts';
+
+const trail = [{ name: 'Treatment', href: '/treatment' }];
+
+/* What to bring. Deliberately concrete — "bring your previous reports" is advice
+   nobody acts on; a list of the four specific things is one somebody can pack. */
+const BRING = [
+  {
+    icon: 'capsule',
+    title: 'Every medicine you are taking',
+    body: 'In its packaging if you can, including anything from another doctor, anything bought over the counter, and any herbal or homeopathic preparation. Interactions are real, and the packet is more reliable than a remembered name.',
+  },
+  {
+    icon: 'clipboard',
+    title: 'Previous reports and prescriptions',
+    body: 'Discharge summaries, old prescriptions, blood tests, scans. If you are unsure whether something is relevant, bring it — it is much easier to set aside than to recall accurately.',
+  },
+  {
+    icon: 'people',
+    title: 'Someone with you, if you want',
+    body: 'A family member often remembers what a person unwell for months cannot. You can also ask to be seen alone for part of the appointment, and that request causes no offence.',
+  },
+  {
+    icon: 'speech',
+    title: 'Your questions, written down',
+    body: 'People forget the thing they most wanted to ask. A note on your phone is enough, and there is time in the appointment to work through it.',
+  },
+] as const;
+
+/* The things a first-time patient is actually worried about, answered as
+   statements rather than as an accordion — an accordion hides the reassurance
+   behind a click, and these are the lines most likely to decide whether someone
+   books at all. */
+const REASSURANCE = [
+  {
+    title: 'You will not be given a prescription you did not agree to',
+    body: 'Medication is one option among several and it is discussed before it is started, including what it does, how long it takes to work, and what the side effects are. Some patients are treated with psychotherapy alone.',
+  },
+  {
+    title: 'You are not required to say everything at once',
+    body: 'Some things take more than one appointment to say. That is normal, it is expected, and no part of the assessment depends on getting it all out on the first day.',
+  },
+  {
+    title: 'What you say stays in the room',
+    body: 'The narrow exceptions — an immediate risk to your safety or to someone else\'s — are explained at the first appointment rather than discovered later.',
+  },
+  {
+    title: 'Nothing here is decided for you',
+    body: 'The reasoning, the alternatives and the realistic timeline are put in front of you, and the decision is made together. That includes the decision to wait.',
+  },
+] as const;
+---
+
+<BaseLayout
+  title={PAGE_SEO.treatment.title}
+  description={PAGE_SEO.treatment.description}
+  breadcrumbs={trail}
+>
+  <MediaHeader
+    image={headerImage}
+    imageAlt="A glass of coffee resting on a folded knitted blanket, with a single yellow leaf beside it"
+    trail={trail}
+    title="What actually happens at the"
+    titleEm="appointment"
+    lede="Most people who put off seeing a psychiatrist are not avoiding treatment. They are avoiding a room they cannot picture. This page describes it."
+    scrollTo="care"
+    scrollLabel="Scroll to how care works"
+  />
+
+  {/* The homepage's three-step journey, on the page it belongs to. It was
+      always the long version and the homepage was the summary — `page` drops
+      the heading a step so it does not compete with the <h1>, and removes the
+      link that would point at this page. */}
+  <CareModel variant="page" />
+
+  <section class="section section--band" aria-labelledby="modalities-heading">
+    <div class="container">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>What treatment consists of</p>
+        <h2 class="display-md" id="modalities-heading" data-reveal>
+          Three things, in some <em>combination</em>.
+        </h2>
+        <p class="prose" data-reveal>
+          Psychiatry is not only prescriptions. Whatever the diagnosis, treatment is
+          assembled from these three, and which of them you need — and in what proportion —
+          is the question the assessment answers.
+        </p>
+      </div>
+
+      <ModalityTree rootLabel="One assessment" />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="bring-heading">
+    <div class="container bring">
+      <div class="bring__head">
+        <div class="section-head" data-reveal-group>
+          <p class="eyebrow" data-reveal>Preparing</p>
+          <h2 class="display-md" id="bring-heading" data-reveal>
+            What to <em>bring</em>.
+          </h2>
+          <p class="prose body-sm" data-reveal>
+            None of this is required. All of it makes the first appointment more useful,
+            and a first appointment that starts with good information tends to reach a
+            clear answer sooner.
+          </p>
+        </div>
+
+        <p class="bring__time" data-reveal>
+          <Icon name="clock" size="sm" />
+          <span>Clinic hours: {PRACTICE.hoursDisplay}</span>
+        </p>
+      </div>
+
+      <ul class="bring__list" data-reveal-group>
+        {BRING.map((item) => (
+          <li class="bring__item" data-reveal style="--reveal-from: 10px;">
+            <span class="bring__icon"><Icon name={item.icon} /></span>
+            <div>
+              <h3 class="card-title">{item.title}</h3>
+              <p class="body-sm">{item.body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--band" aria-labelledby="reassure-heading">
+    <div class="container">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Before you worry about it</p>
+        <h2 class="display-md" id="reassure-heading" data-reveal>
+          Four things worth saying <em>plainly</em>.
+        </h2>
+      </div>
+
+      <ul class="assure" data-reveal-group>
+        {REASSURANCE.map((item) => (
+          <li class="assure__item" data-reveal style="--reveal-from: 10px;">
+            <h3 class="assure__title">{item.title}</h3>
+            <p class="body-sm">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+
+      <div class="assure__more" data-reveal>
+        <Button href="/faq" variant="ghost">Read the full list of questions</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="after-heading">
+    <div class="container">
+      <div class="rich" data-reveal-group>
+        <div class="section-head" style="margin-bottom: 0;" data-reveal>
+          <p class="eyebrow">Afterwards</p>
+          <h2 class="display-md" id="after-heading" style="margin-top: var(--s-3);">
+            Follow-up, and how treatment <em>ends</em>.
+          </h2>
+        </div>
+
+        <p data-reveal>
+          Follow-up appointments are shorter than the first one and have a narrower job:
+          whether the plan is working, whether the dose is right, what the side effects
+          have been, and what has changed at home or at work since you were last seen. How
+          soon you are seen again depends on what is being treated — days to weeks when
+          something has just been started, longer once things are stable.
+        </p>
+
+        <p data-reveal>
+          Treatment has an end, and the end is planned rather than improvised. For a first
+          episode of depression or anxiety, that usually means continuing for a defined
+          period after you are well, then reducing under supervision. Stopping the moment
+          you feel better is the most common cause of relapse, and stopping abruptly is the
+          most common cause of an unpleasant few weeks that could have been avoided.
+        </p>
+
+        <p data-reveal>
+          Some conditions are managed over years rather than months. Where that is the
+          case, you are told so at the outset — a realistic timeline given early is worth
+          more than a reassuring one given now and corrected later.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    eyebrow="Booking"
+    title="Now you know what the room"
+    titleEm="looks like"
+    body="Appointments are held at Rehman Medical Institute in Hayatabad, Peshawar. Call during clinic hours for the next available slot, in English, Urdu or Pashto."
+  />
+</BaseLayout>
+
+<style>
+  /* --- What to bring ---------------------------------------------------- */
+
+  .bring {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .bring__head { position: sticky; top: 104px; }
+  .bring__head .section-head { margin-bottom: var(--s-5); }
+
+  .bring__time {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+    font-size: var(--fs-body-sm);
+    color: var(--ink-muted);
+  }
+  .bring__time :global(.icon) { flex: 0 0 auto; }
+
+  .bring__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+  }
+
+  .bring__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--s-4);
+    padding: var(--s-5);
+    background: var(--surface);
+    border-radius: var(--r-card);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-sm);
+  }
+  .bring__item h3 { margin-bottom: 6px; }
+
+  .bring__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+  }
+
+  /* --- Four plain statements -------------------------------------------- */
+
+  /* Two columns of statements rather than cards. These are sentences to be
+     read, not objects to be compared, so they are separated by rules and space
+     instead of being boxed. */
+  .assure {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-6) clamp(32px, 5vw, 72px);
+  }
+
+  .assure__item {
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--hairline);
+  }
+
+  .assure__title {
+    margin-bottom: var(--s-2);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  .assure__more { margin-top: clamp(40px, 5vw, 56px); }
+
+  @media (max-width: 900px) {
+    .bring { grid-template-columns: 1fr; }
+    .bring__head { position: static; }
+    .assure { grid-template-columns: 1fr; }
+  }
+</style>

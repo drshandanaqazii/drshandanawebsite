@@ -2,22 +2,42 @@
 import '../styles/global.css';
 import '../styles/motion.css';
 import StructuredData from '../components/StructuredData.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 import { SITE, SEO, DOCTOR, PRACTICE } from '../consts';
 
 interface Props {
   title?: string;
   description?: string;
-  /** Set false on pages that should not be indexed (thank-you pages etc.). */
+  /** Set false on pages that should not be indexed (404, thank-you pages). */
   index?: boolean;
+
+  /* --- Structured data. Passed straight through to StructuredData.astro. --- */
+  pageType?: 'WebPage' | 'AboutPage' | 'ContactPage' | 'CollectionPage' | 'MedicalWebPage';
+  /** Levels below the root only — "Home" is prepended for you. */
+  breadcrumbs?: readonly { name: string; href: string }[];
+  faqs?: readonly { q: string; a: string }[];
+  condition?: { name: string; alternateName: readonly string[]; description: string };
+
+  /** Extra class on <body>, for the few pages that need a different ground. */
+  bodyClass?: string;
 }
 
 const {
   title = SEO.title,
   description = SEO.description,
   index = true,
+  pageType = 'WebPage',
+  breadcrumbs = [],
+  faqs = [],
+  condition,
+  bodyClass,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href.replace(/\/$/, '') || SITE.url;
+/* Trailing slash stripped so a page is never claimed by two canonical URLs —
+   this has to match the `@id`s used in the JSON-LD, which derive from it. */
+const canonical =
+  new URL(Astro.url.pathname, Astro.site ?? SITE.url).href.replace(/\/$/, '') || SITE.url;
 const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
 ---
 
@@ -76,10 +96,18 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&family=Outfit:wght@200..600&display=swap"
     />
 
-    <StructuredData />
+    <StructuredData
+      canonical={canonical}
+      title={title}
+      description={description}
+      pageType={pageType}
+      breadcrumbs={breadcrumbs}
+      faqs={faqs}
+      condition={condition}
+    />
 
     <!-- Motion opt-in. Every hidden-then-revealed style is scoped to this flag,
-         so it must be set before first paint — hence inline, in the head, and
+         so it must be set before first paint: hence inline, in the head, and
          not in the bundled module. If this script never runs, the page renders
          fully visible and static. See src/styles/motion.css. -->
     <script is:inline>
@@ -89,9 +117,19 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
     </script>
   </head>
 
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link" href="#main">Skip to content</a>
-    <slot />
+
+    {/* .page is the sheet that scrolls over the fixed footer — see the curtain
+        note in global.css. The nav is inside it so it rides on the same white
+        ground as the content, with no seam between them. Every page shares this
+        shell; a page's own markup is only what goes inside <main>. */}
+    <div class="page">
+      <Nav />
+      <main id="main"><slot /></main>
+    </div>
+
+    <Footer />
 
     <script>
       import '../scripts/motion';

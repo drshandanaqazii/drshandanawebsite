@@ -1,0 +1,166 @@
+---
+/**
+ * The booking band that closes every page except /contact itself.
+ *
+ * Amethyst, and the only large area of colour on an inner page besides the
+ * footer. It sits directly above the footer, so the two would otherwise stack
+ * into one continuous purple block — the white gutter left by .section around
+ * it is what keeps them apart, and it is why this is a contained panel rather
+ * than a full-bleed band.
+ */
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import Motif from './Motif.astro';
+import { PRACTICE } from '../consts';
+
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  titleEm?: string;
+  body?: string;
+}
+
+const {
+  eyebrow = 'Booking',
+  title = 'Start with one',
+  titleEm = 'conversation',
+  body = 'Appointments are held at Rehman Medical Institute in Hayatabad, Peshawar. Call during clinic hours, or send a message and someone will come back to you with the next available slot.',
+} = Astro.props;
+
+const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
+const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
+---
+
+<section class="section cta" aria-labelledby="cta-heading">
+  <div class="container">
+    <div class="cta__panel" data-reveal-group>
+      {/* Full-width across the foot of the panel, behind the actions. The
+          waves rather than the brain: this block is the end of the argument,
+          asking someone to book, and the figure that settles as it travels is
+          the one that belongs under it. White at 7% on --amethyst-900 is about
+          a quarter of a tone — visible as structure, never as a picture. */}
+      <Motif name="calm" on="dark" class="cta__motif" />
+
+      <p class="cta__eyebrow" data-reveal>{eyebrow}</p>
+      <h2 class="display-md cta__title" id="cta-heading" data-reveal>
+        {title} <em>{titleEm}</em>
+      </h2>
+      <p class="cta__body" data-reveal>{body}</p>
+
+      <div class="cta__actions" data-reveal>
+        <Button href={telHref} variant="on-dark" icon="phone" external>
+          Call {PRACTICE.bookingPhoneDisplay}
+        </Button>
+        <Button href="/contact" variant="on-dark-ghost">Clinic hours and directions</Button>
+      </div>
+
+      <p class="cta__aside" data-reveal>
+        {/* The mark sits inside the sentence, not beside it. As a sibling it was
+            a flex item of its own and the wrapped text centred itself in the
+            leftover width, which put a gap between them that no `gap` value
+            could close. Inline, it is simply the first thing on the line. */}
+        <span>
+          <Icon name="whatsapp" size="sm" />Prefer to write?
+          <a href={waHref} rel="noopener noreferrer" target="_blank">Message on WhatsApp</a>
+        </span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta__panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(40px, 6vw, 80px) var(--gutter);
+    border-radius: var(--r-hero);
+    background: var(--amethyst-900);
+  }
+
+  /* Anchored to the foot and run wider than the panel, so what shows is the
+     middle of the figure rather than a drawing with two ends floating in the
+     purple. */
+  /* Scoped through .cta__panel rather than written bare — the class lands on
+     an element rendered by Motif.astro, which carries that component's scope
+     attribute and not this one's. See the longer note in Hero.astro. */
+  .cta__panel :global(.cta__motif) {
+    left: -6%;
+    right: -6%;
+    bottom: -4%;
+    width: 112%;
+  }
+
+  /* The eyebrow and body classes are restated rather than reused: .eyebrow is
+     amethyst and .prose inherits body grey, and both vanish on this ground. */
+  .cta__eyebrow {
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    color: #CFC7DE;
+  }
+
+  .cta__title {
+    margin-top: var(--s-3);
+    max-width: 18ch;
+    color: #FFFFFF;
+  }
+  /* The emphasis colour is a mid amethyst, which is invisible here. On the one
+     dark ground on the page, emphasis is carried by the warm mark instead. */
+  .cta__title em { color: #E0C79B; }
+
+  .cta__body {
+    max-width: 56ch;
+    margin-top: var(--s-4);
+    color: #D6CFE6;
+    text-wrap: pretty;
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
+
+  .cta__aside {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-top: var(--s-5);
+    font-size: var(--fs-body-sm);
+    color: #BEB4D2;
+  }
+  /* Inline with the text it introduces. The margin replaces the flex `gap` the
+     mark used to get as a sibling, so desktop reads exactly as before. */
+  .cta__aside :global(.icon) {
+    flex: 0 0 auto;
+    vertical-align: -0.16em;
+    margin-right: var(--s-2);
+  }
+  .cta__aside a {
+    color: #FFFFFF;
+    text-underline-offset: 3px;
+  }
+
+  /* On a phone the sentence wraps to two lines. Centred with the rest of the
+     panel, held short of it so the break lands somewhere sensible, and the mark
+     tightened up a little against the smaller type. */
+  @media (max-width: 640px) {
+    .cta__aside {
+      justify-content: center;
+      /* Held short of the panel so the sentence breaks into two balanced lines
+         rather than one near-full line and an orphan under it. */
+      max-width: 30ch;
+      text-align: center;
+      text-wrap: balance;
+    }
+    /* The mark goes. "Message on WhatsApp" names the channel outright, so at
+       this width it was decoration competing with a two-line sentence. */
+    .cta__aside :global(.icon) { display: none; }
+  }
+</style>

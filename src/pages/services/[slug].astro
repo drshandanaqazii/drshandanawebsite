@@ -1,0 +1,402 @@
+---
+/**
+ * One page per entry in src/data/services.ts.
+ *
+ * This is the page that has to rank for "depression treatment in Peshawar" and
+ * its eight siblings, so the order of the content is the order a searcher needs
+ * it in: what it is, what it looks like, when to come, how it is treated,
+ * questions. The booking band is last because a page that asks for the call
+ * before it has answered anything gets closed.
+ *
+ * Each one carries its own MedicalWebPage + MedicalCondition + FAQPage nodes,
+ * built in StructuredData.astro from the props passed to BaseLayout below.
+ */
+import type { GetStaticPaths } from 'astro';
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MediaHeader from '../../components/MediaHeader.astro';
+import ServiceGrid from '../../components/ServiceGrid.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+
+import { SERVICES, SERVICES_BY_SLUG, PRACTICE } from '../../consts';
+import { SERVICE_IMAGES } from '../../lib/service-images';
+import { UAN_HREF } from '../../lib/practice-links';
+
+export const getStaticPaths = (() =>
+  SERVICES.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }))) satisfies GetStaticPaths;
+
+const { service } = Astro.props;
+
+const image = SERVICE_IMAGES[service.image];
+const related = service.related
+  .map((slug) => SERVICES_BY_SLUG[slug])
+  .filter((c) => c !== undefined);
+
+const trail = [
+  { name: 'Services', href: '/services' },
+  { name: service.label, href: `/services/${service.slug}` },
+];
+---
+
+<BaseLayout
+  title={service.seoTitle}
+  description={service.seoDescription}
+  pageType="MedicalWebPage"
+  breadcrumbs={trail}
+  faqs={service.faqs}
+  condition={{
+    name: service.schema.name,
+    alternateName: service.schema.alternateName,
+    description: service.lede,
+  }}
+>
+  {/* The condition's own photograph, in the panel rather than beside the intro
+      below. It is the same picture either way — running it in both places was
+      the same image twice on one page — and in the panel it is what tells a
+      reader which of the nine pages they have landed on before they read a
+      word. No eyebrow: the trail's last crumb is already the condition's
+      name. */}
+  <MediaHeader
+    image={image.src}
+    imageAlt={image.alt}
+    imagePosition={image.position}
+    layout="split"
+    trail={trail}
+    title={service.h1.text}
+    titleEm={service.h1.em}
+    lede={service.lede}
+    scrollTo="intro"
+    scrollLabel={`Scroll to what ${service.label.toLowerCase()} is`}
+  />
+
+  <section class="section" id="intro" style="padding-top: 0;" aria-labelledby="intro-heading">
+    <div class="container intro">
+      <div class="intro__copy rich" data-reveal-group>
+        <h2 class="visually-hidden" id="intro-heading">About {service.label.toLowerCase()}</h2>
+        {service.intro.map((para) => <p data-reveal>{para}</p>)}
+
+        <div class="intro__cta" data-reveal>
+          <Button href="/contact">Book a consultation</Button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--band" aria-labelledby="signs-heading">
+    <div class="container signs">
+      <div class="signs__head">
+        <div class="section-head" data-reveal-group>
+          <p class="eyebrow" data-reveal>What it looks like</p>
+          <h2 class="display-md" id="signs-heading" data-reveal>
+            Things people <em>recognise</em>.
+          </h2>
+          <p class="prose body-sm" data-reveal>{service.signs.intro}</p>
+        </div>
+
+        {/* The disclaimer belongs beside the list, not in the footer: a
+            recognition list is exactly the thing a reader will use to diagnose
+            themselves, and the caution has to be where that happens. */}
+        <p class="signs__caveat" data-reveal>
+          Recognising yourself in this list is a reason to be assessed, not a diagnosis.
+          Several conditions share these features, and telling them apart is what the
+          first appointment does.
+        </p>
+      </div>
+
+      <ul class="checklist signs__list" data-reveal>
+        {service.signs.items.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="when-heading">
+    <div class="container when">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>When to book</p>
+        <h2 class="display-md" id="when-heading" data-reveal>
+          Worth an <em>appointment</em>.
+        </h2>
+      </div>
+
+      <div class="when__grid">
+        <ul class="checklist" data-reveal>
+          {service.whenToSeek.map((item) => <li>{item}</li>)}
+        </ul>
+
+        {service.urgent && (
+          <aside class="callout when__urgent" data-reveal>
+            <span class="callout__icon"><Icon name="pulse" size="sm" /></span>
+            <div>
+              <p class="callout__title">If it is urgent, do not wait</p>
+              <p>{service.urgent}</p>
+              <p class="when__uan">
+                <a href={UAN_HREF}>Hospital UAN {PRACTICE.hospitalUan}</a>
+              </p>
+            </div>
+          </aside>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--band" aria-labelledby="treat-heading">
+    <div class="container">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Treatment</p>
+        <h2 class="display-md" id="treat-heading" data-reveal>
+          How it is <em>treated</em>.
+        </h2>
+        <p class="prose" data-reveal>
+          Nothing below is a prescription for you. It is what the evidence supports for
+          this condition in general, and what a course of treatment usually contains. What
+          you are offered is decided after the assessment, and with you.
+        </p>
+      </div>
+
+      <ol class="steps" data-reveal-group>
+        {service.treatment.map((step, i) => (
+          <li class="step" data-reveal>
+            <span class="step__no tabular">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h3 class="card-title">{step.title}</h3>
+              <p class="body-sm">{step.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div class="steps__more" data-reveal>
+        <Button href="/faq" variant="ghost">Questions about a first appointment</Button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cfaq-heading">
+    <div class="container cfaq">
+      <div class="cfaq__head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Questions</p>
+        <h2 class="display-md" id="cfaq-heading" data-reveal>
+          About {service.label.toLowerCase()}
+        </h2>
+        <p class="body-sm prose" data-reveal>
+          More general questions (confidentiality, cost, bringing family) are answered
+          on the <a href="/faq">questions page</a>.
+        </p>
+      </div>
+
+      <div class="cfaq__list" data-reveal-group>
+        {service.faqs.map((item) => (
+          <details class="faq__item" name="service-faq" data-reveal style="--reveal-from: 10px;">
+            <summary class="faq__q">
+              <span>{item.q}</span>
+              <span class="faq__sign" aria-hidden="true"></span>
+            </summary>
+            <div class="faq__a"><p class="body-sm">{item.a}</p></div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section section--band" aria-labelledby="related-heading">
+      <div class="container">
+        <div class="section-head" data-reveal-group>
+          <p class="eyebrow" data-reveal>Related</p>
+          <h2 class="display-md" id="related-heading" data-reveal>
+            Often seen <em>alongside</em>.
+          </h2>
+          <p class="prose body-sm" data-reveal>
+            These conditions overlap with {service.label.toLowerCase()} often enough that
+            the assessment asks about all of them.
+          </p>
+        </div>
+
+        <ServiceGrid items={related} />
+      </div>
+    </section>
+  )}
+
+  <CtaBand
+    eyebrow="Booking"
+    title="Have this looked at"
+    titleEm="properly"
+    body={`Assessment and treatment for ${service.label.toLowerCase()} at Rehman Medical Institute, Hayatabad, Peshawar, in English, Urdu or Pashto. Call during clinic hours for the next available appointment.`}
+  />
+</BaseLayout>
+
+<style>
+  /* --- Intro ------------------------------------------------------------ */
+
+  /* One column since the photograph moved up into the header panel. Measured
+     rather than full-bleed: this is two or three paragraphs of continuous
+     prose, and at container width it would run past 100 characters a line. */
+  .intro__copy {
+    max-width: 68ch;
+  }
+
+  .intro__copy > p:first-of-type { margin-top: 0; }
+  .intro__cta { margin-top: var(--s-6); }
+
+  /* --- Signs ------------------------------------------------------------ */
+
+  .signs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+
+  .signs__head { position: sticky; top: 104px; }
+  .signs__head .section-head { margin-bottom: var(--s-5); }
+
+  .signs__caveat {
+    max-width: 46ch;
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+    font-size: var(--fs-body-sm);
+    font-style: italic;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  /* The band is the one tinted ground on the page, and a hairline list on a
+     tint loses its rules. Set on paper, the list keeps them. */
+  .signs__list {
+    padding: var(--s-5) var(--s-6);
+    border-top: 0;
+    border-radius: var(--r-card);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .signs__list li:last-child { border-bottom: 0; padding-bottom: 0; }
+
+  /* --- When to book ----------------------------------------------------- */
+
+  .when__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 64px);
+    align-items: start;
+  }
+
+  .when__uan {
+    margin-top: var(--s-3);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+  }
+  .when__uan a { text-underline-offset: 4px; }
+
+  /* --- Treatment -------------------------------------------------------- */
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-5);
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-6) var(--s-5);
+    background: var(--surface);
+    border-radius: var(--r-card);
+    box-shadow: inset 0 0 0 1px var(--hairline), var(--shadow-card);
+  }
+  .step h3 { margin-bottom: var(--s-2); }
+
+  .step__no {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: var(--gilt-600);
+  }
+
+  .steps__more { margin-top: clamp(32px, 4vw, 48px); }
+
+  /* --- Questions -------------------------------------------------------- */
+
+  .cfaq {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) 1fr;
+    gap: clamp(32px, 6vw, 88px);
+    align-items: start;
+  }
+
+  .cfaq__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    position: sticky;
+    top: 108px;
+  }
+
+  /* The accordion's own rules are shared with the homepage FAQ and live in
+     Faq.astro, which is scoped — so the visual rules are restated here rather
+     than reached into. They are the only duplicated block on the page. */
+  .faq__item + .faq__item { border-top: 1px solid var(--hairline); }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-5);
+    padding-block: 22px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__q:hover { color: var(--amethyst-600); }
+
+  .faq__sign {
+    position: relative;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--ink-muted);
+  }
+  .faq__sign::before,
+  .faq__sign::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto 0;
+    height: 1.25px;
+    background: currentColor;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .faq__sign::after { transform: rotate(90deg); }
+
+  .faq__item[open] .faq__sign { color: var(--amethyst-600); }
+  .faq__item[open] .faq__sign::before { transform: rotate(45deg); }
+  .faq__item[open] .faq__sign::after { transform: rotate(135deg); }
+
+  .faq__a { padding-bottom: 24px; }
+  .faq__a p { max-width: 62ch; }
+
+  /* --- Responsive ------------------------------------------------------- */
+
+  @media (max-width: 1000px) {
+    .steps { grid-template-columns: 1fr; }
+    .cfaq { grid-template-columns: 1fr; }
+    .cfaq__head { position: static; }
+  }
+
+  @media (max-width: 900px) {
+    .signs { grid-template-columns: 1fr; }
+    .signs__head { position: static; }
+    .when__grid { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__sign::before, .faq__sign::after { transition: none; }
+  }
+</style>

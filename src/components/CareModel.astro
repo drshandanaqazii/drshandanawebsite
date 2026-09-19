@@ -1,4 +1,12 @@
 ---
+/**
+ * The three-step care model, on the homepage.
+ *
+ * It used to have a `page` variant for /treatment, where it was the body of the
+ * page rather than a summary of it, and a link onward to that page. Both went
+ * when /treatment did — this is now the only place the model is stated, so it
+ * is stated in full and links nowhere.
+ */
 import Icon from './Icon.astro';
 import { CARE_STEPS } from '../consts';
 ---
@@ -52,6 +60,7 @@ import { CARE_STEPS } from '../consts';
         </li>
       ))}
     </ol>
+
   </div>
 </section>
 

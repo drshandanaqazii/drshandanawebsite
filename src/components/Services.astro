@@ -1,58 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import { SERVICES } from '../consts';
-
-import depression from '../assets/service-depression.jpg';
-import anxiety from '../assets/service-anxiety.jpg';
-import stress from '../assets/service-stress.jpg';
-import sleep from '../assets/service-sleep.jpg';
-import trauma from '../assets/service-trauma.jpg';
-import femaleMental from '../assets/service-female-mental.jpg';
-
-const IMAGES: Record<string, ImageMetadata> = {
-  depression: depression,
-  anxiety: anxiety,
-  stress: stress,
-  sleep: sleep,
-  trauma: trauma,
-  'female-mental': femaleMental,
-};
-
-/* Each photograph now shows the condition on its card rather than a still life
-   of a room. Client-supplied and client-chosen. The alt text describes what is
-   in the frame plainly and stops there — it does not narrate what the person is
-   feeling, which is not something a photograph can tell a reader. */
-const ALTS: Record<string, string> = {
-  depression: 'A man sitting on the floor beside a window, head resting on his knees',
-  anxiety: 'A woman in a knitted sweater sitting with both hands covering her face',
-  stress: 'A woman lying on the floor beside an open laptop, a hand at her forehead',
-  sleep: 'A woman awake on a bed at night, resting her face in her hands',
-  trauma: 'Someone resting a hand on the arm of a man sitting with his head in his hands',
-  'female-mental': 'A young woman sitting against a white wall, head lowered, hands at her temples',
-};
-
-/* Framing overrides, for the photographs whose subject sits against an edge of
-   the source frame.
-
-   The default treatment centres a 4:3 crop and over-scales it 1.22× so the pan
-   has somewhere to travel — which spends about 11% of the picture on every
-   edge, plus another 8% on whichever edge the pan is heading for. That is fine
-   for a subject with air around it and wrong for one that is already touching
-   the edge, so those anchor the over-scale to the edge they cannot lose and
-   give up the pan on that axis. An anchored edge has no slack behind it; travel
-   is made of slack. */
-const FRAMING: Record<string, { position?: string; origin?: string; pan?: number }> = {
-  // The crown of her head runs off the top of the source photograph itself, so
-  // there is no margin here to spend: anchored to the top, and held still.
-  sleep: { origin: '50% 0%', pan: 0 },
-  // He is hard against the right edge of the source and the blinds fill the
-  // rest. A centred crop cut his back off and handed most of the card to the
-  // blinds; anchoring right takes the whole crop out of the empty side instead.
-  depression: { position: '100% 50%', origin: '100% 0%', pan: 0 },
-};
-
-const DEFAULT_PAN = 44;
+import Button from './Button.astro';
+import { FEATURED_SERVICES } from '../consts';
+import { SERVICE_IMAGES, DEFAULT_PAN } from '../lib/service-images';
 ---
 
 <section class="section" id="services" aria-labelledby="services-heading">
@@ -62,13 +13,16 @@ const DEFAULT_PAN = 44;
       <h2 class="display-lg" id="services-heading" data-reveal>
         What she <em>treats</em>.
       </h2>
-      {/* The two conditions not given a card are named here rather than left
-          out: someone searching for either should still find them on the page,
-          and a seventh and eighth card would break the two rows of three. */}
+      {/* The three conditions without a card are named here rather than left
+          out: someone searching for any of them should still find them on the
+          homepage, and a seventh card would break the two rows of three. Each
+          is a link, so the sentence is also the route to those pages. */}
       <p class="prose" style="margin-top: var(--s-2);" data-reveal>
         Adolescent and adult psychiatry, with particular attention to female mental health.
-        Obsessive–compulsive symptoms and psychotic disorders are treated too. If what you
-        are dealing with is not below, it is still worth asking.
+        <a href="/services/ocd">Obsessive–compulsive disorder</a>,
+        <a href="/services/psychosis">psychotic disorders</a> and
+        <a href="/services/adolescent-mental-health">adolescent mental health</a> are
+        treated too. If what you are dealing with is not below, it is still worth asking.
       </p>
     </div>
 
@@ -76,32 +30,45 @@ const DEFAULT_PAN = 44;
         own frame. Two rates over the same distance is what gives the grid
         depth — one rate would just be a moving grid. */}
     <ul class="cards" data-reveal-group data-parallax="-16">
-      {SERVICES.map((service) => {
-        const frame = FRAMING[service.image] ?? {};
+      {FEATURED_SERVICES.map((service) => {
+        const image = SERVICE_IMAGES[service.image];
         return (
-        <li class="card" id={service.slug} data-reveal>
+        <li class="card" data-reveal>
           <figure class="card__media parallax-frame">
             <Image
-              src={IMAGES[service.image]}
-              alt={ALTS[service.image]}
+              src={image.src}
+              alt={image.alt}
               widths={[380, 620]}
               sizes="(max-width: 900px) 92vw, 33vw"
               loading="lazy"
-              data-parallax={String(frame.pan ?? DEFAULT_PAN)}
+              data-parallax={String(image.pan ?? DEFAULT_PAN)}
               data-parallax-scale="1.22"
               style={[
-                frame.position && `object-position: ${frame.position}`,
-                frame.origin && `--parallax-origin: ${frame.origin}`,
+                image.position && `object-position: ${image.position}`,
+                image.origin && `--parallax-origin: ${image.origin}`,
               ].filter(Boolean).join('; ')}
             />
           </figure>
           <span class="card__icon"><Icon name={service.icon} /></span>
-          <h3 class="card-title">{service.title} <em>{service.titleEm}</em></h3>
-          <p class="body-sm">{service.body}</p>
+          <h3 class="card-title">
+            {/* The whole card is the target, not just these words — see the
+                stretched-link rule below. */}
+            <a class="card__link" href={`/services/${service.slug}`}>
+              {service.card.title} <em>{service.card.titleEm}</em>
+            </a>
+          </h3>
+          <p class="body-sm">{service.card.body}</p>
+          <p class="card__more" aria-hidden="true">
+            Read more <Icon name="arrow" size="sm" />
+          </p>
         </li>
         );
       })}
     </ul>
+
+    <div class="services__all" data-reveal>
+      <Button href="/services" variant="ghost">See all services</Button>
+    </div>
   </div>
 </section>
 
@@ -117,6 +84,7 @@ const DEFAULT_PAN = 44;
   }
 
   .card {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--s-3);
@@ -147,6 +115,48 @@ const DEFAULT_PAN = 44;
     color: var(--amethyst-900);
   }
 
+  /* One link per card, stretched over the whole surface. The alternative — a
+     second "read more" anchor beside the title — gives a screen reader two
+     links to the same page and gives a mouse two targets that look like one.
+     The visible cue below is therefore text, not an anchor. */
+  .card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The radius is named rather than inherited — ::after inherits from the <a>,
+     which has none of its own, and the corners of the card should not be
+     clickable outside the card. */
+  .card__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--r-card);
+  }
+  .card:hover .card__link { color: var(--amethyst-900); }
+
+  .card__more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: var(--s-3);
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    transition: color var(--dur-fast) var(--ease);
+  }
+  .card:hover .card__more { color: var(--amethyst-600); }
+  .card__more :global(.icon) {
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .card:hover .card__more :global(.icon) { transform: translateX(3px); }
+
+  .services__all {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(40px, 5vw, 56px);
+  }
+
   /* Two columns before one: six cards in a single column is a very long
      scroll, and the card is still legible at half a tablet's width. */
   @media (max-width: 1000px) {
@@ -155,5 +165,9 @@ const DEFAULT_PAN = 44;
 
   @media (max-width: 640px) {
     .cards { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover .card__more :global(.icon) { transform: none; }
   }
 </style>

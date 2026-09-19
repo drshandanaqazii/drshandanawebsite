@@ -1,0 +1,186 @@
+---
+/**
+ * The mounted map. Used by the booking section on the homepage and by /contact.
+ *
+ * Mounted like a print: paper mount, hairline edge, and the tiles graded down to
+ * the site's own palette so it sits in the same room as the photographs. Colour
+ * returns on hover, which is also the cue that it is live rather than a picture
+ * of a map.
+ */
+import Icon from './Icon.astro';
+import { PRACTICE } from '../consts';
+import { MAPS_HREF, MAPS_EMBED } from '../lib/practice-links';
+---
+
+<figure class="map" data-reveal="media" data-map>
+  <div class="map__mount">
+    <iframe
+      class="map__canvas"
+      src={MAPS_EMBED}
+      title={`Map showing ${PRACTICE.affiliation}, ${PRACTICE.address.locality}`}
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+    ></iframe>
+
+    <a class="map__card" href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
+      <span class="map__mark"><Icon name="pin" size="sm" /></span>
+      <span class="map__lines">
+        <span class="map__name">{PRACTICE.affiliation}</span>
+        <span class="map__meta">{PRACTICE.address.locality} · Directions</span>
+      </span>
+      <span class="map__arrow"><Icon name="arrow" size="sm" /></span>
+    </a>
+  </div>
+</figure>
+
+<style>
+  .map { position: relative; }
+
+  /* The mount picks up the same amethyst-tinted edge the bio card and the tag
+     band use, rather than the neutral --hairline: with the tiles graded onto
+     the brand hue, a grey edge around them was the only cold line left. */
+  .map__mount {
+    position: relative;
+    padding: 10px;
+    border-radius: var(--r-hero);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--amethyst-100), var(--shadow-card);
+  }
+
+  .map__canvas {
+    display: block;
+    width: 100%;
+    height: clamp(300px, 42vw, 480px);
+    border: 0;
+    border-radius: var(--r-media);
+    /* Google's own palette is blue, white and mint — three colours this system
+       does not own. This grades the tiles onto the amethyst instead, so the map
+       sits in the same palette as everything above it. The grade lifts on hover
+       so the live map is never left muddy.
+
+       The chain is not guesswork and the order matters:
+
+         grayscale(1)      throw away Google's hues entirely
+         brightness(.56)   duck FIRST — sepia(1) overflows red on anything light,
+                           and once R clamps against B the hue reads 300
+                           (magenta), which is why the naive
+                           `grayscale sepia hue-rotate` recipe tints things pink
+         sepia(1)          re-introduce a single hue to rotate
+         hue-rotate(216)   sepia sits near 36°; +216 lands on ~261°, which is
+                           the hue of --amethyst-900 (#3E2E5C)
+         saturate(.35)     back down to a map, not a duotone poster
+         brightness(1.5)   restore the range the duck cost
+         contrast(.88)     keep it off pure black so labels stay soft
+
+       Resulting tones: land #EAE4F0, parks #D5CFE3, water #C6C0D2, labels
+       #625F68 — all within a few degrees of the brand hue, with roads left
+       near-white so the map still reads as a map. */
+    filter:
+      grayscale(1) brightness(0.56) sepia(1) hue-rotate(216deg)
+      saturate(0.35) brightness(1.5) contrast(0.88);
+    transition: filter var(--dur) var(--ease);
+    /* Locked until clicked, so a wheel scroll past the section zooms the page
+       and not the map. */
+    pointer-events: none;
+  }
+  .map:hover .map__canvas,
+  .map.is-live .map__canvas {
+    filter:
+      grayscale(0) brightness(1) sepia(0) hue-rotate(0deg)
+      saturate(1) brightness(1) contrast(1);
+  }
+  .map.is-live .map__canvas,
+  .map:focus-within .map__canvas { pointer-events: auto; }
+
+  .map:not(.is-live) .map__mount { cursor: pointer; }
+
+  /* The locator card. Sits inside the mount's padding so the paper edge reads
+     continuously behind it. */
+  .map__card {
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    max-width: 340px;
+    padding: 10px 10px 10px 12px;
+    border-radius: var(--r-pill);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 0 1px rgba(62, 46, 92, .08), var(--shadow-nav);
+    text-decoration: none;
+    transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .map__card:hover { background: #fff; transform: translateY(-2px); }
+
+  .map__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--amethyst-50);
+    color: var(--amethyst-900);
+  }
+
+  .map__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .map__name {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    line-height: 1.15;
+  }
+  .map__meta {
+    color: var(--ink-muted);
+    font-size: var(--fs-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+  }
+
+  .map__arrow {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--amethyst-900);
+    color: #fff;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+  .map__card:hover .map__arrow { transform: rotate(45deg); }
+
+  /* On a phone the card covers most of the frame it is meant to annotate, and
+     the address and directions link both sit in the details beside the map
+     anyway. The map itself stays tappable. */
+  @media (max-width: 640px) {
+    .map__card { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .map__canvas { transition: none; }
+    .map__card:hover { transform: none; }
+    .map__card:hover .map__arrow { transform: none; }
+  }
+</style>
+
+<script>
+  /* A map that pans and zooms under the cursor is a scroll trap. It stays inert
+     until the visitor asks for it — one click, or a tab into the frame — and the
+     grade lifting on hover is the affordance that says it will respond. */
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((map) => {
+    map.addEventListener('click', () => map.classList.add('is-live'), { once: true });
+  });
+</script>
