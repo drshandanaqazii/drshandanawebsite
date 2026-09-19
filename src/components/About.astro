@@ -2,25 +2,18 @@
 import { Image } from 'astro:assets';
 import { DOCTOR, CREDENTIALS, PRACTICE } from '../consts';
 import Button from './Button.astro';
-import aboutPortrait from '../assets/shandana-portrait2.jpeg';
+import aboutPortrait from '../assets/about-shandana.webp';
 ---
 
 <section class="section" id="about" aria-labelledby="about-heading">
   <div class="container about">
     {/* No pan, and no over-scale to pan inside of.
 
-        The portrait is 3:4 in a 4:5 frame, so `cover` already has vertical
-        overflow to spend before any effect is added, and an over-scale spends
-        more of it. Centred, both are taken half off the top — which is the half
-        with her head in it, and at the old 1.22 over-scale it was cutting the
-        crown of her hijab.
-
-        Same call as the `sleep` and `depression` photographs in Services.astro,
-        for the same reason: her head is close enough to the top of the source
-        that there is no margin here to spend, so the crop is anchored to the
-        top edge and taken entirely off the bottom, which is drapery. An
-        anchored edge has no slack behind it, and travel is made of slack —
-        hence no pan. See the framing note in motion.css. */}
+        This is the same photograph as the header on /about, which is 4:3 going
+        into a 4:5 frame. `cover` therefore fills the height and takes the whole
+        crop off the sides, leaving about the middle 60% of the source, so a pan
+        would have vertical travel it cannot use and horizontal travel that runs
+        straight off her. See the framing note in motion.css. */}
     <div class="about__media">
       <figure class="arch about__arch" data-reveal="media">
         <Image
@@ -98,11 +91,11 @@ import aboutPortrait from '../assets/shandana-portrait2.jpeg';
     aspect-ratio: 4 / 5;
   }
 
-  /* Anchors the `cover` crop to the top of the source, so the whole of the
-     vertical overflow comes off the bottom. Without it the crop is centred and
-     half of it is taken off her head. */
+  /* The crop here is horizontal, not vertical — see the note on the figure. She
+     sits a touch right of the frame's centre, so the window is nudged with her
+     rather than left on the middle of a room she is not in the middle of. */
   .about__arch :global(img) {
-    object-position: 50% 0;
+    object-position: 54% 50%;
   }
 
   .about__copy {
