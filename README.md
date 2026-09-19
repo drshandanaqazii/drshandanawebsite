@@ -25,7 +25,7 @@ Everything below is a placeholder or an unverified value. All of it lives in
 | 3 | **WhatsApp number** — fake digits | `PRACTICE.whatsapp` | The WhatsApp buttons currently go nowhere useful. Digits only, country code, no `+`. |
 | 4 | **OPD days & hours** — invented | `PRACTICE.hours` / `hoursDisplay` | These become `openingHoursSpecification` in the schema and the hours table on `/contact`. Google penalises hours that don't match reality. |
 | 5 | **Consultation fee** | `FAQ_GROUPS` → "What does a consultation cost?" | Currently answered as "confirmed when you book". If RMI publishes a figure, give it — it is one of the most searched questions and a non-answer sends people elsewhere. |
-| 6 | **Testimonials** — lorem ipsum | `TESTIMONIALS` | `<Testimonials />` has been **removed from the homepage**. The component and its data are still in the repo. Put it back only with real, consented reviews. |
+| 6 | **Testimonials** — lorem ipsum | `TESTIMONIALS` | ⚠️ `<Testimonials />` **is live on the homepage** and is currently showing three lorem ipsum reviews attributed to "Placeholder name". Replace them with real, consented reviews, or remove the component from `src/pages/index.astro`, before launch. This is the most serious item on this list: invented reviews under a named doctor's byline are a medical-advertising problem, not just a content gap. |
 | 7 | **Map coordinates** — approximate | `PRACTICE.geo` | Confirm against the pin on her Google Business Profile. Wrong coordinates actively hurt local ranking. |
 | 8 | **Postcode** — assumed 25000 | `PRACTICE.address.postalCode` | Confirm. |
 | 9 | **Languages** — assumed English/Urdu/Pashto | `DOCTOR.languages` | Near-certain, but it's a public claim, and `/contact` states it as fact. Confirm with her. |

@@ -685,6 +685,16 @@ export const PAGE_SEO = {
     description:
       'Services offered by Dr. Shandana Qazi, Consultant Psychiatrist in Peshawar: depression, anxiety, stress, insomnia, PTSD, OCD and women’s mental health.',
   },
+  /**
+   * The page that describes the appointment itself. It answers "what happens
+   * in the room", where /appointments answers "how do I book one" — kept apart
+   * in the titles so the two do not chase the same query.
+   */
+  treatment: {
+    title: 'What Happens at a Psychiatric Appointment | Dr. S. Qazi',
+    description:
+      'What a first appointment with Dr. Shandana Qazi actually involves: the assessment, what treatment consists of, what to bring, and how decisions are made together.',
+  },
   faq: {
     title: 'Questions About Seeing a Psychiatrist | Dr. S. Qazi',
     description:
