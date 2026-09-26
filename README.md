@@ -32,8 +32,55 @@ Everything below is a placeholder or an unverified value. All of it lives in
 | 10 | **Clinical review** | `src/data/services.ts` | The nine service pages are written to mainstream psychiatric practice, but they are published under a named consultant's byline. She should read them before launch. Once she has, add `lastReviewed` and `reviewedBy` to the `MedicalWebPage` node in `StructuredData.astro` — both are Google health-content signals, and neither can be added honestly until that has actually happened. |
 | 11 | **`og-image.jpg`** | `npm run og` | Generated, present, and correct. It is set in a system font rather than Outfit, because the script rasterises without the webfont — if the card matters enough to be exact, replace it with a designed 1200×630 export. |
 | 12 | **`/about` hero image** | `src/assets/about-hero-placeholder.jpg` | A generated dark ground, not a photograph. Replace with a wide (roughly 16:9) shot of her or the clinic and give `imageAlt` on `<MediaHeader>` real alt text — it is currently `""`, which is correct only while the image carries no information. |
+| 13 | **Salma — the story behind the name** | `SALMA.story` | The clinic is named after a real person and Dr. Qazi is writing that piece herself. Paste her paragraphs into `story.body` and set `story.published: true`; the section on `/salma` appears when you do. **Do not draft a stand-in** — until then the page prints `story.placeholder`, which says the piece is hers to write, and that is the correct state. |
+| 14 | 🔴 **Salma — address, area, hours, phone** | `SALMA.located` + `area` / `address` / `hours` / `phone` in `src/data/practice.ts` | **The single most important item on this list.** Salma Psychiatric Clinic is her primary practice, but the site still books through RMI because these four fields are empty. Fill them in, set `located: true`, and the entire site moves onto the clinic in one commit — see "The clinic switch" below for exactly what changes. Nothing is invented in the meantime. |
+| 15 | **Salma — registered name** | `SALMA.name` | `"Salma Psychiatric Clinic"`, taken from the clinic's own Instagram account. Confirm it matches signage, invoices and the eventual Google Business Profile character for character — this string is the page title, the nav tab, the footer, every service page description and the schema `name`. |
+| 16 | **Diploma in Islamic Psychotherapy** | `CREDENTIALS` | Supplied by Dr. Qazi, but the awarding institution and the year are still missing, so the card prints without a year and the JSON-LD credential has no `recognizedBy`. Add both when she confirms. Note `CREDENTIALS` must stay **exactly four** — the diagram on `/about` places them in four named quadrants and a fifth entry renders nowhere. Posts go in `ACADEMIC_ROLES`, not here. |
+| 17 | **Talk and teaching photographs** | `ENGAGEMENTS` | The three entries are real but have no images, so each renders as a text card — a complete card, not a broken one. Drop files into `src/assets`, import them, and set `image` and `imageAlt`. Also confirm the date of the IM Sciences suicide-awareness talk, currently given as "September 2026". |
+| 18 | **WhatsApp as a booking route** | `WHATSAPP_TEXT` in `src/lib/practice-links.ts` | WhatsApp is now a first-class booking route: a filled button in the CTA band, a row in the footer, a tap target in the mobile menu, and `/appointments`. Every one of those links is built on the fake number in item 3 — fix that first. The prefilled message deliberately asks for **no** symptoms or history: WhatsApp is not a confidential channel and the text is visible in link previews. Keep it that way. |
 
-Verified facts (from her [RMI consultant profile](https://rmi.edu.pk/consultants/dr-shandana-qazi/)):
+### The clinic switch
+
+Salma Psychiatric Clinic is her primary practice. Rehman Medical Institute is her
+hospital affiliation — where she holds a consultant post, and the source that
+verifies her credentials — and is **not** offered as a place to book.
+
+The site does not yet say so, because the clinic's address, hours and phone number
+have not been supplied. Rather than half-migrate it, the whole inversion hangs off
+one boolean in [`src/data/practice.ts`](src/data/practice.ts):
+
+```ts
+export const SALMA = {
+  located: false,   // ← flip to true once area/address/hours/phone are real
+```
+
+Flipping it moves, in one commit and with no other edits:
+
+| | `located: false` (now) | `located: true` |
+|---|---|---|
+| Footer address, hours, phone | RMI | Salma |
+| Every "Call" button, `tel:` link | RMI switchboard | clinic line |
+| Map pin and "Open in Google Maps" | RMI | Salma |
+| `/contact`, `/appointments` heading + NAP | RMI | Salma |
+| Directions prose | RMI's, from `Venue.directions` | Salma's — **write them**, or the page prints an honest "not published yet" note |
+| Hero lede, homepage bio, `/about` bio card | "consultant psychiatrist at RMI" | "sees patients at Salma… and holds a consultant post at RMI" |
+| Meta description ×20 pages, 9 service page descriptions | RMI | Salma |
+| `Physician` address / geo / `openingHoursSpecification` / `telephone` | RMI | Salma |
+| `#salma` schema node | `Organization` (name + Instagram only) | `MedicalClinic` with address, geo, hours |
+| `worksFor` | RMI | Salma |
+| Hospital UAN as a booking line | shown | dropped (kept only in the emergency callout on `/contact`) |
+
+Two rules if you touch this:
+
+- **`BOOKING_VENUE`, never `PRACTICE.address`.** Anything that needs an address,
+  hours, coordinates or a booking number reads `BOOKING_VENUE`. `PRACTICE` is now
+  only for things that are true of RMI whatever happens — the UAN, her consultant
+  profile URL, her hospital email, the emergency department.
+- **Page-level `body` / `lede` overrides cannot follow the switch.** `CtaBand`'s
+  default does; a page that passes its own string does not. There are none left
+  that name a venue, but re-grep for `Hayatabad` after flipping.
+
+Verified facts (from her consultant profile):
 MBBS Rehman Medical College 2018 · FCPS Psychiatry 2025 · Consultant Psychiatrist, RMI
 Hayatabad · areas of expertise · Psychological First Aid certification · email · her stated
 empathetic, culturally sensitive, evidence-based approach.
@@ -44,9 +91,12 @@ empathetic, culturally sensitive, evidence-based approach.
 
 ```
 /                                  homepage — every subject in short form, each linking on
-/about                             training, approach, qualifications table
-/services                        all nine, plus the three modalities
-/services/<slug>                 ×9 — generated from src/data/services.ts
+/about                             training, approach, qualifications, teaching (#teaching)
+/salma                             Salma Psychiatric Clinic — her primary practice
+/services                          all nine, plus the three modalities
+/services/<slug>                   ×9 — generated from src/data/services.ts
+/treatment                         what happens at an appointment
+/appointments                      the two modes, how to book, clinic and hours
 /faq                               sixteen questions in three groups
 /contact                           NAP, hours, map, directions
 /privacy-policy  /terms            legal
@@ -98,7 +148,12 @@ condition-plus-location query per service page ("depression treatment in Peshawa
 - `Physician` + `MedicalBusiness` JSON-LD — a `LocalBusiness` subtype, so `address`, `geo`,
   `areaServed` and `openingHoursSpecification` all count toward local ranking. Stable
   `@id`s mean the four practice nodes are the *same* entity across all eighteen pages
-- `MedicalOrganization` node for RMI, linked as her `affiliation` and `worksFor`
+- `MedicalOrganization` node for RMI, linked as her `affiliation` (and as `worksFor` only
+  while RMI is still the bookable venue — see "The clinic switch")
+- An `#salma` node for the clinic, carrying its Instagram in `sameAs`. It is a plain
+  `Organization` until the clinic has an address and becomes a `MedicalClinic`: an
+  address-less `LocalBusiness` is a claim about a place on a map with no place in it,
+  and it competes with the RMI listing for the same practitioner
 - Per-page `WebPage` / `AboutPage` / `ContactPage` / `CollectionPage` / `MedicalWebPage`
 - `MedicalCondition` + `BreadcrumbList` + `FAQPage` on every service page
 - One `FAQPage` for the general questions, on `/faq` only — the same Q&A marked up on two
@@ -141,6 +196,8 @@ site.config.mjs            SITE_URL — the one place the domain lives
 scripts/make-og-image.mjs  npm run og
 src/
   consts.ts                every fact on the site, with ⚠️ markers on placeholders
+  data/practice.ts         the two venues + the clinic switch. Read this first.
+                           Lives below consts.ts so services.ts can import it too
   data/services.ts         the nine service pages, in full
   lib/
     icons.ts               the line-icon set (a .ts module — Astro can't export types)

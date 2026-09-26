@@ -1,0 +1,173 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MediaHeader from '../components/MediaHeader.astro';
+import ClinicGallery from '../components/ClinicGallery.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { DOCTOR, SALMA, PAGE_SEO } from '../consts';
+import { WHATSAPP_HREF } from '../lib/practice-links';
+import headerImage from '../assets/about-plant.jpg';
+import portrait from '../assets/about-main-portrait.jpeg';
+
+const trail = [{ name: 'Clinic', href: '/salma' }];
+const highlights = [
+  { icon: 'people' as const, title: 'Care with Dr. Qazi', body: 'Consultations for adolescents and adults.' },
+  { icon: 'mind' as const, title: 'A plan for you', body: 'Assessment, treatment and follow-up care.' },
+  { icon: 'heart' as const, title: 'Women’s mental health', body: 'Including perinatal and postnatal care.' },
+];
+---
+
+<BaseLayout title={PAGE_SEO.salma.title} description={PAGE_SEO.salma.description} pageType="AboutPage" breadcrumbs={trail}>
+  <MediaHeader
+    image={headerImage}
+    imageAlt=""
+    imagePosition="50% 42%"
+    trail={trail}
+    title="Salma Psychiatric"
+    titleEm="Clinic"
+    lede="The private practice of Dr. Shandana Qazi in Peshawar."
+    scrollTo="clinic"
+    scrollLabel="Explore the clinic"
+  />
+
+  {/* The split portrait panel and ruled facts follow the About page. */}
+  <section class="section clinic-intro" id="clinic" aria-labelledby="clinic-heading">
+    <div class="container">
+      <div class="clinic-card">
+        <figure class="clinic-card__media" data-reveal="media">
+          <Image src={portrait} alt="Dr. Shandana Qazi seated at her desk" widths={[480, 720, 1000]} sizes="(max-width: 800px) 100vw, 45vw" loading="lazy" />
+          <figcaption>{DOCTOR.name}<span>{DOCTOR.qualifications}</span></figcaption>
+        </figure>
+        <div class="clinic-card__copy" data-reveal-group>
+          <p class="eyebrow" data-reveal>Her practice</p>
+          <h2 class="display-md" id="clinic-heading" data-reveal>A place to feel <em>heard</em>.</h2>
+          <p class="prose" data-reveal>
+            Salma Psychiatric Clinic brings Dr. Qazi’s psychiatric care into her own
+            practice, with time to understand what you’re going through and discuss the next steps.
+          </p>
+          <ul class="clinic-facts" data-reveal>
+            {highlights.map((fact) => (
+              <li>
+                <span class="clinic-facts__icon"><Icon name={fact.icon} size="sm" /></span>
+                <div><h3>{fact.title}</h3><p>{fact.body}</p></div>
+              </li>
+            ))}
+          </ul>
+          <div class="clinic-actions" data-reveal>
+            <Button href={WHATSAPP_HREF} variant="ghost" icon="whatsapp" external>Book on WhatsApp</Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ClinicGallery />
+
+  {/* Publish the personal story only when her own copy has been supplied. */}
+  {SALMA.story.published && SALMA.story.body.length > 0 && (
+    <section class="section clinic-story" id="name" aria-labelledby="name-heading">
+      <div class="container-narrow">
+        <div class="section-head" data-reveal-group>
+          <p class="eyebrow" data-reveal>Behind the name</p>
+          <h2 class="display-md" id="name-heading" data-reveal>Why <em>Salma</em>.</h2>
+        </div>
+        <div class="rich" data-reveal-group>
+          {SALMA.story.body.map((paragraph) => <p data-reveal>{paragraph}</p>)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* The homepage contact split, with its ruled details and pill buttons. */}
+  <section class="section" id="visit" aria-labelledby="visit-heading">
+    <div class="container visit">
+      <div class="visit__copy" data-reveal-group>
+        <p class="eyebrow" data-reveal>Your visit</p>
+        <h2 class="display-md" id="visit-heading" data-reveal>Start with a <em>conversation</em>.</h2>
+        <p class="prose" data-reveal>Ask about availability and confirm your appointment location before you travel.</p>
+        <div class="clinic-actions" data-reveal>
+          <Button href={WHATSAPP_HREF} icon="whatsapp" external>Book an appointment</Button>
+        </div>
+      </div>
+      <div class="visit__panel" data-reveal>
+        <h3 class="card-title">Salma Psychiatric Clinic</h3>
+        <ul class="visit__details">
+          <li>
+            <Icon name="pin" size="sm" />
+            <div><h4>Location</h4>
+              {SALMA.located ? (
+                <address>{SALMA.address.street}, {SALMA.address.locality}, {SALMA.address.region}</address>
+              ) : <p>Contact the clinic for its current address.</p>}
+            </div>
+          </li>
+          <li>
+            <Icon name="clock" size="sm" />
+            <div><h4>Clinic hours</h4><p>{SALMA.located ? SALMA.hoursDisplay : 'Confirm availability when you message the clinic.'}</p></div>
+          </li>
+          {SALMA.located && SALMA.phoneDisplay && (
+            <li><Icon name="phone" size="sm" /><div><h4>Telephone</h4><a href={'tel:' + SALMA.phone.replace(/\s/g, '')}>{SALMA.phoneDisplay}</a></div></li>
+          )}
+        </ul>
+        <a class="visit__social" href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer">
+          <span class="visit__social-mark" aria-hidden="true"><Icon name="whatsapp" /></span>
+          <span>Book on WhatsApp<small>{SALMA.whatsappDisplay}</small></span>
+          <span class="visit__arrow"><Icon name="arrow" size="sm" /></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .clinic-intro { padding-top: 0; padding-bottom: clamp(56px, 7vw, 96px); }
+  .clinic-card {
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    overflow: hidden;
+    border-radius: var(--r-hero);
+    background: var(--amethyst-50);
+    box-shadow: inset 0 0 0 1px var(--amethyst-100), var(--shadow-card);
+  }
+  .clinic-card__media { position: relative; min-height: 520px; }
+  .clinic-card__media :global(img) { position: absolute; width: 100%; height: 100%; object-fit: cover; object-position: 55% 57%; }
+  .clinic-card__media figcaption {
+    position: absolute;
+    inset: auto 20px 20px;
+    padding: 14px 20px;
+    border-radius: var(--r-media);
+    background: rgba(255, 255, 255, .94);
+    color: var(--ink);
+    font-weight: 500;
+    font-size: var(--fs-body-sm);
+  }
+  .clinic-card__media figcaption span { display: block; margin-top: 3px; color: var(--ink-muted); font-weight: 400; font-size: .75rem; }
+  .clinic-card__copy { display: flex; flex-direction: column; justify-content: center; gap: var(--s-4); padding: clamp(28px, 4vw, 56px); }
+  .clinic-card__copy .prose { max-width: 45ch; }
+  .clinic-facts { display: flex; flex-direction: column; margin-top: var(--s-2); }
+  .clinic-facts li { display: flex; align-items: flex-start; gap: var(--s-4); padding-block: 14px; border-top: 1px solid var(--amethyst-100); }
+  .clinic-facts__icon { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border-radius: 50%; background: var(--surface); color: var(--amethyst-600); }
+  .clinic-facts h3, .visit__details h4 { font-family: var(--font-sans); font-size: var(--fs-body-sm); font-weight: 600; margin-bottom: 3px; }
+  .clinic-facts p { font-size: var(--fs-body-sm); color: var(--ink-body); }
+  .clinic-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-2); }
+  .clinic-story { padding-bottom: 0; }
+  .visit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+  .visit__copy { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-4); }
+  .visit__copy .prose { max-width: 38ch; }
+  .visit__panel { padding: clamp(24px, 3vw, 40px); border-radius: var(--r-hero); background: var(--amethyst-50); box-shadow: inset 0 0 0 1px var(--amethyst-100); }
+  .visit__details { margin-top: var(--s-5); }
+  .visit__details li { display: flex; align-items: flex-start; gap: var(--s-4); padding-block: var(--s-4); border-top: 1px solid var(--amethyst-100); }
+  .visit__details :global(.icon) { flex: 0 0 auto; color: var(--amethyst-600); margin-top: 2px; }
+  .visit__details p, .visit__details address, .visit__details a { font-size: var(--fs-body-sm); color: var(--ink-body); font-style: normal; }
+  .visit__social { display: flex; align-items: center; gap: 12px; padding-top: 20px; margin-top: 4px; border-top: 1px solid var(--amethyst-100); text-decoration: none; font-size: var(--fs-body-sm); color: var(--amethyst-900); font-weight: 500; }
+  .visit__social small { display: block; margin-top: 4px; color: var(--ink-muted); font-weight: 400; overflow-wrap: anywhere; }
+  .visit__social-mark { display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; border-radius: 50%; background: var(--surface); color: var(--amethyst-900); }
+  .visit__social-mark svg { width: 20px; height: 20px; }
+  .visit__arrow { display: grid; place-items: center; flex: 0 0 36px; height: 36px; margin-left: auto; border-radius: 50%; color: white; background: var(--amethyst-900); }
+  .visit__social:hover { text-decoration: underline; text-underline-offset: 4px; }
+  @media (max-width: 800px) {
+    .clinic-card, .visit { grid-template-columns: minmax(0, 1fr); }
+    .clinic-card__media { min-height: 0; height: clamp(320px, 70vw, 460px); }
+    .clinic-card__media :global(img) { object-position: 55% 52%; }
+  }
+</style>

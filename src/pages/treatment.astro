@@ -7,7 +7,7 @@ import CtaBand from '../components/CtaBand.astro';
 import Icon from '../components/Icon.astro';
 import Button from '../components/Button.astro';
 import ModalityTree from '../components/ModalityTree.astro';
-import { PAGE_SEO, PRACTICE } from '../consts';
+import { PAGE_SEO, BOOKING_VENUE, BOOKING_AREA, DOCTOR } from '../consts';
 
 const trail = [{ name: 'Treatment', href: '/treatment' }];
 
@@ -117,7 +117,7 @@ const REASSURANCE = [
 
         <p class="bring__time" data-reveal>
           <Icon name="clock" size="sm" />
-          <span>Clinic hours: {PRACTICE.hoursDisplay}</span>
+          <span>{BOOKING_VENUE.hoursDisplay ? `Clinic hours: ${BOOKING_VENUE.hoursDisplay}` : 'Confirm appointment availability and clinic location on WhatsApp.'}</span>
         </p>
       </div>
 
@@ -198,7 +198,7 @@ const REASSURANCE = [
     eyebrow="Booking"
     title="Now you know what the room"
     titleEm="looks like"
-    body="Appointments are held at Rehman Medical Institute in Hayatabad, Peshawar. Call during clinic hours for the next available slot, in English, Urdu or Pashto."
+    body={`Appointments are arranged at ${BOOKING_VENUE.name} in ${BOOKING_VENUE.address.locality}. Message on WhatsApp for availability and the clinic location, in ${DOCTOR.languages.join(', ')}.`}
   />
 </BaseLayout>
 

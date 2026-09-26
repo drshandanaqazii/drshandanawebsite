@@ -22,6 +22,15 @@
    ========================================================================== */
 
 import type { IconName } from '../lib/icons';
+/* The bookable venue, by name only. Imported from data/practice rather than
+   from consts, because consts imports THIS file and the other direction would
+   be a cycle.
+
+   Name only, not VENUE_PHRASE: every description on a service page already
+   opens with "in Peshawar", and the full phrase ends with the city too — so
+   the pair printed Peshawar twice in one sentence and pushed the description
+   past the ~160 characters Google renders. */
+import { VENUE_NAME } from './practice';
 
 export interface ServiceFaq {
   q: string;
@@ -91,7 +100,7 @@ export const SERVICES: Service[] = [
 
     seoTitle: 'Depression Treatment in Peshawar | Dr. Shandana Qazi',
     seoDescription:
-      'Depression treatment in Peshawar with Dr. Shandana Qazi, Consultant Psychiatrist at Rehman Medical Institute, Hayatabad. Assessment, therapy and medication.',
+      `Depression treatment in Peshawar with Dr. Shandana Qazi, Consultant Psychiatrist at ${VENUE_NAME}. Assessment, therapy and medication.`,
 
     h1: { text: 'Depression treatment in', em: 'Peshawar' },
     lede:
@@ -100,7 +109,7 @@ export const SERVICES: Service[] = [
     intro: [
       'Depression is more than a bad week. It is a sustained change in mood, energy, sleep and interest that lasts most of the day, nearly every day, for at least two weeks, and it does not shift simply because the circumstances that started it have passed.',
       'People often arrive at the clinic having already tried everything they were told to try: more prayer, more exercise, more discipline, a holiday, a change of job. When those have not worked, the usual conclusion is that the problem is personal weakness. It is not. Depression changes sleep, appetite, concentration and motivation through mechanisms nobody chooses, and it responds to treatment.',
-      'Dr. Shandana Qazi assesses and treats depression in adults and adolescents at Rehman Medical Institute in Hayatabad, Peshawar. The first step is always a proper assessment, because several very different things, from thyroid disease to grief to bipolar disorder, can look like depression from the outside and need entirely different treatment.',
+      `Dr. Shandana Qazi assesses and treats depression in adults and adolescents at ${VENUE_NAME}. The first step is always a proper assessment, because several very different things, from thyroid disease to grief to bipolar disorder, can look like depression from the outside and need entirely different treatment.`,
     ],
 
     signs: {
@@ -186,7 +195,7 @@ export const SERVICES: Service[] = [
 
     seoTitle: 'Anxiety & Panic Attack Treatment, Peshawar | Dr. S. Qazi',
     seoDescription:
-      'Treatment for anxiety, panic attacks and constant worry in Peshawar. Dr. Shandana Qazi, Consultant Psychiatrist at Rehman Medical Institute, Hayatabad.',
+      `Treatment for anxiety, panic attacks and constant worry in Peshawar. Dr. Shandana Qazi, Consultant Psychiatrist at ${VENUE_NAME}.`,
 
     h1: { text: 'Anxiety and panic attack', em: 'treatment' },
     lede:
@@ -195,7 +204,7 @@ export const SERVICES: Service[] = [
     intro: [
       'Everyone worries. Anxiety becomes a condition worth treating when the worrying is out of proportion to the situation, is difficult to control, and has started to cost you something: sleep, concentration, work, or the things you have quietly stopped doing to avoid it.',
       'Anxiety is also the condition most often mistaken for a physical illness. A racing heart, a tight chest, breathlessness and dizziness are genuine symptoms, and people frequently reach a psychiatrist only after a cardiology workup has come back clear. That sequence is normal, and the relief of being told the symptoms are real but the heart is not the problem is often the first useful thing that happens.',
-      'Dr. Shandana Qazi treats generalised anxiety, panic disorder, social anxiety and health anxiety in adults and adolescents, at Rehman Medical Institute in Hayatabad, Peshawar.',
+      `Dr. Shandana Qazi treats generalised anxiety, panic disorder, social anxiety and health anxiety in adults and adolescents, at ${VENUE_NAME}.`,
     ],
 
     signs: {
@@ -368,7 +377,7 @@ export const SERVICES: Service[] = [
 
     seoTitle: 'Insomnia & Sleep Problems, Peshawar | Dr. Shandana Qazi',
     seoDescription:
-      'Treatment for insomnia and disturbed sleep in Peshawar, without automatic sleeping tablets. Dr. Shandana Qazi, Consultant Psychiatrist, RMI Hayatabad.',
+      `Treatment for insomnia and disturbed sleep in Peshawar, without automatic sleeping tablets. Dr. Shandana Qazi at ${VENUE_NAME}.`,
 
     h1: { text: 'Insomnia and sleep', em: 'problems' },
     lede:
@@ -644,7 +653,7 @@ export const SERVICES: Service[] = [
 
     seoTitle: 'OCD Treatment in Peshawar | Dr. Shandana Qazi',
     seoDescription:
-      'OCD treatment in Peshawar: intrusive thoughts, checking and washing. Dr. Shandana Qazi, Consultant Psychiatrist at Rehman Medical Institute, Hayatabad.',
+      `OCD treatment in Peshawar: intrusive thoughts, checking and washing. Dr. Shandana Qazi, Consultant Psychiatrist at ${VENUE_NAME}.`,
 
     h1: { text: 'OCD treatment in', em: 'Peshawar' },
     lede:
@@ -733,7 +742,7 @@ export const SERVICES: Service[] = [
 
     seoTitle: 'Psychosis & Schizophrenia Care, Peshawar | Dr. S. Qazi',
     seoDescription:
-      'Assessment, medication and follow-up for psychosis and schizophrenia in Peshawar. Dr. Shandana Qazi, Consultant Psychiatrist, RMI Hayatabad.',
+      `Assessment, medication and follow-up for psychosis and schizophrenia in Peshawar. Dr. Shandana Qazi at ${VENUE_NAME}.`,
 
     h1: { text: 'Psychosis and schizophrenia', em: 'care' },
     lede:
@@ -823,7 +832,7 @@ export const SERVICES: Service[] = [
 
     seoTitle: 'Teenage & Adolescent Psychiatrist in Peshawar | Dr. Qazi',
     seoDescription:
-      'Adolescent psychiatry in Peshawar for teenagers and young adults: depression, anxiety, exam stress and self-harm. Dr. Shandana Qazi, RMI Hayatabad.',
+      `Adolescent psychiatry in Peshawar for teenagers and young adults: depression, anxiety, exam stress and self-harm. Dr. Shandana Qazi, ${VENUE_NAME}.`,
 
     h1: { text: 'Adolescent mental health', em: 'care' },
     lede:

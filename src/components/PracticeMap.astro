@@ -8,7 +8,7 @@
  * of a map.
  */
 import Icon from './Icon.astro';
-import { PRACTICE } from '../consts';
+import { BOOKING_VENUE } from '../consts';
 import { MAPS_HREF, MAPS_EMBED } from '../lib/practice-links';
 ---
 
@@ -17,7 +17,7 @@ import { MAPS_HREF, MAPS_EMBED } from '../lib/practice-links';
     <iframe
       class="map__canvas"
       src={MAPS_EMBED}
-      title={`Map showing ${PRACTICE.affiliation}, ${PRACTICE.address.locality}`}
+      title={`Map showing ${BOOKING_VENUE.name}, ${BOOKING_VENUE.address.locality}`}
       loading="lazy"
       referrerpolicy="no-referrer-when-downgrade"
       allowfullscreen
@@ -26,8 +26,8 @@ import { MAPS_HREF, MAPS_EMBED } from '../lib/practice-links';
     <a class="map__card" href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
       <span class="map__mark"><Icon name="pin" size="sm" /></span>
       <span class="map__lines">
-        <span class="map__name">{PRACTICE.affiliation}</span>
-        <span class="map__meta">{PRACTICE.address.locality} · Directions</span>
+        <span class="map__name">{BOOKING_VENUE.name}</span>
+        <span class="map__meta">{BOOKING_VENUE.address.locality} · Directions</span>
       </span>
       <span class="map__arrow"><Icon name="arrow" size="sm" /></span>
     </a>

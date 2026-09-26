@@ -4,116 +4,123 @@
  *
  * /contact carries the full version — directions, what to bring, the hours in
  * full. This is the short one, and it exists on the homepage for a reason
- * beyond convenience: name, address and phone on the page that ranks for her
+ * beyond convenience: clinic name and WhatsApp contact on the page that ranks for her
  * name is one of the signals the local pack reads, and it has to match the
- * Google Business Profile exactly.
+ * clinic's current appointment details.
  */
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import PracticeMap from './PracticeMap.astro';
-import { PRACTICE } from '../consts';
-import { TEL_HREF, WHATSAPP_HREF, MAPS_HREF, MAIL_HREF } from '../lib/practice-links';
+import { BOOKING_VENUE, BOOKING_AREA, SALMA } from '../consts';
+import { WHATSAPP_HREF } from '../lib/practice-links';
 ---
 
 <section class="section" id="contact" aria-labelledby="contact-heading">
-  <div class="container contact">
-    <PracticeMap />
+  <div class="container clinic">
+    {SALMA.located && <PracticeMap />}
 
-    <div class="contact__copy" data-reveal-group>
-      <p class="eyebrow" data-reveal>Booking</p>
-      <h2 class="display-md" id="contact-heading" data-reveal>
-        Start with one <em>conversation</em>.
-      </h2>
-      <p class="prose" data-reveal>
-        Appointments are held at Rehman Medical Institute in Hayatabad. Call during
-        clinic hours, or send a message and someone will get back to you with the next
-        available slot.
-      </p>
-
-      <div class="contact__actions" data-reveal>
-        <Button href={TEL_HREF} icon="phone" external>Call {PRACTICE.bookingPhoneDisplay}</Button>
-        <Button href={WHATSAPP_HREF} variant="ghost" icon="whatsapp" external>Message on WhatsApp</Button>
+    <div class="clinic__copy" data-reveal-group>
+      <div class="section-head" style="margin-bottom: var(--s-5);">
+        <p class="eyebrow" data-reveal>Booking</p>
+        <h2 class="display-md" id="contact-heading" data-reveal>
+          {BOOKING_VENUE.name}, <em>{BOOKING_AREA}</em>
+        </h2>
+        <p class="body-sm" data-reveal>
+          Start with one conversation. Message the clinic on WhatsApp to ask about
+          appointment availability.
+        </p>
       </div>
 
-      <ul class="contact__details" data-reveal>
-        <li>
-          <Icon name="pin" size="sm" />
-          <a href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
-            {PRACTICE.address.street}, {PRACTICE.address.locality}
-          </a>
+      <ul class="clinic__rows" data-reveal>
+        <li class="clinic__row">
+          <span class="clinic__icon"><Icon name="pin" size="sm" /></span>
+          <div>
+            <p class="clinic__label">Appointment location</p>
+            <address class="clinic__value">
+              {BOOKING_VENUE.address.street}, {BOOKING_VENUE.address.locality}
+            </address>
+          </div>
         </li>
-        <li>
-          <Icon name="clock" size="sm" />
-          <span>Clinic hours: {PRACTICE.hoursDisplay}</span>
-        </li>
-        <li>
-          <Icon name="phone" size="sm" />
-          <span>Hospital UAN {PRACTICE.hospitalUan}</span>
-        </li>
-        <li>
-          <Icon name="mail" size="sm" />
-          <a href={MAIL_HREF}>{PRACTICE.email}</a>
+        {BOOKING_VENUE.hoursDisplay && <li class="clinic__row">
+          <span class="clinic__icon"><Icon name="clock" size="sm" /></span>
+          <div>
+            <p class="clinic__label">Clinic hours</p>
+            <p class="clinic__value">{BOOKING_VENUE.hoursDisplay}</p>
+          </div>
+        </li>}
+        <li class="clinic__row">
+          <span class="clinic__icon"><Icon name="whatsapp" size="sm" /></span>
+          <div>
+            <p class="clinic__label">Arrange an appointment</p>
+            <p class="clinic__value">WhatsApp · {SALMA.whatsappDisplay}</p>
+          </div>
         </li>
       </ul>
 
+      <div class="clinic__actions" data-reveal>
+        <Button href={WHATSAPP_HREF} icon="whatsapp" external>Book on WhatsApp</Button>
+        <Button href="/appointments" variant="ghost">Appointment information</Button>
+      </div>
       <p class="contact__more" data-reveal>
-        <a href="/contact">Directions, parking and what to bring</a>
+        <a href="/contact">Contact and visit information</a>
       </p>
     </div>
   </div>
 </section>
 
 <style>
-  .contact {
+  .clinic {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(32px, 5vw, 72px);
-    align-items: center;
+    align-items: start;
   }
-
-  .contact__copy {
+  .clinic__rows {
     display: flex;
     flex-direction: column;
+    border-top: 1px solid var(--hairline);
+  }
+  .clinic__row {
+    display: flex;
     align-items: flex-start;
     gap: var(--s-4);
+    padding-block: var(--s-4);
+    border-bottom: 1px solid var(--hairline);
   }
-
-  .contact__actions {
+  .clinic__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    color: var(--amethyst-600);
+  }
+  .clinic__label {
+    margin-bottom: 5px;
+    color: var(--ink-muted);
+    font-size: var(--fs-body-sm);
+    font-weight: 500;
+    letter-spacing: .01em;
+  }
+  .clinic__value {
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    font-style: normal;
+    line-height: 1.7;
+  }
+  .clinic__actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--s-3);
-    margin-top: var(--s-2);
+    margin-top: var(--s-6);
   }
-
-  .contact__details {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-top: var(--s-4);
-    border-top: 1px solid var(--hairline);
-  }
-  .contact__details li {
-    display: flex;
-    align-items: center;
-    gap: var(--s-3);
-    padding-block: 15px;
-    border-bottom: 1px solid var(--hairline);
-    font-size: var(--fs-body-sm);
-    color: var(--ink);
-  }
-  .contact__details :global(.icon) { flex: 0 0 auto; color: var(--ink-muted); }
-  .contact__details a { color: var(--ink); text-decoration: none; }
-  .contact__details a:hover { color: var(--amethyst-600); text-decoration: underline; }
-
-  .contact__more {
-    font-size: var(--fs-body-sm);
-    font-weight: 500;
-  }
+  .contact__more { margin-top: var(--s-4); font-size: var(--fs-body-sm); font-weight: 500; }
   .contact__more a { text-underline-offset: 4px; }
 
-  /* The map already comes first in the source, so stacking needs nothing
-     beyond dropping to one column. */
   @media (max-width: 900px) {
-    .contact { grid-template-columns: 1fr; }
+    .clinic { grid-template-columns: 1fr; }
   }
 </style>

@@ -1,0 +1,272 @@
+﻿---
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { ACADEMIC_ROLES, DOCTOR } from '../consts';
+import teachingPortrait from '../assets/shandana-portrait2.jpeg';
+import speakingPortrait from '../assets/about-shandana.webp';
+import officePortrait from '../assets/about-main-portrait.jpeg';
+import clinicalPortrait from '../assets/shandana-portrait.png';
+
+const photos = [
+  { src: speakingPortrait, alt: `${DOCTOR.name} speaking at a microphone`, position: '55% 45%' },
+  { src: teachingPortrait, alt: `${DOCTOR.name} in a sage-green headscarf`, position: '50% 24%' },
+  { src: officePortrait, alt: `${DOCTOR.name} seated in her office`, position: '57% 55%' },
+  { src: clinicalPortrait, alt: `${DOCTOR.name} in her white coat`, position: '50% 25%' },
+];
+---
+
+<section class="section" aria-labelledby="teaching-glimpse-heading">
+  <div class="container">
+    <div class="glimpse">
+      <teaching-ribbon class="glimpse__ribbon">
+        <div class="glimpse__photos">
+          {[...photos, ...photos].map((photo, index) => (
+            <figure class="glimpse__photo" aria-hidden={index >= photos.length ? 'true' : undefined}>
+              <Image
+                src={photo.src}
+                alt={index >= photos.length ? '' : photo.alt}
+                widths={[240, 400]}
+                sizes="(max-width: 640px) 132px, 180px"
+                loading="lazy"
+                style={`object-position: ${photo.position}`}
+              />
+            </figure>
+          ))}
+        </div>
+        <svg class="glimpse__arc" viewBox="0 0 1200 200" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M-80 195 Q600 -85 1280 195" />
+          <path d="M-80 205 Q600 -75 1280 205" />
+        </svg>
+      </teaching-ribbon>
+
+      <div class="glimpse__content" data-reveal-group>
+        <div class="glimpse__copy">
+          <p class="eyebrow" data-reveal>Teaching and advocacy</p>
+          <h2 class="display-md" id="teaching-glimpse-heading" data-reveal>
+            She also trains the doctors you see <em>first</em>.
+          </h2>
+          <p class="prose glimpse__body" data-reveal>
+            Alongside her clinic, Dr. Qazi leads a medical college department and trains
+            primary care doctors to recognise mental illness.
+          </p>
+          <div class="glimpse__cta" data-reveal>
+            <Button href="/about#teaching">Teaching, courses and talks</Button>
+          </div>
+        </div>
+
+        <ul class="glimpse__roles" data-reveal>
+          {ACADEMIC_ROLES.map((r) => (
+            <li class="glimpse__role">
+              <span class="glimpse__icon"><Icon name={r.icon} size="sm" /></span>
+              <span class="glimpse__title">{r.title}</span>
+              <span class="glimpse__org">{r.org}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  class TeachingRibbon extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      const cards = Array.from(this.querySelectorAll<HTMLElement>('.glimpse__photo'));
+      if (!cards.length) return;
+      const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let width = this.clientWidth;
+      let cardWidth = cards[0].offsetWidth;
+      let travel = 0;
+      let previous = 0;
+      let frame = 0;
+      let hovered = false;
+      let visible = false;
+
+      const paint = () => {
+        const step = cardWidth + (width < 640 ? 24 : 36);
+        const circumference = step * cards.length;
+        cards.forEach((card, index) => {
+          // Each card wraps outside the clipped frame. Identical spacing at
+          // either end makes the loop continuous, with no track-reset jump.
+          const x = ((index * step + travel) % circumference) - cardWidth * 1.5;
+          const distance = (x + cardWidth / 2 - width / 2) / (width / 2 + cardWidth);
+          const y = 22 + distance * distance * (width < 640 ? 60 : 108);
+          const angle = Math.max(-24, Math.min(24, distance * 23));
+          card.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${angle}deg)`;
+        });
+      };
+      const tick = (time: number) => {
+        if (previous) travel += Math.min(time - previous, 50) * .03;
+        previous = time;
+        paint();
+        frame = requestAnimationFrame(tick);
+      };
+      const sync = () => {
+        cancelAnimationFrame(frame);
+        previous = 0;
+        if (visible && !hovered && !preference.matches && !document.hidden) {
+          frame = requestAnimationFrame(tick);
+        }
+      };
+      const enter = () => { hovered = true; sync(); };
+      const leave = () => { hovered = false; sync(); };
+      const resize = new ResizeObserver(() => {
+        width = this.clientWidth;
+        cardWidth = cards[0].offsetWidth;
+        paint();
+      });
+      const visibility = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        sync();
+      });
+      this.dataset.ready = 'true';
+      paint();
+      resize.observe(this);
+      visibility.observe(this);
+      this.addEventListener('mouseenter', enter);
+      this.addEventListener('mouseleave', leave);
+      preference.addEventListener('change', sync);
+      document.addEventListener('visibilitychange', sync);
+      sync();
+      this.cleanup = () => {
+        cancelAnimationFrame(frame);
+        resize.disconnect();
+        visibility.disconnect();
+        this.removeEventListener('mouseenter', enter);
+        this.removeEventListener('mouseleave', leave);
+        preference.removeEventListener('change', sync);
+        document.removeEventListener('visibilitychange', sync);
+      };
+    }
+
+    disconnectedCallback() { this.cleanup?.(); }
+  }
+  if (!customElements.get('teaching-ribbon')) customElements.define('teaching-ribbon', TeachingRibbon);
+</script>
+
+<style>
+  .glimpse {
+    overflow: hidden;
+    border: 1px solid var(--amethyst-100);
+    border-radius: var(--r-hero);
+    background: linear-gradient(180deg, var(--amethyst-50), var(--surface) 85%);
+  }
+
+  .glimpse__ribbon {
+    display: block;
+    position: relative;
+    height: 334px;
+    overflow: hidden;
+  }
+  .glimpse__photos {
+    display: flex;
+    gap: 36px;
+    padding-top: 32px;
+    height: 100%;
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+  .glimpse__photo {
+    flex: 0 0 180px;
+    width: 180px;
+    height: 216px;
+    overflow: hidden;
+    margin: 0;
+    border: 5px solid var(--surface);
+    border-radius: var(--r-card);
+    background: var(--amethyst-100);
+    box-shadow: var(--shadow-card);
+  }
+  .glimpse__ribbon[data-ready] .glimpse__photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+  .glimpse__photo :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .glimpse__arc {
+    position: absolute;
+    left: 0;
+    bottom: -74px;
+    width: 100%;
+    height: 180px;
+    fill: none;
+    stroke: var(--amethyst-100);
+    stroke-width: 1;
+    pointer-events: none;
+  }
+  .glimpse__arc path + path { stroke-dasharray: 1 5; stroke: var(--amethyst-600); opacity: .25; }
+
+  .glimpse__content { padding: 12px clamp(24px, 5vw, 64px) clamp(32px, 4vw, 52px); }
+  .glimpse__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+    max-width: 660px;
+    margin-inline: auto;
+  }
+  .glimpse__copy .eyebrow {
+    padding: 6px 14px;
+    border: 1px solid var(--amethyst-100);
+    border-radius: var(--r-pill);
+    background: var(--surface);
+  }
+  .glimpse__copy h2 { max-width: 23ch; }
+  .glimpse__body { color: var(--ink-body); max-width: 58ch; }
+  .glimpse__cta { margin-top: 4px; }
+  .glimpse__roles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--amethyst-100);
+  }
+  .glimpse__role {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-inline: 24px;
+    text-align: center;
+  }
+  .glimpse__role + .glimpse__role { border-left: 1px solid var(--amethyst-100); }
+  .glimpse__icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    margin-bottom: 2px;
+    border-radius: var(--r-pill);
+    background: var(--amethyst-50);
+    color: var(--amethyst-600);
+  }
+  .glimpse__title {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    text-wrap: pretty;
+  }
+  .glimpse__org { color: var(--ink-muted); font-size: var(--fs-body-sm); line-height: 1.4; }
+
+  @media (max-width: 640px) {
+    .glimpse__ribbon { height: 260px; }
+    .glimpse__photo { width: 132px; flex-basis: 132px; height: 168px; border-width: 4px; }
+    .glimpse__photos { gap: 24px; }
+    .glimpse__arc { bottom: -80px; }
+    .glimpse__content { padding-top: 16px; }
+    .glimpse__roles { grid-template-columns: 1fr; margin-top: 30px; padding-top: 8px; }
+    .glimpse__role { padding: 22px 0; }
+    .glimpse__role + .glimpse__role { border-left: 0; border-top: 1px solid var(--amethyst-100); }
+    .glimpse__role:last-child { padding-bottom: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glimpse__ribbon[data-ready] .glimpse__photo { will-change: auto; }
+  }
+</style>

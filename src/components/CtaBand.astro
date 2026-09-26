@@ -11,7 +11,8 @@
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import Motif from './Motif.astro';
-import { PRACTICE } from '../consts';
+import { BOOKING_VENUE } from '../consts';
+import { WHATSAPP_HREF } from '../lib/practice-links';
 
 interface Props {
   eyebrow?: string;
@@ -24,11 +25,12 @@ const {
   eyebrow = 'Booking',
   title = 'Start with one',
   titleEm = 'conversation',
-  body = 'Appointments are held at Rehman Medical Institute in Hayatabad, Peshawar. Call during clinic hours, or send a message and someone will come back to you with the next available slot.',
+  /* The default names the bookable venue. Pages that pass their own `body` are
+     writing about something more specific than "where appointments happen" and
+     are left alone — but check them against the venue if the clinic switch is
+     thrown, because a page-level override cannot follow it. */
+  body = `Appointments are arranged directly with ${BOOKING_VENUE.name}. Send a WhatsApp message to ask about availability.`,
 } = Astro.props;
-
-const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
-const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
 ---
 
 <section class="section cta" aria-labelledby="cta-heading">
@@ -48,10 +50,9 @@ const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
       <p class="cta__body" data-reveal>{body}</p>
 
       <div class="cta__actions" data-reveal>
-        <Button href={telHref} variant="on-dark" icon="phone" external>
-          Call {PRACTICE.bookingPhoneDisplay}
+        <Button href={WHATSAPP_HREF} variant="on-dark" icon="whatsapp" external>
+          Book on WhatsApp
         </Button>
-        <Button href="/contact" variant="on-dark-ghost">Clinic hours and directions</Button>
       </div>
 
       <p class="cta__aside" data-reveal>
@@ -60,8 +61,8 @@ const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
             leftover width, which put a gap between them that no `gap` value
             could close. Inline, it is simply the first thing on the line. */}
         <span>
-          <Icon name="whatsapp" size="sm" />Prefer to write?
-          <a href={waHref} rel="noopener noreferrer" target="_blank">Message on WhatsApp</a>
+          <Icon name="pin" size="sm" />Coming in person?
+          <a href="/contact">Clinic hours and directions</a>
         </span>
       </p>
     </div>
@@ -138,6 +139,7 @@ const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
   /* Inline with the text it introduces. The margin replaces the flex `gap` the
      mark used to get as a sibling, so desktop reads exactly as before. */
   .cta__aside :global(.icon) {
+    display: inline-block;
     flex: 0 0 auto;
     vertical-align: -0.16em;
     margin-right: var(--s-2);
@@ -159,8 +161,9 @@ const waHref = `https://wa.me/${PRACTICE.whatsapp}`;
       text-align: center;
       text-wrap: balance;
     }
-    /* The mark goes. "Message on WhatsApp" names the channel outright, so at
-       this width it was decoration competing with a two-line sentence. */
+    /* The mark goes. "Clinic hours and directions" names the destination
+       outright, so at this width it was decoration competing with a two-line
+       sentence. */
     .cta__aside :global(.icon) { display: none; }
   }
 </style>

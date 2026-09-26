@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import Motif from './Motif.astro';
-import { DOCTOR, CREDENTIAL_BAR } from '../consts';
+import { DOCTOR, CREDENTIAL_BAR, BOOKING_VENUE, BOOKING_AREA, RMI_BOOKABLE } from '../consts';
 import portrait from '../assets/shandana-portrait.png';
 ---
 
@@ -14,9 +14,23 @@ import portrait from '../assets/shandana-portrait.png';
         You don't have to keep <em>guessing</em>.
       </h1>
 
+      {/* Two framings of the same person, picked by where she is booked.
+          While the hospital is the booking route, the consultant post and the
+          venue are one clause and there is nothing to separate. Once her own
+          clinic is the route they are two different facts — where you see her,
+          and what qualifies her — and running them together would imply the
+          clinic is part of the hospital, which it is not. */}
       <p class="hero__lede" data-reveal>
-        <span class="hero__name">{DOCTOR.name}</span> is a consultant psychiatrist at Rehman Medical Institute,
-        Hayatabad. Depression, anxiety, stress, and the conditions that quietly reshape
+        <span class="hero__name">{DOCTOR.name}</span>{' '}
+        {RMI_BOOKABLE ? (
+          <>is a consultant psychiatrist at {BOOKING_VENUE.name}, {BOOKING_AREA}.</>
+        ) : (
+          <>
+            is a consultant psychiatrist. She sees patients at {BOOKING_VENUE.name}
+            {' '}in {BOOKING_AREA}, {BOOKING_VENUE.address.locality}.
+          </>
+        )}
+        {' '}Depression, anxiety, stress, and the conditions that quietly reshape
         an ordinary day: assessed properly, and explained in language you can actually use.
       </p>
 
@@ -30,7 +44,15 @@ import portrait from '../assets/shandana-portrait.png';
 
       <p class="hero__meta" data-reveal>
         <Icon name="pin" size="sm" />
-        <span>RMI, 5-B/2 Phase-V, Hayatabad, Peshawar</span>
+        {/* The street line already opens with the venue's name at RMI, so the
+            name is not repeated in front of it. Falls back to the name alone
+            where a venue has no published street yet — a pin with a clinic name
+            beside it is still orientation; a pin beside a comma is not. */}
+        <span>
+          {BOOKING_VENUE.address.street
+            ? `${BOOKING_VENUE.address.street}, ${BOOKING_VENUE.address.locality}`
+            : `${BOOKING_VENUE.name}, ${BOOKING_VENUE.address.locality}`}
+        </span>
       </p>
     </div>
 
@@ -50,7 +72,7 @@ import portrait from '../assets/shandana-portrait.png';
           drawing — a signal crossing it, which is the one piece of movement on
           this panel. 22s is a deliberate crawl: at anything under about 15 the
           eye tracks it as an object moving and stops reading the headline. */}
-      <Motif name="brain" class="hero__motif" spark={22} />
+      <Motif name="brainProfile" class="hero__motif" spark={22} />
 
       <Image
         src={portrait}
@@ -189,15 +211,19 @@ import portrait from '../assets/shandana-portrait.png';
      note in Motif.astro on why they are two elements. Placing them together is
      what guarantees they stay in register. */
   .hero__media :global(.hero__motif) {
-    top: -6%;
-    right: -14%;
+    top: 0;
+    right: -2%;
     width: 86%;
     /* Well above the .motif default of .03. It is drawn on the tint rather
        than on paper, so the gradient eats a good deal of it — and it is the
        one motif on the site with a light running over it, which only reads as
        a light on a line if the line under it is actually visible. Still low
        enough to stay texture: the coat in front of it is the subject. */
-    --motif-opacity: .1;
+    --motif-opacity: .24;
+  }
+
+  .hero__media :global(.motif.hero__motif) {
+    stroke-width: 1.35;
   }
 
   .hero__media :global(img) {

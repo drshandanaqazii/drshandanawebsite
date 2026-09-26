@@ -5,35 +5,34 @@ import headerImage from '../assets/cta-morning.jpg';
 import PracticeMap from '../components/PracticeMap.astro';
 import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
-import { PAGE_SEO, PRACTICE, DOCTOR } from '../consts';
-import { TEL_HREF, UAN_HREF, WHATSAPP_HREF, MAIL_HREF, MAPS_HREF } from '../lib/practice-links';
+import {
+  PAGE_SEO,
+  PRACTICE,
+  SALMA,
+  BOOKING_VENUE,
+  BOOKING_AREA,
+  DOCTOR,
+} from '../consts';
+import { UAN_HREF, WHATSAPP_HREF, MAIL_HREF } from '../lib/practice-links';
 
 const trail = [{ name: 'Contact', href: '/contact' }];
 
-/* The three ways to reach the practice, in the order they actually work. The
-   phone is first because it is the one that produces an appointment today. */
+/* WhatsApp is the direct route for arranging appointments at Salma's clinic. */
 const CHANNELS = [
   {
-    icon: 'phone',
-    label: 'By phone',
-    value: PRACTICE.bookingPhoneDisplay,
-    href: TEL_HREF,
-    note: 'The fastest route to a slot. Call during clinic hours and ask for an appointment with Dr. Shandana Qazi.',
-  },
-  {
     icon: 'whatsapp',
-    label: 'On WhatsApp',
-    value: 'Send a message',
+    label: 'Book on WhatsApp',
+    value: SALMA.whatsappDisplay,
     href: WHATSAPP_HREF,
     external: true,
-    note: 'For when calling is difficult, or you would rather write than speak. Replies come during working hours.',
+    note: 'Ask about appointment availability and confirm the clinic location with the team.',
   },
   {
     icon: 'mail',
     label: 'By email',
     value: PRACTICE.email,
     href: MAIL_HREF,
-    note: 'Best for reports and documents rather than for booking. Please do not send anything time-sensitive by email.',
+    note: 'For reports and documents rather than for booking.',
   },
 ] as const;
 
@@ -62,7 +61,7 @@ const time = (t: string) => {
     trail={trail}
     title="Start with one"
     titleEm="conversation"
-    lede="Appointments with Dr. Shandana Qazi are held at Rehman Medical Institute in Hayatabad, Peshawar. There is no form to fill in. A phone call is the shortest route to a slot."
+    lede={`Appointments with ${DOCTOR.name} are arranged at ${SALMA.name}. Message on WhatsApp to ask about availability and confirm where to go.`}
     scrollTo="channels"
     scrollLabel="Scroll to how to get in touch"
   />
@@ -92,71 +91,32 @@ const time = (t: string) => {
   </section>
 
   <section class="section section--band" aria-labelledby="where-heading">
-    <div class="container where">
-      <PracticeMap />
+    <div class="container where" class:list={{ 'where--no-map': !SALMA.located }}>
+      {SALMA.located && <PracticeMap />}
 
       <div class="where__copy" data-reveal-group>
         <div class="section-head" style="margin-bottom: var(--s-5);">
           <p class="eyebrow" data-reveal>The clinic</p>
           <h2 class="display-md" id="where-heading" data-reveal>
-            Rehman Medical Institute, <em>Hayatabad</em>
+            {SALMA.name}, <em>Peshawar</em>
           </h2>
         </div>
 
         {/* The NAP block — name, address, phone. It has to match the Google
             Business Profile character for character; a mismatched phone number
             across directories is the single most common thing suppressing a
-            local ranking. Everything here comes from PRACTICE in consts.ts,
+            local ranking. Everything here comes from BOOKING_VENUE in consts.ts,
             which is also what feeds the schema. */}
         <dl class="details" data-reveal>
-          <div>
-            <dt><Icon name="pin" size="sm" /> Address</dt>
-            <dd>
-              <address>
-                {PRACTICE.address.street}<br />
-                {PRACTICE.address.locality}, {PRACTICE.address.region} {PRACTICE.address.postalCode}<br />
-                Pakistan
-              </address>
-              <a class="details__link" href={MAPS_HREF} rel="noopener noreferrer" target="_blank">
-                Open in Google Maps
-              </a>
-            </dd>
-          </div>
-
-          <div>
-            <dt><Icon name="clock" size="sm" /> Clinic hours</dt>
-            <dd>
-              <ul class="hours">
-                {PRACTICE.hours.map((h) => (
-                  <li>
-                    <span>{dayLabel(h.days)}</span>
-                    <span class="tabular">{time(h.opens)} – {time(h.closes)}</span>
-                  </li>
-                ))}
-              </ul>
-              <p class="details__note">
-                Hours are subject to change. Please confirm when you call.
-              </p>
-            </dd>
-          </div>
-
-          <div>
-            <dt><Icon name="phone" size="sm" /> Telephone</dt>
-            <dd>
-              <a href={TEL_HREF}>{PRACTICE.bookingPhoneDisplay}</a><br />
-              <a href={UAN_HREF}>Hospital UAN {PRACTICE.hospitalUan}</a>
-            </dd>
-          </div>
-
-          <div>
-            <dt><Icon name="speech" size="sm" /> Languages</dt>
-            <dd>{DOCTOR.languages.join(', ')}</dd>
-          </div>
+          <div><dt><Icon name="pin" size="sm" /> Appointment location</dt><dd>{SALMA.located ? <address>{BOOKING_VENUE.address.street}, {BOOKING_VENUE.address.locality}</address> : 'The clinic will confirm its address when you arrange your appointment.'}</dd></div>
+          {BOOKING_VENUE.hoursDisplay && <div><dt><Icon name="clock" size="sm" /> Clinic hours</dt><dd>{BOOKING_VENUE.hoursDisplay}</dd></div>}
+          <div><dt><Icon name="whatsapp" size="sm" /> WhatsApp</dt><dd><a href={WHATSAPP_HREF} rel="noopener noreferrer" target="_blank">{SALMA.whatsappDisplay}</a></dd></div>
+          <div><dt><Icon name="speech" size="sm" /> Languages</dt><dd>{DOCTOR.languages.join(', ')}</dd></div>
         </dl>
 
         <div class="where__actions" data-reveal>
-          <Button href={TEL_HREF} icon="phone" external>Call {PRACTICE.bookingPhoneDisplay}</Button>
-          <Button href={WHATSAPP_HREF} variant="ghost" icon="whatsapp" external>WhatsApp</Button>
+          <Button href={WHATSAPP_HREF} icon="whatsapp" external>Book on WhatsApp</Button>
+          <Button href={MAIL_HREF} variant="ghost" icon="mail">Email</Button>
         </div>
       </div>
     </div>
@@ -168,23 +128,22 @@ const time = (t: string) => {
         <div class="section-head" style="margin-bottom: 0;" data-reveal>
           <p class="eyebrow">Your visit</p>
           <h2 class="display-md" id="visit-heading" style="margin-top: var(--s-3);">
-            Finding it, and what to <em>bring</em>.
+            Before you come, and what to <em>bring</em>.
           </h2>
         </div>
 
-        <p data-reveal>
-          Rehman Medical Institute is on 5-B/2, Phase-V, Hayatabad, on the western side of
-          Peshawar. It is well known locally and every rickshaw and taxi driver in the city
-          will recognise the name; if you are driving, the map above will take you to the
-          gate. Parking is on site.
-        </p>
-
-        <p data-reveal>
-          Psychiatry consultations are held in the outpatient department. Ask at reception
-          for Dr. Shandana Qazi, Consultant Psychiatrist, and you will be directed. Arriving
-          ten or fifteen minutes early leaves room for registration without eating into the
-          appointment itself.
-        </p>
+        {/* Written per venue, not here — see the note on Venue.directions. An
+            unwritten set prints the honest line rather than generic wayfinding:
+            "ask at reception" is advice that only happens to be true of a
+            hospital, and at a small clinic it sends someone to a desk that is
+            not there. */}
+        {BOOKING_VENUE.directions.length > 0 ? (
+          BOOKING_VENUE.directions.map((para) => <p data-reveal>{para}</p>)
+        ) : (
+          <p data-reveal>
+            The clinic will confirm its address when you arrange your appointment on WhatsApp.
+          </p>
+        )}
 
         <p data-reveal>
           Bring any medication you are currently taking, along with previous prescriptions,
@@ -217,7 +176,7 @@ const time = (t: string) => {
 
   .channels {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--s-5);
   }
 
@@ -274,6 +233,7 @@ const time = (t: string) => {
     gap: clamp(32px, 5vw, 72px);
     align-items: start;
   }
+  .where--no-map { grid-template-columns: minmax(0, 1fr); }
 
   .details { border-top: 1px solid var(--hairline); }
   .details > div {

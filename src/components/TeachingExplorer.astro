@@ -1,0 +1,219 @@
+﻿---
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import { ACADEMIC_ROLES, ENGAGEMENTS } from '../consts';
+import departmentPhoto from '../assets/about-shandana.webp';
+import coursePhoto from '../assets/shandana-portrait2.jpeg';
+import clinicalPhoto from '../assets/shandana-portrait.png';
+
+const cards = [
+  { label: 'Department head', image: departmentPhoto, position: '56% 38%', session: ENGAGEMENTS[1] },
+  { label: 'Course director', image: coursePhoto, position: '50% 20%', session: ENGAGEMENTS[0] },
+  { label: 'Consultant psychiatrist', image: clinicalPhoto, position: '50% 20%', session: undefined },
+];
+---
+
+<teaching-explorer>
+  <p class="explorer__hint">Select a portrait to explore her work.</p>
+  <div class="explorer__cards">
+    {cards.map((card, index) => {
+      const role = ACADEMIC_ROLES[index];
+      return (
+        <article class="explorer__card">
+          <Image src={card.image} alt="" widths={[400, 700, 1000]} sizes="(max-width: 760px) 90vw, 65vw" loading="lazy" style={`object-position: ${card.position}`} />
+          <button class="explorer__trigger" type="button" aria-label={`Explore: ${role.title}`} aria-controls={`teaching-detail-${index}`}>
+            <span class="explorer__number" aria-hidden="true">0{index + 1}</span>
+            <span class="explorer__label" aria-hidden="true">{card.label}</span>
+            <span class="explorer__plus" aria-hidden="true">+</span>
+          </button>
+          <section class="explorer__panel" id={`teaching-detail-${index}`} aria-labelledby={`teaching-title-${index}`}>
+            <h3 id={`teaching-title-${index}`}>{role.title}</h3>
+            <p class="explorer__org">{role.org}</p>
+            <p class="explorer__body">{role.body}</p>
+            {card.session ? (
+              <details class="explorer__session">
+                <summary><span>Talks and sessions</span><span class="explorer__status">{card.session.date}</span><span class="explorer__toggle" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 8h10" /><path class="explorer__toggle-vertical" d="M8 3v10" /></svg></span></summary>
+                <h4>{card.session.title}</h4>
+                <p class="explorer__venue">{card.session.venue}</p>
+                <p>{card.session.body}</p>
+              </details>
+            ) : (
+              <div class="explorer__cta"><Button href="/appointments" variant="on-dark-ghost">Book an appointment</Button></div>
+            )}
+          </section>
+        </article>
+      );
+    })}
+  </div>
+</teaching-explorer>
+
+<script>
+  class TeachingExplorer extends HTMLElement {
+    private cleanup?: () => void;
+    connectedCallback() {
+      const cards = Array.from(this.querySelectorAll<HTMLElement>('.explorer__card'));
+      const buttons = Array.from(this.querySelectorAll<HTMLButtonElement>('.explorer__trigger'));
+      const panels = Array.from(this.querySelectorAll<HTMLElement>('.explorer__panel'));
+      if (!cards.length || cards.length !== panels.length) return;
+      let current: number | null = null;
+      const activate = (index: number) => {
+        if (index === current) return;
+        current = index;
+        cards.forEach((card, i) => {
+          const selected = i === index;
+          card.dataset.active = String(selected);
+          buttons[i].setAttribute('aria-expanded', String(selected));
+          panels[i].hidden = !selected;
+          if (!selected) {
+            const session = panels[i].querySelector('details');
+            if (session) session.open = false;
+            panels[i].scrollTop = 0;
+          }
+        });
+      };
+      const handlers = cards.map((card, index) => {
+        const click = () => activate(index);
+        const hover = (event: PointerEvent) => {
+          if (event.pointerType === 'mouse') activate(index);
+        };
+        const key = (event: KeyboardEvent) => {
+          if (event.key === 'Escape') { activate(-1); buttons[index].focus({ preventScroll: true }); return; }
+          let next = index;
+          if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % cards.length;
+          else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (index + cards.length - 1) % cards.length;
+          else if (event.key === 'Home') next = 0;
+          else if (event.key === 'End') next = cards.length - 1;
+          else return;
+          event.preventDefault();
+          activate(next);
+          buttons[next].focus({ preventScroll: true });
+        };
+        buttons[index].addEventListener('click', click);
+        buttons[index].addEventListener('keydown', key);
+        card.addEventListener('pointerenter', hover);
+        return () => {
+          buttons[index].removeEventListener('click', click);
+          buttons[index].removeEventListener('keydown', key);
+          card.removeEventListener('pointerenter', hover);
+        };
+      });
+      const mobile = window.matchMedia('(max-width: 760px)');
+      const setDefault = () => activate(mobile.matches ? 0 : -1);
+      setDefault();
+      mobile.addEventListener('change', setDefault);
+      this.dataset.ready = 'true';
+      this.cleanup = () => {
+        handlers.forEach((remove) => remove());
+        mobile.removeEventListener('change', setDefault);
+      };
+    }
+    disconnectedCallback() { this.cleanup?.(); }
+  }
+  if (!customElements.get('teaching-explorer')) customElements.define('teaching-explorer', TeachingExplorer);
+</script>
+
+<style>
+  teaching-explorer { display: block; }
+  .explorer__hint { margin-bottom: 20px; color: var(--ink-muted); font-size: var(--fs-body-sm); }
+  .explorer__cards { display: flex; gap: clamp(12px, 1.6vw, 22px); }
+  .explorer__card {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 620px;
+    overflow: hidden;
+    border-radius: var(--r-hero);
+    background: var(--amethyst-100);
+    color: #fff;
+    isolation: isolate;
+    box-shadow: var(--shadow-card);
+    transition: flex-grow 650ms var(--ease);
+  }
+  .explorer__card[data-active="true"] { flex-grow: 4.5; }
+  .explorer__card :global(img) {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .explorer__card::after {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(26,22,34,.08), rgba(26,22,34,.06) 24%, rgba(26,22,34,.75) 62%, rgba(26,22,34,.96));
+    pointer-events: none;
+  }
+  .explorer__trigger {
+    position: absolute; inset: 0; z-index: 2;
+    display: block; width: 100%; padding: 0; border: 0;
+    background: transparent; color: #fff; cursor: pointer; font: inherit;
+    border-radius: inherit;
+  }
+  .explorer__trigger:focus-visible { outline: 3px solid var(--amethyst-100); outline-offset: -7px; }
+  .explorer__number { position: absolute; top: 24px; left: 24px; font-size: var(--fs-body-sm); letter-spacing: .08em; }
+  .explorer__label {
+    position: absolute; top: 50%; left: 50%;
+    writing-mode: vertical-rl; transform: translate(-50%, -50%) rotate(180deg);
+    font-family: var(--font-display); font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    font-weight: 500; line-height: 1.15; white-space: nowrap;
+    transition: opacity 180ms var(--ease);
+  }
+  .explorer__plus { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); font-size: 1.75rem; font-weight: 300; }
+  .explorer__card[data-active="true"] .explorer__label,
+  .explorer__card[data-active="true"] .explorer__plus { opacity: 0; }
+  .explorer__panel {
+    position: absolute; z-index: 3; bottom: 0; left: 0; right: 0;
+    max-height: 76%; overflow-y: auto; overscroll-behavior-y: auto;
+    padding: 26px clamp(26px, 3.4vw, 44px) 36px;
+    scrollbar-width: thin; scrollbar-color: var(--amethyst-100) transparent;
+    color: #fff;
+  }
+  .explorer__panel[hidden] { display: none; }
+  .explorer__panel h3 {
+    max-width: 25ch; font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.7vw, 2.25rem); font-weight: 500;
+    line-height: 1.15; letter-spacing: -.025em; color: #fff; text-wrap: pretty;
+  }
+  .explorer__org { margin-top: 12px; color: var(--amethyst-100); font-size: var(--fs-body-sm); font-weight: 500; }
+  .explorer__body { margin-top: 16px; max-width: 62ch; font-size: var(--fs-body-sm); line-height: 1.65; color: #fff; }
+  .explorer__session { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.25); font-size: var(--fs-body-sm); }
+  .explorer__session summary {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 48px; padding: 8px 8px 8px 18px;
+    border: 1px solid var(--amethyst-100); border-radius: var(--r-pill);
+    background: var(--surface); color: var(--amethyst-900);
+    cursor: pointer; font-weight: 500; list-style: none;
+    transition: background var(--dur-fast) var(--ease);
+  }
+  .explorer__session summary::-webkit-details-marker { display: none; }
+  .explorer__session summary:hover { background: var(--amethyst-50); }
+  .explorer__session summary:focus-visible { outline: 3px solid var(--amethyst-100); outline-offset: 4px; }
+  .explorer__session .explorer__status { font-size: .75rem; color: var(--amethyst-600); }
+  .explorer__toggle { display: grid; place-items: center; flex: 0 0 30px; width: 30px; height: 30px; margin-left: auto; border-radius: var(--r-pill); background: var(--amethyst-50); line-height: 1; }
+  .explorer__toggle svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; }
+  .explorer__session[open] .explorer__toggle-vertical { display: none; }
+  .explorer__session[open] summary { background: var(--amethyst-100); }
+  .explorer__session h4 { margin-top: 16px; font-family: var(--font-display); font-size: 1.125rem; line-height: 1.35; font-weight: 500; color: #fff; }
+  .explorer__session p { margin-top: 10px; color: #fff; }
+  .explorer__session .explorer__venue { color: var(--amethyst-100); }
+  .explorer__cta { margin-top: 22px; }
+  teaching-explorer:not([data-ready]) .explorer__cards { flex-direction: column; }
+  teaching-explorer:not([data-ready]) .explorer__card { flex: none; }
+  teaching-explorer:not([data-ready]) .explorer__trigger { display: none; }
+
+  @media (max-width: 760px) {
+    .explorer__cards { flex-direction: column; gap: 12px; }
+    .explorer__card { flex: none; height: 100px; transition: height 550ms var(--ease); }
+    .explorer__card[data-active="true"], teaching-explorer:not([data-ready]) .explorer__card { height: 620px; flex: none; }
+    .explorer__card:not([data-active="true"]) :global(img) { object-position: 50% 30% !important; }
+    .explorer__card::after { background: linear-gradient(180deg, rgba(26,22,34,.12), rgba(26,22,34,.2) 20%, rgba(26,22,34,.88) 48%, rgba(26,22,34,.98)); }
+    .explorer__card[data-active="false"]::after { background: rgba(26,22,34,.45); }
+    .explorer__label { writing-mode: horizontal-tb; transform: translateY(-50%); left: 24px; right: 48px; text-align: left; font-size: clamp(1rem, 4vw, 1.25rem); white-space: normal; }
+    .explorer__number { top: 18px; left: 24px; }
+    .explorer__card[data-active="false"] .explorer__number { display: none; }
+    .explorer__plus { bottom: auto; top: 50%; left: auto; right: 24px; transform: translateY(-50%); }
+    .explorer__panel { max-height: 78%; padding: 24px; }
+    .explorer__panel h3 { font-size: 1.5rem; }
+    .explorer__session summary { gap: 8px; padding-left: 14px; padding-right: 8px; font-size: .8125rem; }
+    .explorer__session .explorer__status { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .explorer__card, .explorer__label { transition: none; }
+  }
+</style>

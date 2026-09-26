@@ -1,7 +1,8 @@
 ---
 import Icon from './Icon.astro';
 import Button from './Button.astro';
-import { NAV_LINKS, DOCTOR, PRACTICE } from '../consts';
+import { NAV_LINKS, DOCTOR, SALMA } from '../consts';
+import { WHATSAPP_HREF } from '../lib/practice-links';
 
 /* Trailing slash stripped so "/about/" and "/about" both mark the same link.
    A service page keeps /services lit, which is what a visitor two levels
@@ -35,9 +36,9 @@ const isCurrent = (href: string) =>
       </a>
 
       <div class="nav__actions">
-        <a class="nav__tel" href={`tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`}>
-          <Icon name="phone" size="sm" />
-          <span>{PRACTICE.bookingPhoneDisplay}</span>
+        <a class="nav__tel" href={WHATSAPP_HREF} rel="noopener noreferrer" target="_blank">
+          <Icon name="whatsapp" size="sm" />
+          <span>{SALMA.whatsappDisplay}</span>
         </a>
         <Button href="/appointments" class="nav__cta">Book a consultation</Button>
         <button
@@ -52,9 +53,7 @@ const isCurrent = (href: string) =>
       </div>
     </nav>
 
-    {/* The phone number lives only here. On a phone, tapping to call is the
-        shortest path to a booking; on desktop it is an un-clickable string
-        competing with the CTA, so the bar carries the CTA alone. */}
+    {/* Appointment enquiries go to the clinic's WhatsApp. */}
     <div class="nav__mobile" id="mobile-menu" hidden>
       <ul>
         {NAV_LINKS.map((link) => (
@@ -65,10 +64,16 @@ const isCurrent = (href: string) =>
           </li>
         ))}
         <li><a class="nav__mobile-cta" href="/appointments">Book a consultation</a></li>
-        <li>
-          <a class="nav__mobile-tel" href={`tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`}>
-            <Icon name="phone" size="sm" />
-            <span>{PRACTICE.bookingPhoneDisplay}</span>
+        {/* WhatsApp opens directly to the clinic's appointment chat. */}
+        <li class="nav__mobile-reach">
+          <a
+            class="nav__mobile-tel"
+            href={WHATSAPP_HREF}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <Icon name="whatsapp" size="sm" />
+            <span>WhatsApp · {SALMA.whatsappDisplay}</span>
           </a>
         </li>
       </ul>
@@ -87,7 +92,7 @@ const isCurrent = (href: string) =>
 
   .nav {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: var(--s-5);
     min-height: 64px;
@@ -98,8 +103,11 @@ const isCurrent = (href: string) =>
   }
 
   .nav__links {
+    grid-column: 2;
+    grid-row: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--s-5);
   }
   .nav__links a {
@@ -126,6 +134,8 @@ const isCurrent = (href: string) =>
   }
 
   .nav__mark {
+    grid-column: 1;
+    grid-row: 1;
     display: inline-flex;
     align-items: center;
     gap: var(--s-2);
@@ -144,6 +154,8 @@ const isCurrent = (href: string) =>
   }
 
   .nav__actions {
+    grid-column: 3;
+    grid-row: 1;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -222,22 +234,46 @@ const isCurrent = (href: string) =>
     text-align: center;
   }
 
+  /* The two reach-the-desk links share a row and split it evenly. The <li> is
+     the flex container rather than the <ul>, so the pair stays one item in the
+     list for anything reading the menu aloud. */
+  .nav__mobile-reach {
+    display: flex;
+    gap: var(--s-3);
+    margin-top: var(--s-4);
+  }
+
   /* Outranks the `.nav__mobile a` block above, which is a class+element. */
   .nav__mobile .nav__mobile-tel {
+    flex: 1 1 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--s-2);
-    padding-top: var(--s-4);
+    /* Tapped, not read: both are now targets sitting side by side, so each gets
+       an outline and a 48px box of its own rather than being a line of coloured
+       text with nothing to aim at. */
+    min-height: 48px;
+    padding-block: 0;
+    border-radius: var(--r-pill);
     border-bottom: 0;
+    box-shadow: inset 0 0 0 1px var(--amethyst-100);
     color: var(--amethyst-900);
     font-weight: 500;
+    font-size: var(--fs-body-sm);
   }
+  .nav__mobile .nav__mobile-tel:hover { background: var(--surface); }
   .nav__mobile .nav__mobile-tel :global(.icon) { flex: 0 0 auto; color: var(--amethyst-600); }
 
-  /* Below 1040px the link list and phone number don't fit alongside the CTA.
-     The number is not lost — it reappears inside the open mobile menu. */
-  @media (max-width: 1040px) {
+  /* Below this the link list and phone number don't fit alongside the CTA. The
+     number is not lost — it reappears inside the open mobile menu.
+
+     Raised from 1040px when the sixth link went in. Six labels plus the wordmark
+     plus the number plus the pill is about 1100px of content, and at 1040 the
+     bar was overflowing its own container rather than collapsing — the links
+     ran under the wordmark. If a seventh tab is ever added, measure this again
+     rather than assuming it still clears. */
+  @media (max-width: 1140px) {
     .nav__links, .nav__tel { display: none; }
     .nav { grid-template-columns: auto 1fr auto; }
     .nav__mark { justify-self: start; }
@@ -249,7 +285,7 @@ const isCurrent = (href: string) =>
     .nav__word { font-size: 1.05rem; }
   }
 
-  @media (min-width: 1041px) {
+  @media (min-width: 1141px) {
     .nav__mobile { display: none; }
   }
 </style>

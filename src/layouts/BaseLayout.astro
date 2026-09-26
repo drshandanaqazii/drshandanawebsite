@@ -4,7 +4,7 @@ import '../styles/motion.css';
 import StructuredData from '../components/StructuredData.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import { SITE, SEO, DOCTOR, PRACTICE } from '../consts';
+import { SITE, SEO, DOCTOR, BOOKING_VENUE, SALMA } from '../consts';
 
 interface Props {
   title?: string;
@@ -59,8 +59,10 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
          and harmless for Google. The authoritative signal is the JSON-LD below. -->
     <meta name="geo.region" content="PK-KP" />
     <meta name="geo.placename" content="Peshawar" />
-    <meta name="geo.position" content={`${PRACTICE.geo.lat};${PRACTICE.geo.lng}`} />
-    <meta name="ICBM" content={`${PRACTICE.geo.lat}, ${PRACTICE.geo.lng}`} />
+    {SALMA.located && <>
+      <meta name="geo.position" content={`${BOOKING_VENUE.geo.lat};${BOOKING_VENUE.geo.lng}`} />
+      <meta name="ICBM" content={`${BOOKING_VENUE.geo.lat}, ${BOOKING_VENUE.geo.lng}`} />
+    </>}
     <meta name="author" content={DOCTOR.name} />
 
     <!-- Open Graph -->

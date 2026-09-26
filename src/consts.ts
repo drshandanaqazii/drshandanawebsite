@@ -17,8 +17,8 @@ import type { IconName } from './lib/icons';
    before the site goes live. Items marked  ⚠️ VERIFY  are believed correct
    but should be confirmed against a primary source.
 
-   Verified facts are sourced from her RMI consultant profile:
-   https://rmi.edu.pk/consultants/dr-shandana-qazi/
+   Verified facts are sourced from her consultant profile at Rehman Medical
+   Institute. This site does not link visitors to that profile.
    ========================================================================== */
 
 export const SITE = {
@@ -40,7 +40,14 @@ export const DOCTOR = {
   jobTitle: 'Consultant Psychiatrist',
   specialty: 'Psychiatry',
 
-  /** Verified — RMI consultant profile */
+  /**
+   * The post-nominal line. Degrees only, and deliberately not every
+   * qualification she holds — this string is the `honorificSuffix` in the
+   * schema and the line under her name in the footer, and post-nominals are a
+   * convention with a short list, not an inventory. The diploma and the
+   * certifications are in CREDENTIALS; the departmental and teaching posts are
+   * in ACADEMIC_ROLES.
+   */
   qualifications: 'MBBS, FCPS (Psychiatry)',
 
   /** ⚠️ VERIFY — near-certain for a Peshawar practice, but confirm with her */
@@ -51,7 +58,19 @@ export const DOCTOR = {
     'Her approach to psychiatric care is empathetic, culturally sensitive and evidence-based.',
 } as const;
 
-/** Verified — RMI consultant profile. Order is chronological. */
+/**
+ * What she has been awarded. Order is chronological.
+ *
+ * ⚠️ EXACTLY FOUR. The diagram on /about arranges these around a seal in four
+ * quadrants, and the quadrant names are a fixed list in that page's frontmatter.
+ * A fifth entry here renders nowhere and disappears silently. Anything that is a
+ * *post* rather than an award — head of a department, director of a course —
+ * belongs in ACADEMIC_ROLES below, not here.
+ *
+ * The first two are verified against the RMI consultant profile. The diploma is
+ * supplied by Dr. Qazi directly; the awarding body and the year are still to
+ * come from her, and the entry prints without a year until they do.
+ */
 export const CREDENTIALS = [
   {
     label: 'MBBS',
@@ -64,16 +83,98 @@ export const CREDENTIALS = [
     year: '2025',
   },
   {
+    /** ⚠️ VERIFY — awarding institution and year not yet supplied. */
+    label: 'Diploma in Islamic Psychotherapy',
+    detail: 'Postgraduate diploma',
+    year: null,
+  },
+  {
     label: 'Psychological First Aid',
     detail: 'Certified practitioner',
     year: null,
   },
+] as const;
+
+/**
+ * The line printed under the qualifications diagram.
+ *
+ * Continuing professional development used to be the fourth card. It is not an
+ * award and it has no awarding body, so on a diagram of certificates it was the
+ * one item that could not be checked — it reads better as a closing clause than
+ * as a credential with a box around it, and moving it is what made room for the
+ * diploma.
+ */
+export const CREDENTIALS_NOTE = 'With ongoing continuing professional development in psychiatry.';
+
+/**
+ * The posts she holds, as distinct from the qualifications she has been
+ * awarded. These are jobs with responsibilities attached, and two of the three
+ * are academic rather than clinical — which is why they are not on the
+ * credentials diagram and why /about gives them a section of their own.
+ *
+ * `href` is set where the post has somewhere to point. Left undefined the item
+ * renders as plain text rather than as a dead link.
+ */
+export const ACADEMIC_ROLES = [
   {
-    label: 'Continuing Professional Development',
-    detail: 'Ongoing CPD in psychiatry',
-    year: null,
+    icon: 'people' as IconName,
+    title: 'Head of the Behavioural Sciences Department',
+    org: 'Rehman Medical College, Peshawar',
+    body: 'She leads the department that teaches behavioural sciences to Rehman Medical College’s undergraduate medical students — the part of a doctor’s training that covers how people actually experience illness, and how to ask about it.',
+  },
+  {
+    icon: 'clipboard' as IconName,
+    title: 'Course Director, Post Graduate Certification in Primary Care Psychiatry',
+    org: 'Rehman Medical College, Peshawar',
+    body: 'She directs the certification that trains general practitioners and primary care doctors to recognise and manage mental illness in their own clinics. Most people in Khyber Pakhtunkhwa never reach a psychiatrist; this is the course that aims to mean they do not have to.',
+  },
+  {
+    icon: 'mind' as IconName,
+    title: 'Consultant Psychiatrist',
+    org: 'Rehman Medical Institute, Hayatabad',
+    body: 'Her clinical post, and the one this site is mostly about: outpatient psychiatry in adolescent and adult practice, with a particular focus on female mental health.',
   },
 ] as const;
+
+/**
+ * Public talks, teaching sessions and awareness work — the things she does
+ * outside the consulting room.
+ *
+ * ⚠️ PLACEHOLDER ENTRIES. Every item below is a real, stated engagement, but
+ * none of them has a photograph yet, and the first has no write-up. Dr. Qazi is
+ * sending images from the college sessions and from the IM Sciences talk; drop
+ * them into src/assets and set `image` to the import. Until an entry has one it
+ * renders as a text card, which is the correct fallback and not a broken state.
+ *
+ * `date` is written out rather than stored as a Date: these are captions, they
+ * are never sorted or compared, and a parsed date would only invite a timezone
+ * to shift a talk onto the wrong day.
+ */
+export interface Engagement {
+  title: string;
+  venue: string;
+  /** Free text — "September 2026", "Ongoing". Never parsed. */
+  date: string;
+  body: string;
+  /** Set once a photograph exists. See the note above. */
+  image?: ImageMetadata;
+  imageAlt?: string;
+}
+
+export const ENGAGEMENTS: Engagement[] = [
+  {
+    title: 'Primary care psychiatry, taught to the doctors people already see',
+    venue: 'Rehman Medical College',
+    date: 'Ongoing',
+    body: 'The postgraduate certification she directs, run for general practitioners who are treating anxiety, depression and insomnia in their own clinics and want to do it properly.',
+  },
+  {
+    title: 'Behavioural sciences, at the undergraduate bench',
+    venue: 'Rehman Medical College',
+    date: 'Ongoing',
+    body: 'Departmental teaching for medical students: how to take a history from someone who is frightened of the answer, and how to say a diagnosis out loud.',
+  },
+];
 
 /**
  * The credential bar under the hero. Split by kind, not flattened into one
@@ -88,55 +189,21 @@ export const CREDENTIAL_BAR = {
 
 /* --------------------------------------------------------------------------
    Practice location & contact
+
+   Moved to src/data/practice.ts so that services.ts can read it too — see the
+   header of that file. Re-exported here in full, so every existing
+   `import { PRACTICE } from '../consts'` continues to resolve exactly as
+   before, along with SALMA, BOOKING_VENUE, BOOKING_AREA and RMI_BOOKABLE.
    -------------------------------------------------------------------------- */
 
-export const PRACTICE = {
-  /** Verified — rmi.edu.pk/contact-us */
-  affiliation: 'Rehman Medical Institute',
-  affiliationShort: 'RMI',
-  affiliationUrl: 'https://rmi.edu.pk',
-  profileUrl: 'https://rmi.edu.pk/consultants/dr-shandana-qazi/',
-
-  address: {
-    street: 'Rehman Medical Institute, 5-B/2, Phase-V, Hayatabad',
-    locality: 'Peshawar',
-    region: 'Khyber Pakhtunkhwa',
-    postalCode: '25000', // ⚠️ VERIFY — Hayatabad general code
-    country: 'PK',
-  },
-
-  /**
-   * ⚠️ VERIFY — approximate coordinates for RMI Hayatabad.
-   * Confirm against the pin on her Google Business Profile before launch;
-   * wrong coordinates actively damage local pack ranking.
-   */
-  geo: { lat: 33.9943, lng: 71.4406 },
-
-  /** ⚠️ PLACEHOLDER — awaiting her direct booking number. */
-  bookingPhone: '+92 91 5838666',
-  bookingPhoneDisplay: '091 5838 666',
-
-  /** Verified — RMI switchboard, safe to publish as the hospital line. */
-  hospitalUan: '111 734 626',
-  hospitalPhone: '+92 91 5838666',
-
-  /** ⚠️ PLACEHOLDER — no WhatsApp number supplied yet. Digits only, no +. */
-  whatsapp: '929158380000',
-
-  /** Verified — RMI consultant profile */
-  email: 'shandana.qazi@rmi.edu.pk',
-
-  /**
-   * ⚠️ PLACEHOLDER — RMI does not publish per-consultant OPD hours.
-   * These drive `openingHoursSpecification` in the schema. Google penalises
-   * hours that don't match reality, so replace before launch.
-   */
-  hours: [
-    { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'], opens: '09:00', closes: '14:00' },
-    { days: ['Saturday'], opens: '09:00', closes: '13:00' },
-  ],
-  hoursDisplay: 'Mon–Thu, 9:00 am – 2:00 pm · Sat, 9:00 am – 1:00 pm',
-} as const;
+export * from './data/practice';
+import {
+  PRACTICE,
+  SALMA,
+  BOOKING_VENUE,
+  RMI_BOOKABLE,
+  VENUE_PHRASE,
+} from './data/practice';
 
 /* --------------------------------------------------------------------------
    Clinical content — all verified from her RMI profile
@@ -257,16 +324,18 @@ export interface AppointmentMode {
 
 /**
  * "Mon–Thu & Sat" — the clinic's open days, abbreviated for the chip on the
- * card. Derived from PRACTICE.hours rather than written out, so the chip can
- * never disagree with the hours table further down the same page.
+ * card. Derived from the bookable venue's hours rather than written out, so the
+ * chip can never disagree with the hours table further down the same page —
+ * including after the clinic switch is thrown and those hours are Salma's.
  */
-const openDays = PRACTICE.hours
+const listedDays = BOOKING_VENUE.hours
   .map((h) =>
     h.days.length === 1
       ? h.days[0].slice(0, 3)
       : `${h.days[0].slice(0, 3)}–${h.days[h.days.length - 1].slice(0, 3)}`
   )
   .join(' & ');
+const openDays = listedDays || 'By appointment';
 
 export const APPOINTMENT_MODES: AppointmentMode[] = [
   {
@@ -274,9 +343,18 @@ export const APPOINTMENT_MODES: AppointmentMode[] = [
     icon: 'pin',
     label: 'In person',
     availability: openDays,
-    title: 'At the clinic in Hayatabad',
+    /* Both the title and the "Where" row name the bookable venue rather than
+       stating Hayatabad outright. Before the switch that resolves to the RMI
+       outpatient department, exactly as it read before; after it, to the
+       clinic — and neither version has to be remembered and edited by hand. */
+    title: `At ${BOOKING_VENUE.name}`,
     facts: [
-      { label: 'Where', value: 'Outpatient department, Rehman Medical Institute' },
+      {
+        label: 'Where',
+        value: RMI_BOOKABLE
+          ? `Outpatient department, ${PRACTICE.affiliation}`
+          : `${BOOKING_VENUE.name}, ${BOOKING_VENUE.address.locality}`,
+      },
       /* Same label and same position as the online card's row, so the two
          halves of the panel line up row for row — the pair is meant to be read
          across, and a card with one fewer row breaks the comparison. */
@@ -285,7 +363,7 @@ export const APPOINTMENT_MODES: AppointmentMode[] = [
          per-consultant durations, and a printed number is one a patient will
          hold the clinic to. The first appointment is described as the longest
          one, in words, in APPOINTMENT_GLANCE and on /faq. */
-      { label: 'Booked by', value: 'Telephone, during clinic hours' },
+      { label: 'Booked by', value: 'WhatsApp' },
       { label: 'Languages', value: DOCTOR.languages.join(', ') },
     ],
     suits: [
@@ -304,7 +382,7 @@ export const APPOINTMENT_MODES: AppointmentMode[] = [
     availability: 'By arrangement',
     title: 'By video, from wherever you are',
     facts: [
-      { label: 'Where', value: 'Anywhere with a private room and a signal' },
+      { label: 'Where', value: 'Anywhere' },
       /* ⚠️ PLACEHOLDER — platform not confirmed. */
       { label: 'Platform', value: 'WhatsApp video, or a link sent to you' },
       { label: 'Booked by', value: 'Telephone or WhatsApp' },
@@ -325,13 +403,13 @@ export const APPOINTMENT_MODES: AppointmentMode[] = [
 export const BOOKING_STEPS = [
   {
     number: '01',
-    title: 'Call the clinic',
-    body: 'Phone reception during clinic hours and ask for an appointment with Dr. Shandana Qazi, Consultant Psychiatrist. Say whether you would like to be seen at the clinic or online. No referral letter is needed.',
+    title: 'Send a WhatsApp message',
+    body: 'Message Salma Psychiatric Clinic to ask about an appointment with Dr. Shandana Qazi, Consultant Psychiatrist. Say whether you would like to be seen at the clinic or online. The team will confirm availability and the clinic location. No referral letter is needed.',
   },
   {
     number: '02',
     title: 'Confirm the slot',
-    body: 'You are given the next available time and the consultation fee before anything is fixed. For an online appointment you are also told how the call will reach you.',
+    body: 'You are given the next available time and the consultation fee before anything is fixed. A WhatsApp message is answered during clinic hours rather than instantly. For an online appointment you are also told how the call will reach you.',
   },
   {
     number: '03',
@@ -381,7 +459,13 @@ export const APPOINTMENT_GLANCE = [
   {
     icon: 'chart' as IconName,
     label: 'Fees',
-    value: 'Set by Rehman Medical Institute and confirmed when you book. Ask about accepted health plans on the same call.',
+    /* Who sets the fee changes with the venue, and it is not a detail: at the
+       hospital the number is the hospital's and a patient can be told to ring
+       the UAN for it, whereas at her own clinic it is the practice's own and
+       that redirection would be a dead end. */
+    value: RMI_BOOKABLE
+      ? `Set by ${PRACTICE.affiliation} and confirmed when you book. Ask about accepted health plans on the same call.`
+      : 'Confirmed when you book, before anything is fixed. Ask about accepted health plans on the same call.',
   },
   {
     icon: 'shield' as IconName,
@@ -515,7 +599,9 @@ export const FAQ_GROUPS: {
       },
       {
         q: 'What does a consultation cost?',
-        a: 'Consultation fees are set by Rehman Medical Institute and are confirmed when you book. Call the hospital UAN for the current fee and for which health plans are accepted.',
+        a: RMI_BOOKABLE
+          ? 'Consultation fees are set by Rehman Medical Institute and are confirmed when you book. Call the hospital UAN for the current fee and for which health plans are accepted.'
+          : `Consultation fees are confirmed when you book, before anything is fixed. Message ${SALMA.name} for the current fee and for which health plans are accepted.`,
       },
     ],
   },
@@ -609,6 +695,10 @@ export const NAV_LINKS = [
      visitors, and the mobile menu has no mark in it at all. */
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
+  /* Next to About, not next to Appointments. The clinic is part of who she is
+     rather than part of how you book — and the name is the reason the tab
+     exists, so it wants to be read straight after the person it belongs to. */
+  { href: '/salma', label: 'Clinic' },
   { href: '/services', label: 'Services' },
   { href: '/appointments', label: 'Appointments' },
   { href: '/faq', label: 'Questions' },
@@ -620,6 +710,8 @@ export const FOOTER_NAV = [
     heading: 'Practice',
     links: [
       { href: '/about', label: 'About Dr. Qazi' },
+      { href: '/salma', label: SALMA.name },
+      { href: '/about#teaching', label: 'Teaching and advocacy' },
       { href: '/appointments', label: 'Book an appointment' },
       { href: '/faq', label: 'Common questions' },
       { href: '/contact', label: 'Contact and directions' },
@@ -658,11 +750,11 @@ export const SEO = {
   titleTemplate: '%s | Dr. Shandana Qazi, Psychiatrist Peshawar',
   /* Every description on the site is written to fit inside the ~160 characters
      Google renders. Longer text is still read for matching, but the tail never
-     appears in the result — so the tail is never where the useful part goes. */
-  description:
-    'Dr. Shandana Qazi, MBBS, FCPS, Consultant Psychiatrist at Rehman Medical Institute, Hayatabad, Peshawar. Depression, anxiety, trauma and women’s mental health.',
-  ogImageAlt:
-    'Dr. Shandana Qazi, Consultant Psychiatrist at Rehman Medical Institute, Hayatabad, Peshawar',
+     appears in the result — so the tail is never where the useful part goes.
+     Both branches of VENUE_PHRASE were counted against that budget; the longer
+     of the two lands at about 158. */
+  description: `Dr. Shandana Qazi, MBBS, FCPS, Consultant Psychiatrist at ${VENUE_PHRASE}. Depression, anxiety, trauma and women’s mental health.`,
+  ogImageAlt: `Dr. Shandana Qazi, Consultant Psychiatrist at ${VENUE_PHRASE}`,
 } as const;
 
 /**
@@ -677,8 +769,17 @@ export const SEO = {
 export const PAGE_SEO = {
   about: {
     title: 'About Dr. Shandana Qazi | Psychiatrist, Peshawar',
+    description: `Dr. Shandana Qazi, MBBS and FCPS in Psychiatry, practises at ${VENUE_PHRASE}. Qualifications, teaching posts and approach.`,
+  },
+  /**
+   * The clinic page.
+   *
+   * The nav and page heading use "Clinic"; metadata retains the full practice name.
+   */
+  salma: {
+    title: 'Salma Psychiatric Clinic | Dr. Shandana Qazi, Peshawar',
     description:
-      'Dr. Shandana Qazi, MBBS and FCPS in Psychiatry, is a Consultant Psychiatrist at Rehman Medical Institute, Hayatabad, Peshawar. Qualifications and approach.',
+      'Salma Psychiatric Clinic, the private practice of Dr. Shandana Qazi, Consultant Psychiatrist in Peshawar. Learn about the clinic and its care.',
   },
   services: {
     title: 'Services | Psychiatrist in Peshawar',
@@ -709,13 +810,11 @@ export const PAGE_SEO = {
    */
   appointments: {
     title: 'Appointments: In Person & Online | Dr. S. Qazi',
-    description:
-      'Book an appointment with Dr. Shandana Qazi, psychiatrist in Peshawar: in person at Rehman Medical Institute, Hayatabad, or online by video. Hours and fees.',
+    description: `Book an appointment with Dr. Shandana Qazi, psychiatrist in Peshawar: in person at ${VENUE_PHRASE}, or online by video. Hours and fees.`,
   },
   contact: {
-    title: 'Contact & Directions | Psychiatrist in Peshawar',
-    description:
-      'Contact Dr. Shandana Qazi, Consultant Psychiatrist, at Rehman Medical Institute, Hayatabad, Peshawar. Phone, WhatsApp, clinic hours and how to find it.',
+    title: 'Contact & Appointments | Psychiatrist in Peshawar',
+    description: `Contact Dr. Shandana Qazi, Consultant Psychiatrist, at ${VENUE_PHRASE}. Arrange appointments on WhatsApp and confirm the clinic location.`,
   },
   privacy: {
     title: 'Privacy Policy | Dr. Shandana Qazi',

@@ -1,9 +1,9 @@
 ---
 import Icon from './Icon.astro';
-import { FOOTER_NAV, LEGAL_LINKS, PRACTICE, DOCTOR } from '../consts';
+import { FOOTER_NAV, LEGAL_LINKS, PRACTICE, BOOKING_VENUE, DOCTOR, SALMA } from '../consts';
+import { WHATSAPP_HREF } from '../lib/practice-links';
 
 const year = new Date().getFullYear();
-const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
 ---
 
 {/* Pinned to the bottom of the viewport, behind the page — but only when it
@@ -32,25 +32,31 @@ const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
           <span>{DOCTOR.jobTitle}</span>
         </p>
 
+        {/* The practice she is booked through, named under her own name. The
+            address block at the foot gives the street; this gives the thing a
+            patient actually repeats to a rickshaw driver, and it is the one
+            place in the footer the clinic is named at all. */}
+        <p class="footer__venue">{BOOKING_VENUE.name}</p>
+
         <ul class="footer__contact">
           <li>
-            <Icon name="phone" size="sm" />
-            <a href={telHref}>{PRACTICE.bookingPhoneDisplay}</a>
+            <Icon name="whatsapp" size="sm" />
+            <a href={WHATSAPP_HREF} rel="noopener noreferrer" target="_blank">WhatsApp · {SALMA.whatsappDisplay}</a>
           </li>
           <li>
             <Icon name="mail" size="sm" />
             <a href={`mailto:${PRACTICE.email}`}>{PRACTICE.email}</a>
           </li>
-          <li>
+          {BOOKING_VENUE.hoursDisplay && <li>
             <Icon name="clock" size="sm" />
-            <span>{PRACTICE.hoursDisplay}</span>
-          </li>
+            <span>{BOOKING_VENUE.hoursDisplay}</span>
+          </li>}
         </ul>
 
-        <address class="footer__address">
-          {PRACTICE.address.street},<br />
-          {PRACTICE.address.locality}, {PRACTICE.address.region}, Pakistan
-        </address>
+        {SALMA.located && <address class="footer__address">
+          {BOOKING_VENUE.address.street},<br />
+          {BOOKING_VENUE.address.locality}, {BOOKING_VENUE.address.region}, Pakistan
+        </address>}
       </div>
 
       {/* Three columns of links rather than one flat row. With nine service
@@ -73,8 +79,7 @@ const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
 
     <div class="footer__base">
       <p class="footer__legal">
-        &copy; {year} {DOCTOR.name}. All rights reserved. Information on this site is
-        general and does not replace an individual consultation.
+        &copy; {year} {DOCTOR.name}. All rights reserved. 
       </p>
 
       <ul class="footer__legal-links">
@@ -173,6 +178,18 @@ const telHref = `tel:${PRACTICE.bookingPhone.replace(/\s/g, '')}`;
     content: "·";
     margin-right: var(--s-3);
     color: #9E92B8;
+  }
+
+  /* A step above the role line it sits under, in the display face: it is the
+     name of a place, and in the sans at body size it read as a third line of
+     job title. */
+  .footer__venue {
+    margin-top: var(--s-3);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -.01em;
+    color: #E7E2F2;
   }
 
   .footer__contact {

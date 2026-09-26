@@ -25,7 +25,17 @@
  * passes no `faqs` prop, because the same Q&A marked up twice is a duplicate
  * signal rather than two chances at a rich result.
  */
-import { SITE, DOCTOR, PRACTICE, SERVICE_KEYWORDS, MODALITIES, SEO } from '../consts';
+import {
+  SITE,
+  DOCTOR,
+  PRACTICE,
+  SALMA,
+  BOOKING_VENUE,
+  ACADEMIC_ROLES,
+  SERVICE_KEYWORDS,
+  MODALITIES,
+  SEO,
+} from '../consts';
 
 type PageType =
   | 'WebPage'
@@ -69,7 +79,7 @@ const conditionId = `${canonical}#condition`;
 
 const practiceNodes = [
   {
-    '@type': ['Physician', 'MedicalBusiness'],
+    '@type': SALMA.located ? ['Physician', 'MedicalBusiness'] : 'Physician',
     '@id': physicianId,
     name: DOCTOR.name,
     alternateName: `${DOCTOR.givenName} ${DOCTOR.familyName}`,
@@ -82,26 +92,30 @@ const practiceNodes = [
     description: SEO.description,
     url: base,
     image: `${base}/og-image.jpg`,
-    telephone: PRACTICE.bookingPhone,
+    /* NAP follows the bookable venue, not the hospital. This node is the entity
+       Google's local pack ranks, so its address, coordinates, phone and hours
+       have to be the place a patient is actually asked to turn up at — the
+       moment they describe a different building from the one on /contact, the
+       listing and the site disagree and the listing is what loses. */
     email: PRACTICE.email,
     priceRange: 'PKR',
     medicalSpecialty: 'Psychiatric',
     knowsLanguage: DOCTOR.languages,
 
-    address: {
+    ...(SALMA.located ? { address: {
       '@type': 'PostalAddress',
-      streetAddress: PRACTICE.address.street,
-      addressLocality: PRACTICE.address.locality,
-      addressRegion: PRACTICE.address.region,
-      postalCode: PRACTICE.address.postalCode,
-      addressCountry: PRACTICE.address.country,
-    },
+      streetAddress: BOOKING_VENUE.address.street,
+      addressLocality: BOOKING_VENUE.address.locality,
+      addressRegion: BOOKING_VENUE.address.region,
+      postalCode: BOOKING_VENUE.address.postalCode,
+      addressCountry: BOOKING_VENUE.address.country,
+    } } : {}),
 
-    geo: {
+    ...(SALMA.located ? { geo: {
       '@type': 'GeoCoordinates',
-      latitude: PRACTICE.geo.lat,
-      longitude: PRACTICE.geo.lng,
-    },
+      latitude: BOOKING_VENUE.geo.lat,
+      longitude: BOOKING_VENUE.geo.lng,
+    } } : {}),
 
     // The catchment this practice actually serves.
     areaServed: [
@@ -109,12 +123,17 @@ const practiceNodes = [
       { '@type': 'AdministrativeArea', name: 'Khyber Pakhtunkhwa' },
     ],
 
-    openingHoursSpecification: PRACTICE.hours.map((h) => ({
+    ...(BOOKING_VENUE.hours.length > 0 && { openingHoursSpecification: BOOKING_VENUE.hours.map((h) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: h.days,
       opens: h.opens,
       closes: h.closes,
-    })),
+    })) }),
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Appointment enquiries',
+      url: `https://wa.me/${SALMA.whatsapp}`,
+    },
 
     hasCredential: [
       {
@@ -131,7 +150,34 @@ const practiceNodes = [
           name: 'College of Physicians and Surgeons Pakistan',
         },
       },
+      /* No `recognizedBy` — the awarding institution has not been supplied yet.
+         An omitted property is a gap; a guessed one is a false statement about a
+         qualification, which is the worst kind of thing to be wrong about here.
+         Add it when consts.ts gets it. */
+      {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: 'diploma',
+        name: 'Diploma in Islamic Psychotherapy',
+      },
+      {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: 'certificate',
+        name: 'Psychological First Aid',
+      },
     ],
+
+    /* The posts, as distinct from the qualifications above. This is what tells a
+       crawler that the same person who consults at RMI heads a department and
+       directs a course at the college — which is the substance behind every
+       "expertise" claim on the site, and the part a credential list alone does
+       not carry. Built from ACADEMIC_ROLES so the schema and /about state the
+       same three jobs. */
+    hasOccupation: ACADEMIC_ROLES.map((r) => ({
+      '@type': 'Occupation',
+      name: r.title,
+      occupationLocation: { '@type': 'City', name: PRACTICE.address.locality },
+      description: `${r.title}, ${r.org}`,
+    })),
 
     alumniOf: {
       '@type': 'CollegeOrUniversity',
@@ -143,7 +189,11 @@ const practiceNodes = [
       },
     },
 
-    worksFor: { '@id': orgId },
+    /* `worksFor` follows the practice she is booked through; `affiliation`
+       always names RMI. Once the clinic is her primary practice those are two
+       genuinely different organisations, and collapsing them onto the hospital
+       would say she is employed by RMI to do work she does at her own clinic. */
+    worksFor: { '@id': `${base}/#salma` },
     affiliation: { '@id': orgId },
 
     // MODALITIES, not the service list: a condition is not a MedicalProcedure.
@@ -155,7 +205,11 @@ const practiceNodes = [
     })),
 
     knowsAbout: SERVICE_KEYWORDS,
-    sameAs: [PRACTICE.profileUrl],
+    /* Her RMI consultant profile verifies the credentials; the clinic's
+       Instagram is the only other public account that belongs to this practice.
+       Two independent corroborations of one practitioner is what `sameAs` is
+       worth having for. */
+    sameAs: [SALMA.instagram],
   },
 
   {
@@ -163,7 +217,6 @@ const practiceNodes = [
     '@id': orgId,
     name: PRACTICE.affiliation,
     alternateName: PRACTICE.affiliationShort,
-    url: PRACTICE.affiliationUrl,
     telephone: PRACTICE.hospitalPhone,
     address: {
       '@type': 'PostalAddress',
@@ -211,6 +264,69 @@ if (breadcrumbs.length) {
 }
 
 const graph: Record<string, unknown>[] = [...practiceNodes, webpage];
+
+/* -- Salma Psychiatric Clinic, her own practice. ---------------------------
+   Declared in two stages, because the clinic has a public identity before it
+   has a published address and those are different claims:
+
+   Stage one, now. A plain `Organization`: the clinic exists, it is called this,
+   it has this page and this Instagram account, and Dr. Qazi works there. Every
+   one of those is verifiable today. `Organization` is deliberately NOT a
+   LocalBusiness — a LocalBusiness is a claim about a place on a map, and an
+   address-less one competes with the RMI listing for the same practitioner with
+   nothing for Google to place, so neither ranks cleanly.
+
+   Stage two, once SALMA.located. It becomes a `MedicalClinic` with an address,
+   coordinates and opening hours — a real local entity — and the Physician node
+   above has already moved its own NAP onto the same building.
+
+   `sameAs` carries the Instagram either way. With no Google Business Profile
+   yet it is the only external corroboration that this practice is a real
+   going concern, which is exactly the job `sameAs` exists to do.
+
+   `employee` rather than a property on the Physician node: an Organization
+   names a person that way, and it keeps a single `@id` for Dr. Qazi — she is
+   one physician working at two places, not two physicians. */
+graph.push({
+  '@type': SALMA.located ? ['MedicalClinic', 'MedicalBusiness'] : 'MedicalOrganization',
+  '@id': `${base}/#salma`,
+  name: SALMA.name,
+  alternateName: SALMA.shortName,
+  url: `${base}/salma`,
+  sameAs: [SALMA.instagram],
+  employee: { '@id': physicianId },
+  medicalSpecialty: 'Psychiatric',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'appointments',
+    url: `https://wa.me/${SALMA.whatsapp}`,
+  },
+  ...(SALMA.located
+    ? {
+        medicalSpecialty: 'Psychiatric',
+        ...(SALMA.phone ? { telephone: SALMA.phone } : {}),
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: SALMA.address.street,
+          addressLocality: SALMA.address.locality,
+          addressRegion: SALMA.address.region,
+          postalCode: SALMA.address.postalCode,
+          addressCountry: SALMA.address.country,
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: SALMA.geo.lat,
+          longitude: SALMA.geo.lng,
+        },
+        openingHoursSpecification: SALMA.hours.map((h) => ({
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: h.days,
+          opens: h.opens,
+          closes: h.closes,
+        })),
+      }
+    : {}),
+});
 
 if (breadcrumbs.length) {
   graph.push({

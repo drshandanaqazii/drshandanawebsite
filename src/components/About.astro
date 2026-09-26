@@ -1,6 +1,13 @@
 ---
 import { Image } from 'astro:assets';
-import { DOCTOR, CREDENTIALS, PRACTICE } from '../consts';
+import {
+  DOCTOR,
+  CREDENTIALS,
+  PRACTICE,
+  BOOKING_VENUE,
+  BOOKING_AREA,
+  RMI_BOOKABLE,
+} from '../consts';
 import Button from './Button.astro';
 import aboutPortrait from '../assets/about-shandana.webp';
 ---
@@ -32,10 +39,21 @@ import aboutPortrait from '../assets/about-shandana.webp';
         Care that makes sense where you <em>live</em>.
       </h2>
 
+      {/* The venue follows the switch; the consultant post does not. Once her
+          own clinic is where patients are seen, "practises at RMI" would be the
+          site's own summary contradicting its booking pages — but the post
+          itself stays, because it is true and it is most of what the sentence
+          is for. */}
       <p class="prose" data-reveal>
         {DOCTOR.name} qualified in medicine from Rehman Medical College in 2018 and
-        completed her FCPS in Psychiatry in 2025. She practises as a consultant
-        psychiatrist at Rehman Medical Institute in Hayatabad, Peshawar.
+        completed her FCPS in Psychiatry in 2025.
+        {RMI_BOOKABLE ? (
+          <> She practises as a consultant psychiatrist at {BOOKING_VENUE.name} in
+          {' '}{BOOKING_AREA}, {BOOKING_VENUE.address.locality}.</>
+        ) : (
+          <> She sees patients at {BOOKING_VENUE.name} in {BOOKING_AREA}, and holds a
+          consultant post at {PRACTICE.affiliation}.</>
+        )}
       </p>
 
       <p class="prose" data-reveal>
@@ -60,9 +78,6 @@ import aboutPortrait from '../assets/about-shandana.webp';
           own profile, which is what actually verifies the list above it. */}
       <div class="about__cta" data-reveal>
         <Button href="/about">More about Dr. Qazi</Button>
-        <Button href={PRACTICE.profileUrl} variant="ghost" external>
-          View credentials
-        </Button>
       </div>
     </div>
   </div>

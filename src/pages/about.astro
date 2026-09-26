@@ -3,9 +3,20 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MediaHeader from '../components/MediaHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
+import TeachingExplorer from '../components/TeachingExplorer.astro';
 import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
-import { DOCTOR, CREDENTIALS, PRACTICE, PAGE_SEO, SERVICES } from '../consts';
+import {
+  DOCTOR,
+  CREDENTIALS,
+  CREDENTIALS_NOTE,
+  PRACTICE,
+  BOOKING_VENUE,
+  BOOKING_AREA,
+  RMI_BOOKABLE,
+  PAGE_SEO,
+  SERVICES,
+} from '../consts';
 import portrait from '../assets/about-main-portrait.jpeg';
 
 import heroImage from '../assets/about-shandana.webp';
@@ -51,12 +62,15 @@ const FACTS = [
   {
     icon: 'mind',
     label: 'Areas of expertise',
-    body: 'Adolescent and adult psychiatry, with a particular focus on female mental health, including perinatal and postnatal care. Also a certified practitioner of Psychological First Aid.',
+    body: 'Adolescent and adult psychiatry, with a particular focus on female mental health, including perinatal and postnatal care. Also a certified practitioner of Psychological First Aid, and a holder of a Diploma in Islamic Psychotherapy.',
   },
   {
-    icon: 'heart',
-    label: 'Approach',
-    body: 'Empathetic, culturally sensitive and evidence-based. The reasoning behind a recommendation is explained before any decision is made.',
+    /* The teaching posts, in one line. The full version is the section further
+       down the page; this exists because a reader who only gets as far as the
+       profile card should still know she runs a department. */
+    icon: 'people',
+    label: 'Teaching',
+    body: 'Head of the Behavioural Sciences Department at Rehman Medical College, and Course Director of its Post Graduate Certification in Primary Care Psychiatry.',
   },
 ] as const;
 
@@ -112,10 +126,24 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
             A psychiatrist in Peshawar, trained in <em>Peshawar</em>
           </h2>
 
+          {/* Where she practises, then the post that qualifies her — and once
+              those are two different institutions, both are named. The clinic
+              is not linked out: it is a page on this site and the nav already
+              carries it, whereas RMI's own site is the thing that verifies the
+              post being claimed. */}
           <p class="bio-card__lede" data-reveal>
-            Consultant Psychiatrist at
-            <a href={PRACTICE.affiliationUrl} rel="noopener noreferrer" target="_blank">Rehman
-            Medical Institute</a> in Hayatabad.
+            {RMI_BOOKABLE ? (
+              <>
+                Consultant Psychiatrist at{' '}
+                {PRACTICE.affiliation}{' '}in {BOOKING_AREA}.
+              </>
+            ) : (
+              <>
+                Practising at {BOOKING_VENUE.name} in {BOOKING_AREA}, and Consultant
+                Psychiatrist at{' '}
+                {PRACTICE.affiliation}.
+              </>
+            )}
           </p>
 
           {/* The same four facts that used to run as four paragraphs. Labelled
@@ -193,17 +221,29 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
         {DOCTOR.jobTitle}, {PRACTICE.affiliation}, Hayatabad, Peshawar
         <span aria-hidden="true"> · </span>
         Consultations in {DOCTOR.languages.join(', ')}
+        <span aria-hidden="true"> · </span>
+        {CREDENTIALS_NOTE}
       </p>
 
       {/* Displaced from the middle of the diagram when the core became a seal.
           It stays on the page deliberately: RMI is the primary source for every
           credential above, and a qualifications section that cannot be checked
           is just a list of assertions. */}
-      <div class="qual__verify" data-reveal>
-        <Button href={PRACTICE.profileUrl} variant="ghost" external>
-          Verify on the RMI website
-        </Button>
+    </div>
+  </section>
+
+  {/* Portrait cards reveal each role and its related teaching session. */}
+  <section class="section" id="teaching" aria-labelledby="teaching-heading">
+    <div class="container">
+      <div class="section-head" data-reveal-group>
+        <p class="eyebrow" data-reveal>Teaching and advocacy</p>
+        <h2 class="display-md" id="teaching-heading" data-reveal>
+          The work outside the <em>consulting room</em>.
+        </h2>
+        
       </div>
+
+      <TeachingExplorer />
     </div>
   </section>
 
@@ -655,6 +695,13 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
   }
 
   /* ------------------------------------------------------------------------
+     Teaching and advocacy
+
+     The portrait explorer holds the roles and their related sessions.
+     ------------------------------------------------------------------------ */
+  .teach__lede { max-width: 62ch; color: var(--ink-body); }
+
+  /* ------------------------------------------------------------------------
      What she treats — the section drawn as a brain
 
      No tinted slab: the background *is* the drawing. The silhouette is
@@ -665,7 +712,7 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
   .focus-section {
     position: relative;
     isolation: isolate;
-    padding-block: clamp(72px, 10vw, 128px);
+    padding-block: clamp(48px, 6vw, 88px) clamp(72px, 10vw, 128px);
     overflow: hidden;
   }
 
@@ -734,9 +781,6 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
   }
 
   @media (max-width: 640px) {
-    /* The band goes portrait while the drawing's box is landscape, so the
-       stretch is severe enough that nothing in it reads as a brain. Dropped on
-       phones; the tags carry the section on their own. */
     .brain { display: none; }
   }
 
@@ -832,6 +876,7 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
   }
 
   @media (max-width: 900px) {
+
     /* Stacked, the portrait keeps its source position at the top: at full width
        it is the introduction, whereas underneath the four facts it would read
        as a footnote. */
@@ -883,6 +928,7 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
      edge, with the vertical offsets pulling neighbouring rows into each other.
      On phones the tags sit flat in honest rows instead. */
   @media (max-width: 640px) {
+
     .tags { gap: var(--s-2); }
     .tag {
       padding: 0 18px;

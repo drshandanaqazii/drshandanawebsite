@@ -4,6 +4,7 @@ import Hero from '../components/Hero.astro';
 import CareModel from '../components/CareModel.astro';
 import Services from '../components/Services.astro';
 import About from '../components/About.astro';
+import Teaching from '../components/Teaching.astro';
 import Testimonials from '../components/Testimonials.astro';
 import Faq from '../components/Faq.astro';
 import Contact from '../components/Contact.astro';
@@ -22,6 +23,11 @@ import Contact from '../components/Contact.astro';
 <BaseLayout>
   <Hero />
   <About />
+  {/* Directly after the introduction, not later down the page: it is the second
+      half of who she is, and it reads as a digression anywhere the reader has
+      already moved on to what she treats. Links to /about#teaching, which is
+      where the full version and the photographs live. */}
+  <Teaching />
   <Services />
   <CareModel />
   {/* After the care model and before the questions: the reviews answer "does
