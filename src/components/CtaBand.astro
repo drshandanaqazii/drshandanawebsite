@@ -12,7 +12,6 @@ import Button from './Button.astro';
 import Icon from './Icon.astro';
 import Motif from './Motif.astro';
 import { BOOKING_VENUE } from '../consts';
-import { WHATSAPP_HREF } from '../lib/practice-links';
 
 interface Props {
   eyebrow?: string;
@@ -29,7 +28,7 @@ const {
      writing about something more specific than "where appointments happen" and
      are left alone — but check them against the venue if the clinic switch is
      thrown, because a page-level override cannot follow it. */
-  body = `Appointments are arranged directly with ${BOOKING_VENUE.name}. Send a WhatsApp message to ask about availability.`,
+  body = `Appointments are arranged directly with RMI (in person) or ${BOOKING_VENUE.name}. Choose a time that suits you and the team will confirm it.`,
 } = Astro.props;
 ---
 
@@ -50,8 +49,8 @@ const {
       <p class="cta__body" data-reveal>{body}</p>
 
       <div class="cta__actions" data-reveal>
-        <Button href={WHATSAPP_HREF} variant="on-dark" icon="whatsapp" external>
-          Book on WhatsApp
+        <Button href="/appointments" variant="on-dark" book>
+          Book an appointment
         </Button>
       </div>
 

@@ -2,24 +2,50 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import { CLINIC_GALLERY } from '../data/clinic-gallery';
+import type { ClinicPhoto } from '../data/clinic-gallery';
 
-const { photos, preview } = CLINIC_GALLERY;
+/* Defaults render the clinic gallery. Other pages pass their own photographs;
+   `landscape` swaps the 4:5 tiles for 4:3 ones so wide photographs are not
+   cropped to a sliver. */
+interface Props {
+  photos?: ClinicPhoto[];
+  id?: string;
+  eyebrow?: string;
+  title?: string;
+  titleEm?: string;
+  label?: string;
+  note?: string;
+  landscape?: boolean;
+}
+const {
+  photos = CLINIC_GALLERY.photos,
+  id = 'clinic-photos',
+  eyebrow = 'Clinic gallery',
+  title = 'A closer',
+  titleEm = 'look',
+  label = 'Clinic photo gallery',
+  note,
+  landscape = false,
+} = Astro.props;
+const preview = photos === CLINIC_GALLERY.photos && CLINIC_GALLERY.preview;
+const headingId = `${id}-heading`;
 ---
 
-<section class="section section--band clinic-gallery" id="clinic-photos" aria-labelledby="gallery-heading">
+<section class={`section section--band clinic-gallery${landscape ? ' clinic-gallery--landscape' : ''}`} id={id} aria-labelledby={headingId}>
   <div class="container">
     <div class="section-head section-head--center gallery-heading" data-reveal-group>
-      <p class="eyebrow" data-reveal>Clinic gallery</p>
-      <h2 class="display-md" id="gallery-heading" data-reveal>A closer <em>look</em>.</h2>
+      <p class="eyebrow" data-reveal>{eyebrow}</p>
+      <h2 class="display-md" id={headingId} data-reveal>{title} <em>{titleEm}</em>.</h2>
       {preview && <p class="body-sm gallery-note" data-reveal>Illustrative previews — photographs of Salma Psychiatric Clinic will follow.</p>}
+      {note && <p class="body-sm gallery-note" data-reveal>{note}</p>}
     </div>
   </div>
 
-  <clinic-gallery aria-label="Clinic photo gallery" role="region" aria-roledescription="carousel">
+  <clinic-gallery aria-label={label} role="region" aria-roledescription="carousel">
     <div class="gallery-stage" tabindex="0" aria-label="Photos. Use the left and right arrow keys to browse.">
       {photos.map((photo, index) => (
         <figure class="gallery-photo" role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${photos.length}: ${photo.alt}`}>
-          <Image src={photo.src} alt={photo.alt} widths={[320, 560, 800]} sizes="(max-width: 640px) 66vw, 360px" loading="lazy" style={`object-position: ${photo.position ?? '50% 50%'}`} />
+          <Image src={photo.src} alt={photo.alt} widths={landscape ? [480, 720, 960] : [320, 560, 800]} sizes={landscape ? '(max-width: 640px) 80vw, 460px' : '(max-width: 640px) 66vw, 360px'} loading="lazy" style={`object-position: ${photo.position ?? '50% 50%'}`} />
         </figure>
       ))}
     </div>
@@ -54,6 +80,7 @@ const { photos, preview } = CLINIC_GALLERY;
     box-shadow: 0 16px 36px rgba(26, 22, 34, .15);
     scroll-snap-align: center;
   }
+  .clinic-gallery--landscape .gallery-photo { aspect-ratio: 4 / 3; flex-basis: min(80vw, 460px); }
   .gallery-photo :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
   clinic-gallery[data-ready] .gallery-stage {
     --gallery-step: clamp(155px, 20vw, 250px);
@@ -76,6 +103,8 @@ const { photos, preview } = CLINIC_GALLERY;
     filter: brightness(var(--brightness));
     transition: transform 550ms var(--ease), filter 550ms var(--ease), opacity 550ms var(--ease);
   }
+  .clinic-gallery--landscape clinic-gallery[data-ready] .gallery-photo { width: 460px; }
+  .clinic-gallery--landscape clinic-gallery[data-ready] .gallery-stage { --gallery-step: clamp(190px, 25vw, 320px); height: 400px; }
   .gallery-nav { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 8px; padding-inline: 20px; }
   .gallery-nav[hidden] { display: none; }
   .gallery-button {
@@ -99,6 +128,8 @@ const { photos, preview } = CLINIC_GALLERY;
   @media (max-width: 640px) {
     clinic-gallery[data-ready] .gallery-stage { --gallery-step: 36vw; height: 360px; }
     clinic-gallery[data-ready] .gallery-photo { width: min(66vw, 260px); }
+    .clinic-gallery--landscape clinic-gallery[data-ready] .gallery-photo { width: min(78vw, 300px); }
+    .clinic-gallery--landscape clinic-gallery[data-ready] .gallery-stage { --gallery-step: 40vw; height: 280px; }
     .gallery-nav { gap: 12px; margin-top: 0; }
     .gallery-status { width: 160px; font-size: .75rem; }
   }

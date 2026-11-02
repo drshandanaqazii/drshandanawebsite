@@ -4,7 +4,8 @@ import '../styles/motion.css';
 import StructuredData from '../components/StructuredData.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import { SITE, SEO, DOCTOR, BOOKING_VENUE, SALMA } from '../consts';
+import BookingModal from '../components/BookingModal.astro';
+import { SITE, SEO, DOCTOR, RMI_VENUE, SALMA } from '../consts';
 
 interface Props {
   title?: string;
@@ -59,10 +60,10 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
          and harmless for Google. The authoritative signal is the JSON-LD below. -->
     <meta name="geo.region" content="PK-KP" />
     <meta name="geo.placename" content="Peshawar" />
-    {SALMA.located && <>
-      <meta name="geo.position" content={`${BOOKING_VENUE.geo.lat};${BOOKING_VENUE.geo.lng}`} />
-      <meta name="ICBM" content={`${BOOKING_VENUE.geo.lat}, ${BOOKING_VENUE.geo.lng}`} />
-    </>}
+    <>
+      <meta name="geo.position" content={`${RMI_VENUE.geo.lat};${RMI_VENUE.geo.lng}`} />
+      <meta name="ICBM" content={`${RMI_VENUE.geo.lat}, ${RMI_VENUE.geo.lng}`} />
+    </>
     <meta name="author" content={DOCTOR.name} />
 
     <!-- Open Graph -->
@@ -120,6 +121,18 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
   </head>
 
   <body class={bodyClass}>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="ig-v" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8C48A" stop-opacity=".95" />
+          <stop offset="1" stop-color="#F6E6C8" stop-opacity=".55" />
+        </linearGradient>
+        <linearGradient id="ig-h" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#F6E6C8" stop-opacity=".55" />
+          <stop offset="1" stop-color="#E8C48A" stop-opacity=".95" />
+        </linearGradient>
+      </defs>
+    </svg>
     <a class="skip-link" href="#main">Skip to content</a>
 
     {/* .page is the sheet that scrolls over the fixed footer — see the curtain
@@ -132,6 +145,7 @@ const ogImage = new URL('/og-image.jpg', Astro.site ?? SITE.url).href;
     </div>
 
     <Footer />
+    <BookingModal />
 
     <script>
       import '../scripts/motion';

@@ -11,9 +11,9 @@
  * her hospital address, and both remain true of RMI whichever venue is booking.
  */
 
-import { PRACTICE, BOOKING_VENUE, SALMA } from '../consts';
+import { PRACTICE, RMI_VENUE, SALMA } from '../consts';
 
-export const TEL_HREF = `tel:${BOOKING_VENUE.phone.replace(/\s/g, '')}`;
+export const TEL_HREF = `tel:${RMI_VENUE.phone.replace(/\s/g, '')}`;
 export const UAN_HREF = `tel:${PRACTICE.hospitalPhone.replace(/\s/g, '')}`;
 export const MAIL_HREF = `mailto:${PRACTICE.email}`;
 
@@ -53,7 +53,7 @@ export const WHATSAPP_HREF =
    Repeating it produces "Rehman Medical Institute, Rehman Medical Institute,
    5-B/2…", and a doubled token measurably degrades the geocode rather than
    being ignored. */
-const { name, address } = BOOKING_VENUE;
+const { name, address } = RMI_VENUE;
 const namePrefix = address.street.toLowerCase().includes(name.toLowerCase()) ? '' : name;
 
 const MAPS_QUERY = encodeURIComponent(

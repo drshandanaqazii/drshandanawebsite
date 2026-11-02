@@ -13,8 +13,8 @@ const sizeClass = size === 'sm' ? 'icon--sm' : size === 'lg' ? 'icon--lg' : '';
 ---
 
 <svg
-  class={`icon ${sizeClass} ${className}`.trim()}
-  viewBox="0 0 24 24"
+  class={`icon icon--${name} ${sizeClass} ${className}`.trim()}
+  viewBox="0 0 256 256"
   aria-hidden="true"
   focusable="false"
   set:html={ICON_PATHS[name]}

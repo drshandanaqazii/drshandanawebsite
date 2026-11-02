@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import Motif from './Motif.astro';
-import { DOCTOR, CREDENTIAL_BAR, BOOKING_VENUE, BOOKING_AREA, RMI_BOOKABLE } from '../consts';
+import { DOCTOR, CREDENTIAL_BAR, PRACTICE, BOOKING_VENUE, BOOKING_AREA, RMI_BOOKABLE } from '../consts';
 import portrait from '../assets/shandana-portrait.png';
 ---
 
@@ -26,8 +26,9 @@ import portrait from '../assets/shandana-portrait.png';
           <>is a consultant psychiatrist at {BOOKING_VENUE.name}, {BOOKING_AREA}.</>
         ) : (
           <>
-            is a consultant psychiatrist. She sees patients at {BOOKING_VENUE.name}
-            {' '}in {BOOKING_AREA}, {BOOKING_VENUE.address.locality}.
+            is a consultant psychiatrist. She sees patients in person at {PRACTICE.affiliation}
+            {' '}({PRACTICE.affiliationShort}), {BOOKING_AREA}, {PRACTICE.address.locality}, and online at
+            {' '}<span class="hero__name">{BOOKING_VENUE.name}</span>.
           </>
         )}
         {' '}Depression, anxiety, stress, and the conditions that quietly reshape
@@ -38,7 +39,7 @@ import portrait from '../assets/shandana-portrait.png';
           not knowing what an appointment involves is the usual reason for
           hesitating at this point. */}
       <div class="hero__actions" data-reveal>
-        <Button href="/contact">Book a consultation</Button>
+        <Button href="/appointments" book>Book a consultation</Button>
         <Button href="/faq" variant="ghost">Questions before booking</Button>
       </div>
 
@@ -49,9 +50,7 @@ import portrait from '../assets/shandana-portrait.png';
             where a venue has no published street yet — a pin with a clinic name
             beside it is still orientation; a pin beside a comma is not. */}
         <span>
-          {BOOKING_VENUE.address.street
-            ? `${BOOKING_VENUE.address.street}, ${BOOKING_VENUE.address.locality}`
-            : `${BOOKING_VENUE.name}, ${BOOKING_VENUE.address.locality}`}
+          {PRACTICE.address.street}, {PRACTICE.address.locality}
         </span>
       </p>
     </div>

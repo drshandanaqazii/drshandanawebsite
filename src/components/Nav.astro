@@ -40,7 +40,7 @@ const isCurrent = (href: string) =>
           <Icon name="whatsapp" size="sm" />
           <span>{SALMA.whatsappDisplay}</span>
         </a>
-        <Button href="/appointments" class="nav__cta">Book a consultation</Button>
+        <Button href="/appointments" class="nav__cta" book>Book a consultation</Button>
         <button
           class="nav__toggle"
           type="button"
@@ -63,7 +63,7 @@ const isCurrent = (href: string) =>
             </a>
           </li>
         ))}
-        <li><a class="nav__mobile-cta" href="/appointments">Book a consultation</a></li>
+        <li><a class="nav__mobile-cta" href="/appointments" data-book>Book a consultation</a></li>
         {/* WhatsApp opens directly to the clinic's appointment chat. */}
         <li class="nav__mobile-reach">
           <a

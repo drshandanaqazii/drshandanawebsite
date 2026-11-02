@@ -1,5 +1,6 @@
 import { SITE_URL, SITE_LOCALE } from '../site.config.mjs';
 import { SERVICES } from './data/services';
+import { BOOKING_MODES } from './data/booking';
 import type { IconName } from './lib/icons';
 
 /* ==========================================================================
@@ -322,49 +323,22 @@ export interface AppointmentMode {
   note: string;
 }
 
-/**
- * "Mon–Thu & Sat" — the clinic's open days, abbreviated for the chip on the
- * card. Derived from the bookable venue's hours rather than written out, so the
- * chip can never disagree with the hours table further down the same page —
- * including after the clinic switch is thrown and those hours are Salma's.
- */
-const listedDays = BOOKING_VENUE.hours
-  .map((h) =>
-    h.days.length === 1
-      ? h.days[0].slice(0, 3)
-      : `${h.days[0].slice(0, 3)}–${h.days[h.days.length - 1].slice(0, 3)}`
-  )
-  .join(' & ');
-const openDays = listedDays || 'By appointment';
+/* The availability chip on each card comes from BOOKING_MODES, the same data
+   the booking dialog offers slots from, so the two cannot disagree. */
+const ONLINE_MODE = BOOKING_MODES.find((m) => m.id === 'online')!;
 
 export const APPOINTMENT_MODES: AppointmentMode[] = [
   {
     slug: 'in-person',
     icon: 'pin',
     label: 'In person',
-    availability: openDays,
-    /* Both the title and the "Where" row name the bookable venue rather than
-       stating Hayatabad outright. Before the switch that resolves to the RMI
-       outpatient department, exactly as it read before; after it, to the
-       clinic — and neither version has to be remembered and edited by hand. */
-    title: `At ${BOOKING_VENUE.name}`,
+    availability: 'Mon–Fri',
+    title: `At ${PRACTICE.affiliation}`,
     facts: [
-      {
-        label: 'Where',
-        value: RMI_BOOKABLE
-          ? `Outpatient department, ${PRACTICE.affiliation}`
-          : `${BOOKING_VENUE.name}, ${BOOKING_VENUE.address.locality}`,
-      },
-      /* Same label and same position as the online card's row, so the two
-         halves of the panel line up row for row — the pair is meant to be read
-         across, and a card with one fewer row breaks the comparison. */
+      { label: 'Where', value: `Outpatient department, ${PRACTICE.affiliation}, Hayatabad` },
+      /* Same labels and order as the online card, so the pair reads across. */
       { label: 'Platform', value: 'Face to face, in the consulting room' },
-      /* No appointment lengths here, deliberately. RMI publishes no
-         per-consultant durations, and a printed number is one a patient will
-         hold the clinic to. The first appointment is described as the longest
-         one, in words, in APPOINTMENT_GLANCE and on /faq. */
-      { label: 'Booked by', value: 'WhatsApp' },
-      { label: 'Languages', value: DOCTOR.languages.join(', ') },
+      { label: 'Clinic hours', value: 'Mon–Fri, 10:00 am – 3:00 pm' },
     ],
     suits: [
       'A first assessment, where the history is long or complicated',
@@ -377,16 +351,14 @@ export const APPOINTMENT_MODES: AppointmentMode[] = [
   {
     slug: 'online',
     icon: 'cloud',
-    label: 'Online',
-    /* ⚠️ PLACEHOLDER — no published telepsychiatry hours. */
-    availability: 'By arrangement',
+    label: 'Salma Clinic',
+    availability: ONLINE_MODE.daysDisplay,
     title: 'By video, from wherever you are',
     facts: [
       { label: 'Where', value: 'Anywhere' },
       /* ⚠️ PLACEHOLDER — platform not confirmed. */
       { label: 'Platform', value: 'WhatsApp video, or a link sent to you' },
-      { label: 'Booked by', value: 'Telephone or WhatsApp' },
-      { label: 'Languages', value: DOCTOR.languages.join(', ') },
+      { label: 'Clinic hours', value: `${ONLINE_MODE.daysDisplay}, ${ONLINE_MODE.hoursDisplay}` },
     ],
     suits: [
       'Follow-ups, where the plan is working and needs reviewing',
@@ -404,7 +376,7 @@ export const BOOKING_STEPS = [
   {
     number: '01',
     title: 'Send a WhatsApp message',
-    body: 'Message Salma Psychiatric Clinic to ask about an appointment with Dr. Shandana Qazi, Consultant Psychiatrist. Say whether you would like to be seen at the clinic or online. The team will confirm availability and the clinic location. No referral letter is needed.',
+    body: 'Message Salma Psychiatric Clinic to ask about an appointment with Dr. Shandana Qazi, Consultant Psychiatrist. Say whether you would like to be seen at RMI or online. The team will confirm availability. No referral letter is needed.',
   },
   {
     number: '02',
@@ -810,11 +782,11 @@ export const PAGE_SEO = {
    */
   appointments: {
     title: 'Appointments: In Person & Online | Dr. S. Qazi',
-    description: `Book an appointment with Dr. Shandana Qazi, psychiatrist in Peshawar: in person at ${VENUE_PHRASE}, or online by video. Hours and fees.`,
+    description: `Book an appointment with Dr. Shandana Qazi, psychiatrist in Peshawar: in person at RMI Hayatabad, or online at Salma Clinic. Hours and fees.`,
   },
   contact: {
     title: 'Contact & Appointments | Psychiatrist in Peshawar',
-    description: `Contact Dr. Shandana Qazi, Consultant Psychiatrist, at ${VENUE_PHRASE}. Arrange appointments on WhatsApp and confirm the clinic location.`,
+    description: `Contact Dr. Shandana Qazi, Consultant Psychiatrist, at ${VENUE_PHRASE}. Arrange appointments on WhatsApp.`,
   },
   privacy: {
     title: 'Privacy Policy | Dr. Shandana Qazi',

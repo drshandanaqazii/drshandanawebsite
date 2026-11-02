@@ -1,47 +1,48 @@
 /**
- * The site's single line-icon family: 1.25px stroke, round caps and joins,
- * authored on a 24×24 grid. One family everywhere — never mix in another set.
+ * The site's icon family: a duotone "glass" set drawn for this site. Each content
+ * icon is a solid base shape (currentColor) with a frosted gilt-tinted glass
+ * layer over it, the gradients for which live once in BaseLayout (#ig-v, #ig-h).
+ * The utility glyphs (arrow, caret, plus, menu, close) remain Phosphor Regular
+ * (MIT, https://phosphoricons.com), single-colour, because they are controls.
  *
- * Lives in a .ts module rather than the .astro component because Astro
- * components cannot export types, and both Icon.astro and Button.astro need
- * `IconName`.
+ * Each entry is the inner markup of a 256×256 viewBox, filled with
+ * currentColor. The 20 content icons are wrapped in <g class="i-m">, the hook
+ * the stylesheet (global.css, "Icons") uses for hover and idle motion. The
+ * utility glyphs (arrow, caret, plus, menu, close) are left static: they are
+ * controls, not illustrations.
+ *
+ * To swap one, copy the SVG's inner markup from the Phosphor set into the
+ * entry below. Lives in a .ts module rather than the .astro component because
+ * Astro components cannot export types, and both Icon.astro and Button.astro
+ * need `IconName`.
  */
 
 export const ICON_PATHS = {
-  arrow:     '<path d="M5 12h14M13 6l6 6-6 6"/>',
-  caret:     '<path d="M6 9l6 6 6-6"/>',
-  plus:      '<path d="M12 5v14M5 12h14"/>',
-  phone:     '<path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2.5 2.5 0 0 1-2.7 2.5A16.5 16.5 0 0 1 3.5 5.7 2.5 2.5 0 0 1 6 3z"/>',
-  mail:      '<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.8 7l7.1 5.2a2 2 0 0 0 2.2 0L20.2 7"/>',
-  pin:       '<path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-  clock:     '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
-  clipboard: '<rect x="9" y="3" width="6" height="3.5" rx="1.2"/><path d="M8 6.5H6.5a1.5 1.5 0 0 0-1.5 1.5v10.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V8a1.5 1.5 0 0 0-1.5-1.5H16"/><path d="M8.5 12h7M8.5 15.5h4.5"/>',
-  capsule:   '<rect x="2.5" y="8" width="19" height="8" rx="4"/><path d="M12 8v8"/>',
-  speech:    '<path d="M4 5.5h9a2.5 2.5 0 0 1 2.5 2.5v5A2.5 2.5 0 0 1 13 15.5H8L4.5 18v-2.5H4a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5z"/><path d="M18 9.5h2a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-.5V20l-2.5-2"/>',
-  moon:      '<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',
-  chart:     '<path d="M3.5 17l4.5-4.5 3.5 2.5L15.5 9l5 3.5"/><path d="M3.5 20.5h17"/>',
-  people:    '<circle cx="9" cy="9" r="3.5"/><circle cx="16.5" cy="14.5" r="3.5"/>',
-  mind:      '<path d="M12 3.5A5.5 5.5 0 0 1 17.5 9c0 2-1.2 3.1-1.8 4.3a4.2 4.2 0 0 0-.4 1.7h-6.6a4.2 4.2 0 0 0-.4-1.7C7.7 12.1 6.5 11 6.5 9A5.5 5.5 0 0 1 12 3.5z"/><path d="M10 18.5h4M10.5 21h3"/>',
-  heart:     '<path d="M12 20s-7.5-4.6-7.5-9.6A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.5 3A11 11 0 0 1 12 20z"/>',
-  /* Plain, no tick inside it. A shield with a checkmark reads as "verified",
-     which is not what the trauma card is saying; empty, it reads as shelter. */
-  shield:    '<path d="M12 3.5l7 2.7v5.4c0 4.2-2.9 7-7 8.9-4.1-1.9-7-4.7-7-8.9V6.2z"/>',
-  /* Radii sized so no arc has to be scaled up to reach its endpoint — an
-     over-tight radius is silently corrected by the renderer, and the shape you
-     get back is not the one you drew. */
-  cloud:     '<path d="M17.4 10.2A7.6 7.6 0 1 0 8.8 19.5h8.6a4.7 4.7 0 0 0 0-9.4z"/>',
-  pulse:     '<path d="M2.5 12.5h4l2.2-5.6 3.7 10.6 2.4-6.1 1.6 3.1h5.1"/>',
-  hourglass: '<path d="M6.5 3.5h11M6.5 20.5h11"/><path d="M8 3.5v3.3c0 2.6 4 3.6 4 5.2s-4 2.6-4 5.2v3.3"/><path d="M16 3.5v3.3c0 2.6-4 3.6-4 5.2s4 2.6 4 5.2v3.3"/>',
-  loop:      '<path d="M4.8 10.2a7.5 7.5 0 0 1 12.6-3.1l2 2"/><path d="M19.2 13.8a7.5 7.5 0 0 1-12.6 3.1l-2-2"/><path d="M19.5 4.5v4.6h-4.6M4.5 19.5v-4.6h4.6"/>',
-  quote:     '<path d="M9.5 6.5C6.9 7.6 5.5 9.7 5.5 12.6v4.9h5.9v-6H8.2c0-1.6.6-2.9 1.9-3.6zM20 6.5c-2.6 1.1-4 3.2-4 6.1v4.9h5.9v-6h-3.2c0-1.6.6-2.9 1.9-3.6z"/>',
-  /* A rosette, not a certificate sheet: a page with a seal on it needs detail
-     at 24px that this stroke weight cannot carry, and it reads as "document"
-     rather than "qualification". The seal sits high so the two ribbon tails
-     have room to fall without crowding the baseline. */
-  rosette:   '<circle cx="12" cy="9" r="5.4"/><path d="M8.3 13.3L7.1 20.8 12 18.5l4.9 2.3-1.2-7.5"/>',
-  menu:      '<path d="M4 7.5h16M4 12h16M4 16.5h16"/>',
-  close:     '<path d="M6 6l12 12M18 6L6 18"/>',
-  whatsapp:  '<path d="M12.04 3.5a8.4 8.4 0 0 0-7.2 12.72L3.75 20.5l4.4-1.05a8.4 8.4 0 1 0 3.89-15.95z"/><path d="M9.2 8.3c.2-.5.4-.5.6-.5h.5c.2 0 .4 0 .6.5l.7 1.6c.1.2 0 .4-.1.5l-.4.5c-.1.2-.2.3-.1.5a5.6 5.6 0 0 0 2.6 2.3c.3.1.4 0 .5-.1l.5-.6c.1-.2.3-.2.5-.1l1.5.8c.2.1.3.2.3.4 0 .6-.4 1.4-1.3 1.6-1 .2-2.4 0-4.2-1.3a8 8 0 0 1-2.6-3.4c-.4-1-.3-1.9.1-2.4z"/>',
+  arrow    : '<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/>',
+  caret    : '<path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>',
+  plus     : '<path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/>',
+  menu     : '<path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/>',
+  close    : '<path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>',
+  phone    : '<g class="i-m"><path class="i-bs" d="M72 78C72 150 106 184 178 184"/><circle class="i-b" cx="72" cy="78" r="38"/><circle class="i-b" cx="178" cy="184" r="38"/><path class="i-gs" style="stroke-width:20" d="M132 36a88 88 0 0 1 88 88"/><path class="i-gs" style="stroke-width:20" d="M132 80a44 44 0 0 1 44 44"/></g>',
+  mail     : '<g class="i-m"><rect class="i-b" x="24" y="72" width="208" height="152" rx="24" /><path class="i-g" stroke-linejoin="round" d="M40 72H216L128 156Z"/></g>',
+  pin      : '<g class="i-m"><ellipse class="i-b" cx="128" cy="206" rx="92" ry="30"/><path class="i-g" fill-rule="evenodd" d="M128 20a72 72 0 0 1 72 72c0 44-48 92-72 120-24-28-72-76-72-120a72 72 0 0 1 72-72ZM128 70a24 24 0 1 0 0 48 24 24 0 0 0 0-48Z"/></g>',
+  clock    : '<g class="i-m"><circle class="i-b" cx="128" cy="128" r="104"/><path class="i-g" stroke-linejoin="round" d="M118 60h20v60h52v20h-72Z"/></g>',
+  clipboard: '<g class="i-m"><rect class="i-b" x="48" y="40" width="160" height="200" rx="28" /><rect class="i-g" x="84" y="20" width="88" height="52" rx="18" /><rect class="i-g i-gh" x="80" y="124" width="96" height="18" rx="9" /><rect class="i-g i-gh" x="80" y="168" width="64" height="18" rx="9" /></g>',
+  capsule  : '<g class="i-m"><g transform="rotate(-45 128 128)"><rect class="i-b" x="24" y="84" width="208" height="88" rx="44" /><path class="i-g"  d="M128 84h60a44 44 0 0 1 0 88h-60Z"/></g></g>',
+  speech   : '<g class="i-m"><rect class="i-b" x="24" y="36" width="160" height="128" rx="32" /><path class="i-b"  d="M56 164v52l56-52Z"/><rect class="i-g i-gh" x="92" y="92" width="140" height="112" rx="30" /><path class="i-g i-gh"  d="M196 204v44l-48-44Z"/></g>',
+  moon     : '<g class="i-m"><path class="i-b"  d="M148 24A104 104 0 1 0 232 160 88 88 0 0 1 148 24Z"/><circle class="i-g" cx="188" cy="76" r="40"/></g>',
+  chart    : '<g class="i-m"><rect class="i-b" x="36" y="136" width="52" height="96" rx="14" /><rect class="i-b" x="102" y="84" width="52" height="148" rx="14" /><rect class="i-b" x="168" y="36" width="52" height="196" rx="14" /><rect class="i-g" x="20" y="150" width="216" height="92" rx="26" /></g>',
+  people   : '<g class="i-m"><circle class="i-b" cx="92" cy="84" r="44"/><path class="i-b"  d="M20 224a72 72 0 0 1 144 0Z"/><circle class="i-g i-gh" cx="172" cy="100" r="38"/><path class="i-g"  d="M108 224a62 62 0 0 1 124 0Z"/></g>',
+  mind     : '<g class="i-m"><circle class="i-b" cx="100" cy="116" r="76"/><rect class="i-b" x="112" y="168" width="32" height="68" rx="16" /><circle class="i-g i-gh" cx="160" cy="116" r="68"/></g>',
+  heart    : '<g class="i-m"><path class="i-b"  d="M128 228C40 164 20 124 20 88a56 56 0 0 1 108-20 56 56 0 0 1 108 20c0 36-20 76-108 140Z"/><path class="i-g"  d="M168 228C128 200 108 176 108 152a32 32 0 0 1 60-14 32 32 0 0 1 60 14c0 24-20 48-60 76Z"/></g>',
+  shield   : '<g class="i-m"><path class="i-b"  d="M128 20l92 34v68c0 56-40 92-92 114C76 214 36 178 36 122V54Z"/><path class="i-g" class="i-g i-gh" d="M128 20l92 34v68c0 56-40 92-92 114Z"/></g>',
+  cloud    : '<g class="i-m"><rect class="i-b" x="24" y="112" width="196" height="100" rx="50" /><circle class="i-b" cx="100" cy="112" r="56"/><circle class="i-g" cx="164" cy="104" r="64"/></g>',
+  pulse    : '<g class="i-m"><circle class="i-b" cx="128" cy="128" r="108"/><path class="i-gs" fill="none" d="M44 132h44l28-52 36 100 28-48h32"/></g>',
+  hourglass: '<g class="i-m"><rect class="i-b" x="40" y="20" width="176" height="24" rx="12" /><rect class="i-b" x="40" y="212" width="176" height="24" rx="12" /><path class="i-b"  d="M56 232h144l-72-104Z"/><path class="i-g"  d="M56 44h144l-72 100Z"/></g>',
+  loop     : '<g class="i-m"><path class="i-b" fill-rule="evenodd" d="M128 20a108 108 0 1 0 0 216 108 108 0 0 0 0-216Zm0 44a64 64 0 1 1 0 128 64 64 0 0 1 0-128Z"/><path class="i-g" stroke-linejoin="round" d="M168 20l60 56-80 12Z"/><circle class="i-g i-gh" cx="128" cy="128" r="36"/></g>',
+  quote    : '<g class="i-m"><rect class="i-b" x="20" y="56" width="100" height="100" rx="24" /><path class="i-b"  d="M20 124h40v76L20 160Z"/><rect class="i-g i-gh" x="136" y="56" width="100" height="100" rx="24" /><path class="i-g i-gh"  d="M136 124h40v76l-40-40Z"/></g>',
+  rosette  : '<g class="i-m"><path class="i-b" stroke-linejoin="round" d="M72 150L52 240l76-30 76 30-20-90Z"/><circle class="i-g" cx="128" cy="100" r="80"/></g>',
+  whatsapp : '<g class="i-m"><circle class="i-b" cx="128" cy="120" r="104"/><path class="i-b" d="M32 236l18-68 50 44Z"/><path class="i-gs" style="stroke-width:26" d="M94 90C94 138 114 158 160 158"/><circle class="i-g" cx="94" cy="90" r="24"/><circle class="i-g" cx="160" cy="158" r="24"/></g>',
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

@@ -66,7 +66,7 @@
   --container:        1200px;
   --container-narrow:  640px;
   --gutter:            24px;
-  --section-y:        clamp(80px, 9vw, 140px);
+  --section-y:        clamp(60px, 7vw, 104px);
 
   /* Shape */
   --r-pill: 999px;
@@ -522,14 +522,78 @@ a { color: var(--amethyst-900); text-underline-offset: 3px; }
 
 .icon {
   width: 24px; height: 24px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.25;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: currentColor;
+  stroke: none;
+  overflow: visible;
 }
 .icon--sm { width: 15px; height: 15px; }
 .icon--lg { width: 32px; height: 32px; }
+
+/* --------------------------------------------------------------------------
+   Icons — motion
+   The drawings live in lib/icons.ts. Each content icon has one moving part,
+   .i-m, which gestures when whatever the icon sits in is hovered or focused.
+   -------------------------------------------------------------------------- */
+
+.icon .i-m { transform-box: fill-box; transform-origin: center; }
+.icon--chart .i-m { transform-origin: 50% 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon--heart .i-m { animation: i-beat 3.2s ease-in-out infinite; }
+
+  :is(a, button, article, li, summary, label):hover .icon--phone .i-m,
+  .icon--phone:hover .i-m { animation: i-ring .8s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--mail .i-m,
+  .icon--mail:hover .i-m { animation: i-bob .6s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--pin .i-m,
+  .icon--pin:hover .i-m { animation: i-bounce .7s var(--ease); }
+  :is(a, button, article, li, summary, label):hover .icon--clock .i-m,
+  .icon--clock:hover .i-m { animation: i-swell .5s var(--ease) forwards; }
+  :is(a, button, article, li, summary, label):hover .icon--clipboard .i-m,
+  .icon--clipboard:hover .i-m { animation: i-bob .6s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--capsule .i-m,
+  .icon--capsule:hover .i-m { animation: i-rock .7s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--speech .i-m,
+  .icon--speech:hover .i-m { animation: i-bob .6s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--moon .i-m,
+  .icon--moon:hover .i-m { animation: i-tilt .8s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--chart .i-m,
+  .icon--chart:hover .i-m { animation: i-grow .6s var(--ease); }
+  :is(a, button, article, li, summary, label):hover .icon--people .i-m,
+  .icon--people:hover .i-m { animation: i-bob .6s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--mind .i-m,
+  .icon--mind:hover .i-m { animation: i-swell .5s var(--ease) forwards; }
+  :is(a, button, article, li, summary, label):hover .icon--heart .i-m,
+  .icon--heart:hover .i-m { animation: i-beat .9s ease-in-out infinite; }
+  :is(a, button, article, li, summary, label):hover .icon--shield .i-m,
+  .icon--shield:hover .i-m { animation: i-swell .5s var(--ease) forwards; }
+  :is(a, button, article, li, summary, label):hover .icon--cloud .i-m,
+  .icon--cloud:hover .i-m { animation: i-drift 1.2s ease-in-out infinite; }
+  :is(a, button, article, li, summary, label):hover .icon--pulse .i-m,
+  .icon--pulse:hover .i-m { animation: i-beat .9s ease-in-out infinite; }
+  :is(a, button, article, li, summary, label):hover .icon--hourglass .i-m,
+  .icon--hourglass:hover .i-m { animation: i-flip .7s var(--ease) forwards; }
+  :is(a, button, article, li, summary, label):hover .icon--loop .i-m,
+  .icon--loop:hover .i-m { animation: i-turn 1s var(--ease); }
+  :is(a, button, article, li, summary, label):hover .icon--quote .i-m,
+  .icon--quote:hover .i-m { animation: i-bob .6s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--rosette .i-m,
+  .icon--rosette:hover .i-m { animation: i-tilt .8s ease-in-out; }
+  :is(a, button, article, li, summary, label):hover .icon--whatsapp .i-m,
+  .icon--whatsapp:hover .i-m { animation: i-swell .5s var(--ease) forwards; }
+
+  @keyframes i-ring   { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-16deg); } 40% { transform: rotate(14deg); } 60% { transform: rotate(-10deg); } 80% { transform: rotate(6deg); } }
+  @keyframes i-bounce { 0%,100% { transform: translateY(0); } 35% { transform: translateY(-12%); } 65% { transform: translateY(0); } 82% { transform: translateY(-4%); } }
+  @keyframes i-turn   { to { transform: rotate(360deg); } }
+  @keyframes i-rock   { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-16deg); } 70% { transform: rotate(14deg); } }
+  @keyframes i-tilt   { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-16deg); } }
+  @keyframes i-grow   { from { transform: scaleY(.6); } to { transform: scaleY(1); } }
+  @keyframes i-bob    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8%); } }
+  @keyframes i-beat   { 0%,100% { transform: scale(1); } 12% { transform: scale(1.12); } 24% { transform: scale(1); } 36% { transform: scale(1.07); } 48% { transform: scale(1); } }
+  @keyframes i-swell  { to { transform: scale(1.1); } }
+  @keyframes i-drift  { 0%,100% { transform: translateX(0); } 50% { transform: translateX(7%); } }
+  @keyframes i-flip   { to { transform: rotate(180deg); } }
+}
 
 .arch {
   border-radius: var(--r-arch);
@@ -633,3 +697,15 @@ a { color: var(--amethyst-900); text-underline-offset: 3px; }
     transition-duration: .01ms !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Icons — duotone glass
+   Base shape is currentColor; the glass layer is a gilt-tinted gradient
+   (defined once in BaseLayout as #ig-v and #ig-h) that fades toward where it
+   overlaps the base, like frosted glass laid over a solid shape.
+   -------------------------------------------------------------------------- */
+
+.icon .i-g { fill: url(#ig-v); }
+.icon .i-g.i-gh { fill: url(#ig-h); }
+.icon .i-gs { stroke: url(#ig-v); stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.icon .i-bs { fill: none; stroke: currentColor; stroke-width: 44; stroke-linecap: round; stroke-linejoin: round; }

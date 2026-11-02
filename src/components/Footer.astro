@@ -47,16 +47,11 @@ const year = new Date().getFullYear();
             <Icon name="mail" size="sm" />
             <a href={`mailto:${PRACTICE.email}`}>{PRACTICE.email}</a>
           </li>
-          {BOOKING_VENUE.hoursDisplay && <li>
+          <li>
             <Icon name="clock" size="sm" />
-            <span>{BOOKING_VENUE.hoursDisplay}</span>
-          </li>}
+            <span>{PRACTICE.hoursDisplay}</span>
+          </li>
         </ul>
-
-        {SALMA.located && <address class="footer__address">
-          {BOOKING_VENUE.address.street},<br />
-          {BOOKING_VENUE.address.locality}, {BOOKING_VENUE.address.region}, Pakistan
-        </address>}
       </div>
 
       {/* Three columns of links rather than one flat row. With nine service
@@ -65,12 +60,13 @@ const year = new Date().getFullYear();
           which is also what a crawler needs from a footer. */}
       <nav class="footer__nav" aria-label="Footer">
         {FOOTER_NAV.map((group) => (
-          <div class="footer__group">
+          <div class={`footer__group${group.heading === "Also treated" ? " footer__group--also" : ""}`}>
             <h2 class="footer__heading">{group.heading}</h2>
             <ul>
               {group.links.map((link) => (
                 <li><a href={link.href}>{link.label}</a></li>
               ))}
+              {group.heading === 'Services' && <li class="footer__all"><a href="/services">All services</a></li>}
             </ul>
           </div>
         ))}
@@ -293,11 +289,14 @@ const year = new Date().getFullYear();
     font-size: 0.8125rem;
   }
 
+  .footer__all { display: none; }
   @media (max-width: 900px) {
     .footer__top { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 560px) {
+    .footer__all { display: list-item; }
+    .footer__group--also { display: none; }
     .footer__nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>

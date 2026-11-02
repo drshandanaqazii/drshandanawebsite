@@ -13,17 +13,6 @@ import { SERVICE_IMAGES, DEFAULT_PAN } from '../lib/service-images';
       <h2 class="display-lg" id="services-heading" data-reveal>
         What she <em>treats</em>.
       </h2>
-      {/* The three conditions without a card are named here rather than left
-          out: someone searching for any of them should still find them on the
-          homepage, and a seventh card would break the two rows of three. Each
-          is a link, so the sentence is also the route to those pages. */}
-      <p class="prose" style="margin-top: var(--s-2);" data-reveal>
-        Adolescent and adult psychiatry, with particular attention to female mental health.
-        <a href="/services/ocd">Obsessive–compulsive disorder</a>,
-        <a href="/services/psychosis">psychotic disorders</a> and
-        <a href="/services/adolescent-mental-health">adolescent mental health</a> are
-        treated too. If what you are dealing with is not below, it is still worth asking.
-      </p>
     </div>
 
     {/* Cards rise a little as a group; each photograph pans further inside its
@@ -164,6 +153,7 @@ import { SERVICE_IMAGES, DEFAULT_PAN } from '../lib/service-images';
   }
 
   @media (max-width: 640px) {
+    .services__all { justify-content: flex-start; }
     .cards { grid-template-columns: 1fr; }
   }
 

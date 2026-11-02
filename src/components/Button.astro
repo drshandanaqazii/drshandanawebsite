@@ -10,6 +10,8 @@ interface Props {
   /** Set for tel:, wa.me and other off-site destinations. */
   external?: boolean;
   ariaLabel?: string;
+  /** Opens the booking dialog instead of following `href` (which stays as the no-JS fallback). A mode preselects it. */
+  book?: boolean | 'in-person' | 'salma' | 'online';
 }
 
 const {
@@ -19,6 +21,7 @@ const {
   class: className = '',
   external = false,
   ariaLabel,
+  book = false,
 } = Astro.props;
 
 const rel = external ? 'noopener noreferrer' : undefined;
@@ -31,6 +34,7 @@ const target = external && href.startsWith('http') ? '_blank' : undefined;
   rel={rel}
   target={target}
   aria-label={ariaLabel}
+  data-book={book === true ? '' : book || undefined}
 >
   <span class="btn__text"><slot /></span>
   <span class="btn__arrow"><Icon name={icon} size="sm" /></span>

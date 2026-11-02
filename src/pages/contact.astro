@@ -10,22 +10,22 @@ import {
   PRACTICE,
   SALMA,
   BOOKING_VENUE,
-  BOOKING_AREA,
+  RMI_VENUE,
   DOCTOR,
 } from '../consts';
 import { UAN_HREF, WHATSAPP_HREF, MAIL_HREF } from '../lib/practice-links';
 
 const trail = [{ name: 'Contact', href: '/contact' }];
 
-/* WhatsApp is the direct route for arranging appointments at Salma's clinic. */
+/* Appointments go through the booking dialog; email is for documents only. */
 const CHANNELS = [
   {
-    icon: 'whatsapp',
-    label: 'Book on WhatsApp',
-    value: SALMA.whatsappDisplay,
-    href: WHATSAPP_HREF,
-    external: true,
-    note: 'Ask about appointment availability and confirm the clinic location with the team.',
+    icon: 'clipboard',
+    label: 'Book an appointment',
+    value: 'Choose a day and time',
+    href: '/appointments',
+    book: true,
+    note: 'Pick online or in person, choose a time, and the team will confirm it.',
   },
   {
     icon: 'mail',
@@ -61,7 +61,7 @@ const time = (t: string) => {
     trail={trail}
     title="Start with one"
     titleEm="conversation"
-    lede={`Appointments with ${DOCTOR.name} are arranged at ${SALMA.name}. Message on WhatsApp to ask about availability and confirm where to go.`}
+    lede={`Appointments with ${DOCTOR.name} are arranged at ${SALMA.name}. Book a time online and the clinic will confirm it.`}
     scrollTo="channels"
     scrollLabel="Scroll to how to get in touch"
   />
@@ -76,6 +76,7 @@ const time = (t: string) => {
             <a
               class="channel__link"
               href={c.href}
+              data-book={'book' in c ? '' : undefined}
               rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
               target={c.href.startsWith('http') ? '_blank' : undefined}
             >
@@ -91,14 +92,14 @@ const time = (t: string) => {
   </section>
 
   <section class="section section--band" aria-labelledby="where-heading">
-    <div class="container where" class:list={{ 'where--no-map': !SALMA.located }}>
-      {SALMA.located && <PracticeMap />}
+    <div class="container where">
+      <PracticeMap />
 
       <div class="where__copy" data-reveal-group>
         <div class="section-head" style="margin-bottom: var(--s-5);">
           <p class="eyebrow" data-reveal>The clinic</p>
           <h2 class="display-md" id="where-heading" data-reveal>
-            {SALMA.name}, <em>Peshawar</em>
+            {BOOKING_VENUE.name}, <em>and RMI</em>
           </h2>
         </div>
 
@@ -108,14 +109,14 @@ const time = (t: string) => {
             local ranking. Everything here comes from BOOKING_VENUE in consts.ts,
             which is also what feeds the schema. */}
         <dl class="details" data-reveal>
-          <div><dt><Icon name="pin" size="sm" /> Appointment location</dt><dd>{SALMA.located ? <address>{BOOKING_VENUE.address.street}, {BOOKING_VENUE.address.locality}</address> : 'The clinic will confirm its address when you arrange your appointment.'}</dd></div>
-          {BOOKING_VENUE.hoursDisplay && <div><dt><Icon name="clock" size="sm" /> Clinic hours</dt><dd>{BOOKING_VENUE.hoursDisplay}</dd></div>}
+          <div><dt><Icon name="pin" size="sm" /> Appointment location</dt><dd>{BOOKING_VENUE.name}: by video, from anywhere.<br /><address>In person at {PRACTICE.address.street}, {PRACTICE.address.locality}</address></dd></div>
+          <div><dt><Icon name="clock" size="sm" /> Clinic hours</dt><dd>{PRACTICE.hoursDisplay}</dd></div>
           <div><dt><Icon name="whatsapp" size="sm" /> WhatsApp</dt><dd><a href={WHATSAPP_HREF} rel="noopener noreferrer" target="_blank">{SALMA.whatsappDisplay}</a></dd></div>
           <div><dt><Icon name="speech" size="sm" /> Languages</dt><dd>{DOCTOR.languages.join(', ')}</dd></div>
         </dl>
 
         <div class="where__actions" data-reveal>
-          <Button href={WHATSAPP_HREF} icon="whatsapp" external>Book on WhatsApp</Button>
+          <Button href="/appointments" book>Book an appointment</Button>
           <Button href={MAIL_HREF} variant="ghost" icon="mail">Email</Button>
         </div>
       </div>
@@ -137,8 +138,8 @@ const time = (t: string) => {
             "ask at reception" is advice that only happens to be true of a
             hospital, and at a small clinic it sends someone to a desk that is
             not there. */}
-        {BOOKING_VENUE.directions.length > 0 ? (
-          BOOKING_VENUE.directions.map((para) => <p data-reveal>{para}</p>)
+        {RMI_VENUE.directions.length > 0 ? (
+          RMI_VENUE.directions.map((para) => <p data-reveal>{para}</p>)
         ) : (
           <p data-reveal>
             The clinic will confirm its address when you arrange your appointment on WhatsApp.
@@ -250,7 +251,7 @@ const time = (t: string) => {
     color: var(--ink-muted);
     font-size: var(--fs-body-sm);
   }
-  .details dt :global(.icon) { flex: 0 0 auto; }
+  .details dt :global(.icon) { flex: 0 0 auto; width: 22px; height: 22px; }
   .details dd {
     color: var(--ink);
     font-size: var(--fs-body-sm);

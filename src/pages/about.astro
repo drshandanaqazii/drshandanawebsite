@@ -4,6 +4,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MediaHeader from '../components/MediaHeader.astro';
 import CtaBand from '../components/CtaBand.astro';
 import TeachingExplorer from '../components/TeachingExplorer.astro';
+import ClinicGallery from '../components/ClinicGallery.astro';
+import type { ClinicPhoto } from '../data/clinic-gallery';
 import Button from '../components/Button.astro';
 import Icon from '../components/Icon.astro';
 import {
@@ -20,6 +22,17 @@ import {
 import portrait from '../assets/about-main-portrait.jpeg';
 
 import heroImage from '../assets/about-shandana.webp';
+import convo1 from '../assets/convocation-1.jpeg';
+import convo2 from '../assets/convocation-2.jpeg';
+import convo3 from '../assets/convocation-3.jpeg';
+
+/* Convocation photographs, supplied by Dr. Qazi. `position` keeps her in frame
+   when the crop trims the sides. */
+const CONVOCATION: ClinicPhoto[] = [
+  { src: convo2, alt: `${DOCTOR.name} in convocation gown holding her certificate, with faculty on stage`, position: '55% 30%' },
+  { src: convo1, alt: `${DOCTOR.name} receiving her certificate at the College of Physicians and Surgeons Pakistan convocation`, position: '50% 30%' },
+  { src: convo3, alt: `${DOCTOR.name} smiling as she leaves the stage with her certificate`, position: '42% 30%' },
+];
 
 const trail = [{ name: 'About', href: '/about' }];
 
@@ -139,9 +152,7 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
               </>
             ) : (
               <>
-                Practising at {BOOKING_VENUE.name} in {BOOKING_AREA}, and Consultant
-                Psychiatrist at{' '}
-                {PRACTICE.affiliation}.
+                Practising in person at {PRACTICE.affiliation} in {BOOKING_AREA}, and online at {BOOKING_VENUE.name}.
               </>
             )}
           </p>
@@ -231,6 +242,17 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
           is just a list of assertions. */}
     </div>
   </section>
+
+  <ClinicGallery
+    id="convocation"
+    photos={CONVOCATION}
+    eyebrow="A milestone"
+    title="Fellowship"
+    titleEm="convocation"
+    label="Convocation photo gallery"
+    note="Receiving her certificate at the College of Physicians and Surgeons Pakistan convocation."
+    landscape
+  />
 
   {/* Portrait cards reveal each role and its related teaching session. */}
   <section class="section" id="teaching" aria-labelledby="teaching-heading">
@@ -985,5 +1007,10 @@ const QUADRANTS = ['tl', 'tr', 'bl', 'br'] as const;
       top: calc(var(--stack-top) + var(--stack-step) * 3);
       margin-bottom: 0;
     }
+  }
+
+  /* The "What she treats" cloud is desktop-only: hidden on tablets and phones. */
+  @media (max-width: 1024px) {
+    .focus-section { display: none; }
   }
 </style>

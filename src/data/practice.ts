@@ -54,15 +54,15 @@ export const PRACTICE = {
   email: 'shandana.qazi@rmi.edu.pk',
 
   /**
-   * ⚠️ PLACEHOLDER — RMI does not publish per-consultant OPD hours.
-   * These drive `openingHoursSpecification` in the schema. Google penalises
-   * hours that don't match reality, so replace before launch.
+   * Supplied by Dr. Qazi: RMI on weekdays, the online clinic at weekends.
+   * These drive `openingHoursSpecification` in the schema, and must stay in
+   * step with src/data/booking.ts, which the booking dialog reads.
    */
   hours: [
-    { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'], opens: '09:00', closes: '14:00' },
-    { days: ['Saturday'], opens: '09:00', closes: '13:00' },
+    { days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '10:00', closes: '15:00' },
+    { days: ['Saturday', 'Sunday'], opens: '12:00', closes: '17:00' },
   ],
-  hoursDisplay: 'Mon–Thu, 9:00 am – 2:00 pm · Sat, 9:00 am – 1:00 pm',
+  hoursDisplay: 'Mon–Fri, 10:00 am – 3:00 pm (RMI, Hayatabad) · Sat–Sun, 12:00 pm – 5:00 pm (Salma Clinic, online)',
 } as const;
 
 /* --------------------------------------------------------------------------
@@ -81,13 +81,10 @@ export const PRACTICE = {
    The WhatsApp appointment number has been supplied. The street address and
    opening hours have not, so those stay unpublished until verified.
 
-   `story` is the one part that cannot be written here at all. The clinic is
-   named after someone, Dr. Qazi is writing that piece herself, and a stand-in
-   paragraph of invented biography under a real person's name is the single worst
-   thing this site could publish. `story.published` is therefore false, and while
-   it is false the page prints an honest short line instead and the section of
-   the page that would carry the story is not rendered. Paste her copy into
-   `story.body`, set `published: true`, and the section appears.
+   `story` is Dr. Qazi's own account of why the clinic is named Salma. It is her
+   copy, supplied by her and published verbatim (only typography tidied). Do not
+   paraphrase or embellish it: it concerns a real person. Setting
+   `story.published` to false hides the section.
 
    The address and hours remain unverified. While `located` is false, pages
    still name Salma as the primary clinic, omit map/address/hours and ask patients
@@ -121,27 +118,32 @@ export const SALMA = {
    * written for her. See the block comment above before touching this.
    */
   story: {
-    published: false,
-    /** Her copy goes here. Paragraphs as separate strings, not one blob. */
-    body: [] as string[],
+    published: true,
+    /** Her copy, supplied by Dr. Qazi. Paragraphs as separate strings, not one blob. */
+    body: [
+      '“Salma” literally means “peace”. It was also the name of my late aunt, who was very dear to me. More importantly, her passing left a profound realisation in me: that our community requires mental health awareness and support now more than ever before. She was a victim of long term mental illness and suicide. (May Allah bless her soul.)',
+      'There are many smiling faces amongst us who suffer silently, and who are in need of an approachable, non-judgemental and warm space where they can ventilate their emotions and gain better perspectives.',
+      'Salma Psychiatric Clinic aims to provide that, with individualised management plans catering to personal growth, resilience building and optimisation of stress coping.',
+      'Because we can’t erase “stress”, but we can build the muscle to fight it!',
+    ] as string[],
     /** Printed while `published` is false. Says nothing it cannot support. */
     placeholder:
       'The clinic is named after someone. Dr. Qazi is writing that piece herself, and it will be published here in her own words rather than paraphrased in ours.',
   },
 
-  /** Salma is the booking venue; retain the existing clinic location on the map. */
-  located: true,
+  /** Salma is an online clinic with no building, so it has no address, map pin or neighbourhood. */
+  located: false,
 
   /**
    * ⚠️ PLACEHOLDER — the neighbourhood, for headings and the map card.
    * "Hayatabad", "University Town", "Saddar". The city on its own is too coarse
    * to help anyone decide which way to set off.
    */
-  area: 'Hayatabad',
+  area: '',
 
   /** ⚠️ PLACEHOLDER — every field. Not rendered while `located` is false. */
   address: {
-    street: '5-B/2, Phase-V, Hayatabad',
+    street: '',
     locality: PRACTICE.address.locality,
     region: PRACTICE.address.region,
     postalCode: PRACTICE.address.postalCode,
@@ -156,8 +158,8 @@ export const SALMA = {
   phoneDisplay: '',
 
   /** ⚠️ PLACEHOLDER — clinic hours not supplied. */
-  hours: PRACTICE.hours,
-  hoursDisplay: PRACTICE.hoursDisplay,
+  hours: [{ days: ['Saturday', 'Sunday'], opens: '12:00', closes: '17:00' }] as const,
+  hoursDisplay: 'Sat–Sun, 12:00 pm – 5:00 pm (online)',
 } as const;
 
 /* --------------------------------------------------------------------------
@@ -227,7 +229,7 @@ export interface Venue {
   directions: readonly string[];
 }
 
-const RMI_VENUE: Venue = {
+export const RMI_VENUE: Venue = {
   name: PRACTICE.affiliation,
   shortName: PRACTICE.affiliationShort,
   area: 'Hayatabad',
@@ -238,15 +240,15 @@ const RMI_VENUE: Venue = {
   hours: PRACTICE.hours,
   hoursDisplay: PRACTICE.hoursDisplay,
   directions: [
-    'Rehman Medical Institute is on 5-B/2, Phase-V, Hayatabad, on the western side of Peshawar. It is well known locally and every rickshaw and taxi driver in the city will recognise the name; if you are driving, the map above will take you to the gate. Parking is on site.',
+    'Rehman Medical Institute is on 5-B/2, Phase-V, Hayatabad, on the western side of Peshawar. It is well known locally and every rickshaw and taxi driver in the city will recognise the name; if you are driving, search for it on Google Maps. Parking is on site.',
     'Psychiatry consultations are held in the outpatient department. Ask at reception for Dr. Shandana Qazi, Consultant Psychiatrist, and you will be directed. Arriving ten or fifteen minutes early leaves room for registration without eating into the appointment itself.',
   ],
 };
 
 const SALMA_VENUE: Venue = {
-  name: SALMA.name,
+  name: 'Salma Clinic',
   shortName: SALMA.shortName,
-  /** ⚠️ PLACEHOLDER — set to the clinic's neighbourhood with the address. */
+
   area: SALMA.area,
   href: '/salma',
   address: SALMA.address,
@@ -255,7 +257,7 @@ const SALMA_VENUE: Venue = {
   phoneDisplay: SALMA.phoneDisplay,
   hours: SALMA.hours,
   hoursDisplay: SALMA.hoursDisplay,
-  /** ⚠️ PLACEHOLDER — write these with the address. See the note on the field. */
+
   directions: [],
 };
 
@@ -266,10 +268,10 @@ const SALMA_VENUE: Venue = {
 export const BOOKING_VENUE: Venue = SALMA_VENUE;
 
 /**
- * "Hayatabad" — the neighbourhood if the venue has one, the city if not.
+ * "Hayatabad" — RMI's neighbourhood. Salma Clinic is online and has none.
  * Printed wherever a heading names the place rather than addressing an envelope.
  */
-export const BOOKING_AREA = BOOKING_VENUE.area || BOOKING_VENUE.address.locality;
+export const BOOKING_AREA = RMI_VENUE.area || RMI_VENUE.address.locality;
 
 /**
  * Whether Rehman Medical Institute is still offered as somewhere to book.
@@ -307,12 +309,6 @@ export const RMI_BOOKABLE = false;
  * world it is — every service page description opens "… in Peshawar", and
  * VENUE_PHRASE would print the city a second time in the same sentence.
  */
-export const VENUE_NAME = BOOKING_VENUE.name;
+export const VENUE_NAME = `${PRACTICE.affiliationShort} and ${BOOKING_VENUE.name}`;
 
-export const VENUE_PHRASE = [
-  BOOKING_VENUE.name,
-  BOOKING_VENUE.area,
-  BOOKING_VENUE.address.locality,
-]
-  .filter(Boolean)
-  .join(', ');
+export const VENUE_PHRASE = `${PRACTICE.affiliationShort} Hayatabad and ${BOOKING_VENUE.name}`;

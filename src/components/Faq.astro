@@ -17,7 +17,6 @@
 import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import { FAQS, ALL_FAQS, DOCTOR, BOOKING_VENUE } from '../consts';
-import { WHATSAPP_HREF } from '../lib/practice-links';
 import portrait from '../assets/shandana-portrait.png';
 ---
 
@@ -50,8 +49,8 @@ import portrait from '../assets/shandana-portrait.png';
         </p>
 
         <div class="faq__card-cta">
-          <Button href={WHATSAPP_HREF} icon="whatsapp" external>
-            Book on WhatsApp
+          <Button href="/appointments" book>
+            Book an appointment
           </Button>
         </div>
       </div>
